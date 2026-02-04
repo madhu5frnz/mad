@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Update Portal</title>
+
+<style>
+body{
+font-family: Arial;
+background:#f4f6f9;
+margin:0;
+}
+
+.container{
+width:90%;
+max-width:1000px;
+margin:auto;
+margin-top:40px;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input,button{
+padding:10px;
+margin:5px;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:left;
+}
+
+th{
+background:#2563eb;
+color:white;
+}
+
+.logout{
+float:right;
+background:red;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="loginDiv">
+<h2>Login</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<br>
+<button onclick="login()">Login</button>
+<p id="loginMsg" style="color:red;"></p>
+</div>
+
+<div class="container" id="mainDiv" style="display:none;">
+<h2>Priority Project Updates</h2>
+<button class="logout" onclick="logout()">Logout</button>
+
+<table id="dataTable">
+<thead>
+<tr>
+<th>Project Name</th>
+<th>Target</th>
+<th>Progress</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button onclick="addRow()">Add Row</button>
+<button onclick="saveData()">Save Data</button>
+</div>
+
+<script>
+
+// 6 LOGINS
+const users = [
+{u:"admin",p:"admin123"},
+{u:"user1",p:"pass1"},
+{u:"user2",p:"pass2"},
+{u:"user3",p:"pass3"},
+{u:"user4",p:"pass4"},
+{u:"user5",p:"pass5"}
+];
+
+function login(){
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
+
+let ok = users.find(x=>x.u===u && x.p===p);
+
+if(ok){
+document.getElementById("loginDiv").style.display="none";
+document.getElementById("mainDiv").style.display="block";
+loadData();
+}else{
+document.getElementById("loginMsg").innerText="Invalid Login";
+}
+}
+
+function logout(){
+location.reload();
+}
+
+// TABLE FUNCTIONS
+function addRow(data={}){
+let tbody=document.querySelector("#dataTable tbody");
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td contenteditable>${data.project||""}</td>
+<td contenteditable>${data.target||""}</td>
+<td contenteditable>${data.progress||""}</td>
+<td contenteditable>${data.remarks||""}</td>
+`;
+
+tbody.appendChild(tr);
+}
+
+function saveData(){
+let rows=document.querySelectorAll("#dataTable tbody tr");
+let data=[];
+
+rows.forEach(r=>{
+let cells=r.querySelectorAll("td");
+data.push({
+project:cells[0].innerText,
+target:cells[1].innerText,
+progress:cells[2].innerText,
+remarks:cells[3].innerText
+});
+});
+
+localStorage.setItem("projectData",JSON.stringify(data));
+alert("Saved!");
+}
+
+function loadData(){
+let data=JSON.parse(localStorage.getItem("projectData")||"[]");
+
+if(data.length===0){
+addRow();
+}else{
+data.forEach(d=>addRow(d));
+}
+}
+
+</script>
+
+</body>
+</html>
