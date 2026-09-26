@@ -121,7 +121,7 @@
       cur = BD.design(state);
       est = BD.estimate(cur, { rates });
     } catch (err) {
-      $('#status').innerHTML = `<div class="badge bad">Could not compute: ${esc(err.message)}</div>`;
+      $('#status').innerHTML = `<div class="fixbox">Could not compute: ${esc(err.message)}</div>`;
       return;
     }
     save(STORE, state);
@@ -137,65 +137,82 @@
     const fails = [];
     for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
     const R = cur.R;
-    const gov = R.govM.veh.name;
-      $('#status').innerHTML =
-      `<div class="status-head"><div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
-      `<span class="gov">Governing live load: ${esc(gov)}</span></div>` +
-      `<div class="status-body"><figure class="xsec">${sectionSVG()}<figcaption>Section across the canal, drawn to scale from your inputs</figcaption></figure>` +
-      `<div class="kpis">
-        <div><span>Bridge</span><b>${R.typ}</b><small>${fmt(state.span, 2)} m clear span × ${fmt(R.B, 2)} m wide</small></div>
-        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)} mm</b><small>${state.mainDia} mm dia @ ${state.mainSpacing} c/c main</small></div>
-        <div><span>Base pressure</span><b>${fmt(R.abWorst.pmax, 2)} t/m²</b><small>SBC ${state.sbc} t/m² · FOS ${fmt(R.abWorst.fosO, 2)} / ${fmt(R.abWorst.fosS, 2)}</small></div>
-        <div><span>Estimate</span><b>Rs ${est.lakhs.toFixed(2)} lakhs</b><small>SSR 2026-27, incl. GST</small></div>
-      </div></div>` +
-      (fails.length ? `<div class="fixbox"><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Click <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
+    const nChecks = cur.sections.reduce((n, s) => n + s.rows.filter((r) => r.check).length, 0);
+    $('#xsec').innerHTML = sectionSVG();
+    $('#xsec-title').textContent = `${R.typ} · Km ${state.chainage}`;
+    $('#badge').className = 'badge ' + (fails.length ? 'bad' : 'ok');
+    $('#badge').textContent = fails.length ? `${fails.length} of ${nChecks} checks need revision` : `All ${nChecks} design checks OK`;
+    $('#kpis').innerHTML = `
+        <div><span>Clear span</span><b>${fmt(state.span, 2)}<i>m</i></b><small>${fmt(R.B, 2)} m wide deck</small></div>
+        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)}<i>mm</i></b><small>${state.mainDia} dia @ ${state.mainSpacing} c/c</small></div>
+        <div><span>Base pressure</span><b>${fmt(R.abWorst.pmax, 2)}<i>t/m²</i></b><small>SBC ${state.sbc} · FOS ${fmt(R.abWorst.fosO, 2)}</small></div>
+        <div><span>Estimate</span><b>${est.lakhs.toFixed(2)}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`;
+    $('#status').innerHTML =
+      `<div class="gov"><span>Governing live load</span><b>${esc(R.govM.veh.name)}</b></div>` +
+      (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
       (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
   }
 
-  // Cross-section across the canal (along the road), to scale, with levels.
+  // Blueprint cross-section across the canal (along the road), to scale.
   function sectionSVG() {
     const p = cur.p, R = cur.R;
     const s2 = p.span / 2, fb = p.frontBatter;
     const xf1 = s2 - fb + R.stemBase + p.abHeel;
     const ext = Math.max(xf1, s2 + p.abTopW + p.approachLen * 0.6) + 0.3;
-    const top = p.frl + 0.25, bot = p.foundationLevel - 0.15;
-    const W = 640, padL = 8, padR = 150;
-    const k = Math.min((W - padL - padR) / (2 * ext), 330 / (top - bot));
-    const Hh = Math.ceil((top - bot) * k + 22);
-    const cx = padL + ((W - padL - padR) / 2);
+    const top = p.frl + 1.35, bot = p.foundationLevel - 0.25;
+    const W = 720, padL = 14, padR = 150;
+    const k = Math.min((W - padL - padR) / (2 * ext), 360 / (top - bot));
+    const Hh = Math.ceil((top - bot) * k + 16);
+    const cx = padL + (W - padL - padR) / 2;
     const X = (x) => cx + x * k, Y = (l) => 8 + (top - l) * k;
     const pts = (a) => a.map(([x, l]) => `${X(x).toFixed(1)},${Y(l).toFixed(1)}`).join(' ');
-    let g = '';
-    // ground / bank beyond
-    g += `<polygon class="soil" points="${pts([[-ext, p.gl], [-R.topTBL / 2 - 0.4, p.gl], [-R.topTBL / 2, R.tbl], [-p.bedWidth / 2, p.cbl], [p.bedWidth / 2, p.cbl], [R.topTBL / 2, R.tbl], [R.topTBL / 2 + 0.4, p.gl], [ext, p.gl], [ext, bot], [-ext, bot]])}"/>`;
-    // water
+    let g = `<defs>
+      <linearGradient id="bpWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8" stop-opacity=".75"/><stop offset="1" stop-color="#0e7490" stop-opacity=".35"/></linearGradient>
+      <pattern id="bpHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#7dd3fc" stroke-opacity=".28" stroke-width="1.2"/></pattern>
+      <pattern id="bpSoil" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r=".9" fill="#94a3b8" fill-opacity=".35"/><circle cx="7" cy="8" r=".7" fill="#94a3b8" fill-opacity=".3"/></pattern>
+      <filter id="bpGlow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>`;
+    g += `<polygon class="bp-soil" points="${pts([[-ext, p.gl], [-R.topTBL / 2 - 0.4, p.gl], [-R.topTBL / 2, R.tbl], [-p.bedWidth / 2, p.cbl], [p.bedWidth / 2, p.cbl], [R.topTBL / 2, R.tbl], [R.topTBL / 2 + 0.4, p.gl], [ext, p.gl], [ext, bot], [-ext, bot]])}"/>`;
     const wf = R.topFSL / 2;
-    g += `<polygon class="water" points="${pts([[-wf, R.fsl], [wf, R.fsl], [p.bedWidth / 2, p.cbl], [-p.bedWidth / 2, p.cbl]])}"/>`;
+    g += `<polygon class="bp-water" points="${pts([[-wf, R.fsl], [wf, R.fsl], [p.bedWidth / 2, p.cbl], [-p.bedWidth / 2, p.cbl]])}"/>`;
+    // animated ripple on the water surface
+    const x0 = X(-wf), x1 = X(wf), yw = Y(R.fsl);
+    let d = `M${x0.toFixed(1)},${yw.toFixed(1)}`;
+    for (let x = x0; x < x1; x += 12) d += ` q3,-2.4 6,0 t6,0`;
+    g += `<path class="bp-ripple" d="${d}"/>`;
     for (const sg of [-1, 1]) {
       const P = (a) => pts(a.map(([x, l]) => [sg * x, l]));
-      g += `<polygon class="conc" points="${P([[s2 - fb - p.abToe, p.foundationLevel], [xf1, p.foundationLevel], [xf1, R.ftgTop], [s2 - fb - p.abToe, R.ftgTop]])}"/>`;
-      g += `<polygon class="conc" points="${P([[s2 - fb, R.ftgTop], [s2, R.stemTop], [s2 + 0.5, R.stemTop], [s2 + 0.5, R.deckTop], [s2 + p.abTopW, R.deckTop], [s2 + p.abTopW + p.abBackBatter, R.ftgTop]])}"/>`;
-      g += `<polygon class="rcc" points="${P([[s2 + p.abTopW, R.approachBot], [ext, R.approachBot], [ext, R.deckTop], [s2 + p.abTopW, R.deckTop]])}"/>`;
+      g += `<polygon class="bp-conc" points="${P([[s2 - fb - p.abToe, p.foundationLevel], [xf1, p.foundationLevel], [xf1, R.ftgTop], [s2 - fb - p.abToe, R.ftgTop]])}"/>`;
+      g += `<polygon class="bp-conc" points="${P([[s2 - fb, R.ftgTop], [s2, R.stemTop], [s2 + 0.5, R.stemTop], [s2 + 0.5, R.deckTop], [s2 + p.abTopW, R.deckTop], [s2 + p.abTopW + p.abBackBatter, R.ftgTop]])}"/>`;
+      g += `<polygon class="bp-rcc" points="${P([[s2 + p.abTopW, R.approachBot], [ext, R.approachBot], [ext, R.deckTop], [s2 + p.abTopW, R.deckTop]])}"/>`;
+      // railing posts
+      for (const xp of [s2 + p.bearingW - 0.12, s2 * 0.35]) g += `<line class="bp-rail" x1="${X(sg * xp)}" y1="${Y(p.frl)}" x2="${X(sg * xp)}" y2="${Y(p.frl + 0.75)}"/>`;
     }
-    g += `<polygon class="rcc deck" points="${pts([[-s2 - p.bearingW, R.soffit], [s2 + p.bearingW, R.soffit], [s2 + p.bearingW, R.deckTop], [-s2 - p.bearingW, R.deckTop]])}"/>`;
-    g += `<line class="road" x1="${X(-ext)}" y1="${Y(p.frl)}" x2="${X(ext)}" y2="${Y(p.frl)}"/>`;
-    // level ladder on the right
-    const lv = [['FRL', p.frl], ['Soffit', R.soffit], ['TBL', R.tbl], ['FSL', R.fsl], ['CBL', p.cbl], ['Foundation', p.foundationLevel]];
+    g += `<line class="bp-rail" x1="${X(-s2 - p.bearingW)}" y1="${Y(p.frl + 0.55)}" x2="${X(s2 + p.bearingW)}" y2="${Y(p.frl + 0.55)}"/>`;
+    g += `<line class="bp-rail" x1="${X(-s2 - p.bearingW)}" y1="${Y(p.frl + 0.3)}" x2="${X(s2 + p.bearingW)}" y2="${Y(p.frl + 0.3)}"/>`;
+    g += `<polygon class="bp-deck" filter="url(#bpGlow)" points="${pts([[-s2 - p.bearingW, R.soffit], [s2 + p.bearingW, R.soffit], [s2 + p.bearingW, R.deckTop], [-s2 - p.bearingW, R.deckTop]])}"/>`;
+    g += `<line class="bp-road" x1="${X(-ext)}" y1="${Y(p.frl)}" x2="${X(ext)}" y2="${Y(p.frl)}"/>`;
+    g += `<line class="bp-cl" x1="${X(0)}" y1="${Y(top) + 4}" x2="${X(0)}" y2="${Y(bot) - 2}"/>`;
+    // level ladder
+    const lv = [['FRL', p.frl], ['SOFFIT', R.soffit], ['TBL', R.tbl], ['FSL', R.fsl], ['CBL', p.cbl], ['FDN', p.foundationLevel]];
     let lastY = -99;
-    const xl = X(ext) + 6;
+    const xl = X(ext) + 8;
     for (const [n, l] of lv) {
-      let y = Y(l);
-      const yt = Math.max(y, lastY + 13);
+      const y = Y(l);
+      const yt = Math.max(y, lastY + 15);
       lastY = yt;
-      const cls = n === 'FSL' || n === 'CBL' ? 'lv water-t' : n === 'Soffit' && !R.okSoffit ? 'lv bad-t' : 'lv';
-      g += `<line class="tick" x1="${X(-ext)}" y1="${y}" x2="${xl}" y2="${y}"/>`;
-      g += `<text class="${cls}" x="${xl + 4}" y="${yt + 4}"><tspan class="lvn">${n}</tspan> ${l.toFixed(3)}</text>`;
+      const cls = n === 'FSL' || n === 'CBL' ? 'bp-lv w' : n === 'SOFFIT' && !R.okSoffit ? 'bp-lv bad' : 'bp-lv';
+      g += `<line class="bp-tick" x1="${X(-ext)}" y1="${y}" x2="${xl}" y2="${y}"/>`;
+      g += `<path class="bp-tri" d="M${xl + 2},${yt - 3} l6,0 l-3,4 z"/>`;
+      g += `<text class="${cls}" x="${xl + 12}" y="${yt + 4}"><tspan class="n">${n}</tspan> +${l.toFixed(3)}</text>`;
     }
-    // span dimension
-    const yd = Y(R.deckTop) - 12;
-    g += `<line class="dim" x1="${X(-s2)}" y1="${yd}" x2="${X(s2)}" y2="${yd}"/><text class="dimt" x="${X(0)}" y="${yd - 4}" text-anchor="middle">${fmt(p.span, 2)} m clear span</text>`;
+    const yd = Y(p.frl + 0.75) - 10;
+    g += `<g class="bp-dim"><line x1="${X(-s2)}" y1="${yd}" x2="${X(s2)}" y2="${yd}"/><line x1="${X(-s2)}" y1="${yd - 5}" x2="${X(-s2)}" y2="${yd + 5}"/><line x1="${X(s2)}" y1="${yd - 5}" x2="${X(s2)}" y2="${yd + 5}"/></g>`;
+    g += `<text class="bp-dimt" x="${X(0)}" y="${yd - 6}" text-anchor="middle">${mmTxt(p.span)} CLEAR SPAN</text>`;
+    g += `<text class="bp-cap" x="${X(0)}" y="${Y(p.cbl) + 16}" text-anchor="middle">CANAL · Q ${fmt(p.Q, 3)} cumecs</text>`;
     return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Cross-section of the bridge and canal with levels">${g}</svg>`;
   }
+  const mmTxt = (m) => `${Math.round(m * 1000)}`;
 
   function renderHints() {
     const R = cur.R;
@@ -300,9 +317,6 @@
   // ---------------------------------------------------------------- wiring
   function init() {
     buildForm(); fillForm();
-    const guide = $('#guide');
-    if (load('bd-guide') === 'closed') guide.open = false;
-    guide.addEventListener('toggle', () => save('bd-guide', guide.open ? 'open' : 'closed'));
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
       if (state.bridgeType === b.dataset.type) return;
       state.bridgeType = b.dataset.type;
