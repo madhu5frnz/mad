@@ -1,214 +1,347 @@
 <title>SLRB / DLRB Design Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+/* Drawing-office palette: navy ink on cool drafting paper, canal teal accent,
+   input yellow as in the department's Excel sheets. */
 :root {
-  --bg: #f3f5f8;
-  --panel: #ffffff;
-  --ink: #17202c;
-  --muted: #5b6676;
-  --line: #dde2ea;
-  --accent: #1d4ed8;
-  --accent-ink: #ffffff;
-  --ok: #0a7a2f;
-  --ok-bg: #e6f5ec;
-  --bad: #c0142b;
-  --bad-bg: #fdecee;
-  --inp: #fff8c5;
-  --warn-bg: #fff4e0;
-  --head: #eef2f8;
+  --paper: #eef2f1;
+  --sheet: #ffffff;
+  --ink: #14213d;
+  --ink-2: #3c4a63;
+  --muted: #66728a;
+  --rule: #d3dbe0;
+  --rule-2: #e4e9ec;
+  --teal: #0f766e;
+  --teal-2: #0b5d57;
+  --teal-soft: #e0f0ee;
+  --on-teal: #ffffff;
+  --inp: #fff4c2;
+  --inp-line: #e7d37a;
+  --ok: #0a7a3a;
+  --ok-bg: #e3f4e8;
+  --bad: #b4232f;
+  --bad-bg: #fbe8ea;
+  --warn-bg: #fff1dc;
+  --water: #9fd3e6;
+  --water-line: #2b8fb3;
+  --conc: #c9d1da;
+  --rcc: #8e9bb0;
+  --soil: #e7dfcf;
+  --head: #f3f6f7;
+  --shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 4px 16px rgba(20, 33, 61, .05);
+  --f-display: "Barlow", "Arial Narrow", system-ui, sans-serif;
+  --f-cond: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #11151b; --panel: #1a2029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2c3542;
-    --accent: #6d9bff; --accent-ink: #0b1220; --ok: #5fd08a; --ok-bg: #16301f; --bad: #ff7b8a; --bad-bg: #3a1a20;
-    --inp: #3b3717; --warn-bg: #3a2e14; --head: #222a36;
+    --paper: #0e141c; --sheet: #151d28; --ink: #e5ebf3; --ink-2: #c3ccda; --muted: #8e9aae; --rule: #2a3544; --rule-2: #212b38;
+    --teal: #3cc2b3; --teal-2: #63d6c8; --teal-soft: #12302e; --on-teal: #06201d; --inp: #3a3418; --inp-line: #6b5d24;
+    --ok: #5dd18a; --ok-bg: #143020; --bad: #ff7d88; --bad-bg: #3a1a1f; --warn-bg: #3a2c14;
+    --water: #1f5f78; --water-line: #58b8dc; --conc: #3b4757; --rcc: #5d6b82; --soil: #3a3326; --head: #1b2532;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-    --bg: #11151b; --panel: #1a2029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2c3542;
-    --accent: #6d9bff; --accent-ink: #0b1220; --ok: #5fd08a; --ok-bg: #16301f; --bad: #ff7b8a; --bad-bg: #3a1a20;
-    --inp: #3b3717; --warn-bg: #3a2e14; --head: #222a36;
-    color-scheme: dark;
+  --paper: #0e141c; --sheet: #151d28; --ink: #e5ebf3; --ink-2: #c3ccda; --muted: #8e9aae; --rule: #2a3544; --rule-2: #212b38;
+  --teal: #3cc2b3; --teal-2: #63d6c8; --teal-soft: #12302e; --on-teal: #06201d; --inp: #3a3418; --inp-line: #6b5d24;
+  --ok: #5dd18a; --ok-bg: #143020; --bad: #ff7d88; --bad-bg: #3a1a1f; --warn-bg: #3a2c14;
+  --water: #1f5f78; --water-line: #58b8dc; --conc: #3b4757; --rcc: #5d6b82; --soil: #3a3326; --head: #1b2532;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  color-scheme: dark;
 }
+
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+body {
+  font: 14px/1.5 var(--f-body); background: var(--paper); color: var(--ink);
+  background-image: linear-gradient(var(--rule-2) 1px, transparent 1px), linear-gradient(90deg, var(--rule-2) 1px, transparent 1px);
+  background-size: 24px 24px; background-attachment: fixed;
+}
+h1, h2, h3 { text-wrap: balance; }
 button, select, input { font: inherit; color: inherit; }
 button, select, .filebtn {
-  border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 12px; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+  transition: border-color .15s, background .15s;
 }
-button:hover, .filebtn:hover { border-color: var(--accent); }
+button:hover, .filebtn:hover, select:hover { border-color: var(--teal); }
 button:disabled { opacity: .6; cursor: progress; }
-button:focus-visible, select:focus-visible, .filebtn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, select:focus-visible, .filebtn:focus-within, summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+button.primary { background: var(--teal); color: var(--on-teal); border-color: var(--teal); font-weight: 600; }
+button.primary:hover { background: var(--teal-2); }
+button.dl { font-weight: 600; }
+button.dl::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 7px; border: 2px solid currentColor; border-top: 0; border-radius: 0 0 2px 2px; vertical-align: -1px; }
 .filebtn { display: inline-block; position: relative; overflow: hidden; }
 .filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
-.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.brand { display: flex; gap: 12px; align-items: center; }
-.logo { color: var(--accent); }
-.brand h1 { font-size: 18px; margin: 0; }
-.brand .sub { margin: 0; color: var(--muted); font-size: 12.5px; }
-.type-switch { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.type-switch button { border: 0; border-radius: 0; padding: 6px 18px; display: flex; flex-direction: column; align-items: center; font-weight: 600; }
-.type-switch button small { font-weight: 400; color: var(--muted); font-size: 11px; }
-.type-switch button.active { background: var(--accent); color: var(--accent-ink); }
-.type-switch button.active small { color: inherit; opacity: .85; }
+/* header */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding: 12px 24px; background: var(--ink); color: #f2f5fa; border-bottom: 3px solid var(--teal);
+}
+:root[data-theme="dark"] .topbar { background: #0a1018; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .topbar { background: #0a1018; } }
+.brand { display: flex; gap: 14px; align-items: center; }
+.mark-deck { fill: #f2f5fa; } .mark-abut { fill: #9aa8c2; } .mark-water { fill: #3cc2b3; }
+.eyebrow { margin: 0; font: 600 11px/1.2 var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: #8fd9cf; }
+.brand h1 { margin: 2px 0 0; font: 700 23px/1.1 var(--f-display); letter-spacing: .01em; }
+.type-switch { display: flex; border: 1px solid rgba(255,255,255,.25); border-radius: 8px; overflow: hidden; }
+.type-switch button {
+  border: 0; border-radius: 0; background: transparent; color: #dfe6f2; padding: 6px 18px;
+  display: flex; flex-direction: column; align-items: center; font: 700 16px/1.2 var(--f-cond); letter-spacing: .04em;
+}
+.type-switch button small { font: 400 11px var(--f-body); letter-spacing: 0; opacity: .8; }
+.type-switch button.active { background: var(--teal); color: #fff; }
+.type-switch button:focus-visible { outline-color: #8fd9cf; outline-offset: -3px; }
 
-.layout { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 66px); }
-.inputs { background: var(--panel); border-right: 1px solid var(--line); padding: 14px; overflow-y: auto; max-height: calc(100vh - 66px); position: sticky; top: 0; }
-.input-actions { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.input-actions.small button, .input-actions.small .filebtn { padding: 5px 10px; font-size: 13px; }
+/* layout */
+.layout { display: grid; grid-template-columns: minmax(330px, 390px) minmax(0, 1fr); align-items: start; }
+.inputs {
+  background: var(--sheet); border-right: 1px solid var(--rule); padding: 16px 16px 40px;
+  position: sticky; top: env(safe-area-inset-top, 0px); max-height: 100vh; overflow-y: auto;
+}
+.panel-head { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+.panel-head h2 { margin: 0; font: 600 13px var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.input-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.input-actions.small button, .input-actions.small .filebtn { padding: 4px 10px; font-size: 12.5px; }
 .input-actions select { flex: 1; min-width: 0; }
-details { border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; background: var(--panel); }
-summary { padding: 9px 12px; font-weight: 600; cursor: pointer; }
-details[open] summary { border-bottom: 1px solid var(--line); }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; padding: 10px 12px; }
-.field { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--muted); }
+#form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.group { border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); }
+.group > summary { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; list-style: none; font: 600 16px var(--f-display); }
+.group > summary::-webkit-details-marker { display: none; }
+.group > summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .15s; }
+.group[open] > summary::after { transform: rotate(225deg); }
+.stepno {
+  display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--teal); color: var(--on-teal); font: 700 14px var(--f-cond); flex: none;
+}
+.stepno.ghost { background: transparent; border: 1.5px solid var(--muted); color: var(--muted); }
+.gnote { margin: -2px 12px 4px; color: var(--muted); font-size: 12.5px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; padding: 8px 12px 12px; }
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .field.wide { grid-column: 1 / -1; }
-.field em { font-style: normal; opacity: .75; }
-.field input { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--inp); color: var(--ink); width: 100%; }
-.field input[type=text] { background: var(--panel); }
-.field input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-.hint-inline { color: var(--muted); font-size: 11.5px; }
+.flabel { font-size: 12.5px; color: var(--ink-2); }
+.flabel em { font-style: normal; color: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+.field input {
+  width: 100%; border: 1px solid var(--inp-line); border-radius: 5px; padding: 6px 8px;
+  background: var(--inp); color: var(--ink); font-family: var(--f-mono); font-size: 13.5px; font-variant-numeric: tabular-nums;
+}
+.field input[type=text] { background: var(--sheet); border-color: var(--rule); font-family: var(--f-body); }
+.field input:focus { outline: 2px solid var(--teal); outline-offset: -1px; }
+.hint-inline { color: var(--muted); font-size: 11.5px; line-height: 1.35; }
 .hint-inline:empty { display: none; }
-.hint-inline button { padding: 0 6px; font-size: 11.5px; border-radius: 5px; margin-left: 4px; }
+.hint-inline button { padding: 0 7px; font-size: 11.5px; border-radius: 4px; margin-left: 4px; background: var(--teal-soft); border-color: var(--teal); color: var(--teal-2); font-weight: 600; }
+.advbox { border: 1px dashed var(--rule); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.advhead { display: flex; gap: 10px; align-items: flex-start; }
+.advhead b { font: 600 16px var(--f-display); }
+.advhead .gnote { margin: 2px 0 0; }
+.advbox .group > summary { font-size: 14.5px; padding: 8px 10px; }
 
-.output { padding: 16px 20px 40px; min-width: 0; }
-.status { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-.badge { display: inline-block; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+/* output */
+.output { padding: 20px 24px 40px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.guide { background: var(--sheet); border: 1px solid var(--rule); border-left: 4px solid var(--teal); border-radius: 8px; padding: 10px 14px; }
+.guide summary { cursor: pointer; font: 600 16px var(--f-display); }
+.guide-steps { list-style: none; counter-reset: g; margin: 10px 0 2px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.guide-steps li { counter-increment: g; display: flex; flex-direction: column; gap: 2px; font-size: 12.8px; color: var(--ink-2); }
+.guide-steps li b::before { content: counter(g); display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 6px; border-radius: 50%; background: var(--teal-soft); color: var(--teal-2); font: 700 13px var(--f-cond); }
+.guide-steps b { font-weight: 600; color: var(--ink); }
+
+.status { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+.status-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font: 700 15px var(--f-display); padding: 5px 12px; border-radius: 999px; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
 .badge.ok { background: var(--ok-bg); color: var(--ok); }
 .badge.bad { background: var(--bad-bg); color: var(--bad); }
-.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
-.kpis div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
-.kpis b { display: block; font-size: 17px; }
-.kpis span { color: var(--muted); font-size: 12px; }
-.fails, .warns { margin: 10px 0 0; padding-left: 20px; }
-.fails li { color: var(--bad); }
-.warns li { background: var(--warn-bg); padding: 2px 6px; border-radius: 6px; margin: 2px 0; list-style: none; margin-left: -20px; }
-.hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+.gov { color: var(--muted); font-size: 12.5px; }
+.status-body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.xsec { margin: 0; border: 1px solid var(--rule-2); border-radius: 8px; padding: 8px; background: var(--head); }
+.xsec svg { display: block; width: 100%; height: auto; }
+.xsec figcaption { font-size: 11.5px; color: var(--muted); padding-top: 4px; }
+.xsec .soil { fill: var(--soil); stroke: none; }
+.xsec .water { fill: var(--water); stroke: var(--water-line); stroke-width: 1; }
+.xsec .conc { fill: var(--conc); stroke: var(--ink-2); stroke-width: 1; }
+.xsec .rcc { fill: var(--rcc); stroke: var(--ink-2); stroke-width: 1; }
+.xsec .deck { fill: var(--ink-2); }
+.xsec .road { stroke: var(--ink); stroke-width: 2.5; }
+.xsec .tick { stroke: var(--muted); stroke-width: .6; stroke-dasharray: 2 3; }
+.xsec .lv { font: 500 11px var(--f-mono); fill: var(--ink); }
+.xsec .lvn { font-family: var(--f-body); font-weight: 600; fill: var(--muted); }
+.xsec .water-t { fill: var(--water-line); }
+.xsec .water-t .lvn { fill: var(--water-line); }
+.xsec .bad-t, .xsec .bad-t .lvn { fill: var(--bad); }
+.xsec .dim { stroke: var(--teal); stroke-width: 1; marker-start: none; }
+.xsec .dimt { font: 600 11px var(--f-body); fill: var(--teal-2); }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+.kpis div { border: 1px solid var(--rule); border-radius: 8px; padding: 9px 11px; display: flex; flex-direction: column; gap: 1px; }
+.kpis span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.kpis b { font: 700 21px/1.15 var(--f-display); }
+.kpis small { color: var(--muted); font-size: 11.5px; }
+.fixbox { background: var(--bad-bg); border-radius: 8px; padding: 10px 14px; }
+.fixbox p { margin: 6px 0 0; font-size: 13px; }
+.fails { margin: 0; padding-left: 18px; color: var(--bad); }
+.warns { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.warns li { background: var(--warn-bg); padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 0; }
 
-.tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
-.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 8px 14px; font-weight: 600; color: var(--muted); white-space: nowrap; }
-.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--rule); overflow-x: auto; margin-top: 4px; }
+.tabs button { border: 0; border-radius: 6px 6px 0 0; background: none; padding: 9px 16px; font: 600 16px var(--f-display); color: var(--muted); white-space: nowrap; margin-bottom: -2px; border-bottom: 2px solid transparent; }
+.tabs button.active { color: var(--teal-2); border-bottom-color: var(--teal); background: var(--sheet); }
+.tab { display: flex; flex-direction: column; gap: 12px; }
+.tab[hidden] { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
 
-.report .doc { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; overflow-x: auto; }
-.doc h2 { font-size: 16px; margin: 0 0 6px; }
-.doc h3 { font-size: 13.5px; margin: 20px 0 6px; color: var(--accent); text-transform: none; }
-.doc .meta { color: var(--muted); font-size: 12.5px; margin: 2px 0; }
+/* report / estimate documents */
+.report .doc { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 22px 26px; overflow-x: auto; box-shadow: var(--shadow); }
+.doc h2 { font: 700 19px/1.25 var(--f-display); margin: 0 0 6px; }
+.doc h3 { font: 700 15px var(--f-display); margin: 22px 0 6px; color: var(--teal-2); letter-spacing: .02em; }
+.doc h3 small { font: 400 12px var(--f-body); color: var(--muted); }
+.doc .meta { color: var(--muted); font-size: 12.5px; margin: 2px 0; max-width: 90ch; }
 .inp-key { background: var(--inp); padding: 0 6px; border-radius: 4px; color: var(--ink); }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-table.calc td { border-bottom: 1px solid var(--line); padding: 4px 8px; vertical-align: top; }
-table.calc td:first-child { width: 52%; }
-table.calc .v { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+table.calc td { border-bottom: 1px solid var(--rule-2); padding: 4px 8px; vertical-align: top; }
+table.calc td:first-child { width: 50%; }
+table.calc .v { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
 table.calc .v.inp { background: var(--inp); }
-table.calc .v.ok { color: var(--ok); }
-table.calc .v.bad { color: var(--bad); background: var(--bad-bg); }
+table.calc .v.ok { color: var(--ok); font-weight: 600; }
+table.calc .v.bad { color: var(--bad); background: var(--bad-bg); font-weight: 600; }
 table.calc td.v:not(.ok):not(.bad) { max-width: 420px; white-space: normal; }
-table.calc .u { color: var(--muted); white-space: nowrap; }
+table.calc .u { color: var(--muted); white-space: nowrap; font-size: 12px; }
 table.calc .r { color: var(--muted); font-size: 12px; }
-tr.sub td { font-weight: 700; font-style: italic; background: var(--head); }
-table.est th, table.est td { border: 1px solid var(--line); padding: 4px 7px; vertical-align: top; }
-table.est th { background: var(--head); text-align: left; }
-table.est .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-table.est .code { white-space: nowrap; font-size: 12px; }
+tr.sub td { font-weight: 600; background: var(--head); }
+table.est th, table.est td { border: 1px solid var(--rule); padding: 4px 8px; vertical-align: top; }
+table.est th { background: var(--head); text-align: left; font-weight: 600; }
+table.est .n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 12.5px; }
+table.est .code { white-space: nowrap; font-family: var(--f-mono); font-size: 11.5px; }
 table.est tr.tot td { font-weight: 700; }
-input.rate { width: 90px; text-align: right; border: 1px solid var(--line); border-radius: 5px; padding: 2px 5px; background: var(--inp); }
+input.rate { width: 92px; text-align: right; border: 1px solid var(--inp-line); border-radius: 4px; padding: 2px 6px; background: var(--inp); font-family: var(--f-mono); }
 .signs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 40px; text-align: center; font-weight: 600; font-size: 12.5px; }
 .signs small { font-weight: 400; color: var(--muted); }
 
-.zoom { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.zoom button { width: 34px; padding: 4px 0; }
+.zoom { display: flex; align-items: center; gap: 8px; font-family: var(--f-mono); }
+.zoom button { width: 34px; padding: 4px 0; font-weight: 700; }
 .sheets { display: flex; flex-direction: column; gap: 18px; overflow-x: auto; }
-.sheet { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px; width: calc(100% * var(--z, 1)); }
+.sheet { margin: 0; background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 6px; width: calc(100% * var(--z, 1)); box-shadow: var(--shadow); }
 .sheet svg { display: block; width: 100%; height: auto; }
 .sheet figcaption { color: #5b6676; font-size: 12px; padding: 4px 2px 0; }
 
-.toast { position: fixed; right: 20px; bottom: 20px; max-width: 520px; background: var(--ink); color: var(--panel); padding: 10px 14px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.25); z-index: 10; }
+.foot { color: var(--muted); font-size: 12px; border-top: 1px solid var(--rule); padding-top: 12px; max-width: 110ch; }
+.toast { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); max-width: min(520px, calc(100vw - 32px)); background: var(--ink); color: var(--sheet); padding: 10px 14px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.25); z-index: 10; }
 
+@media (max-width: 1180px) {
+  .status-body { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .guide-steps { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
-  .inputs { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
-  .kpis { grid-template-columns: 1fr 1fr; }
-  .output { padding: 12px 16px 40px; }
+  .inputs { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .output { padding: 16px 16px 40px; }
   .topbar { padding: 10px 16px; }
+  .kpis { grid-template-columns: 1fr 1fr; }
   table.calc td:first-child { width: auto; }
   table.calc .r { display: none; }
 }
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .grid { grid-template-columns: 1fr; }
+  .guide-steps { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 20px; }
+  .type-switch { width: 100%; }
+  .type-switch button { flex: 1; }
+  .report .doc { padding: 16px; }
 }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 </style>
 <header class="topbar">
   <div class="brand">
-    <div class="logo" aria-hidden="true">
-      <svg viewBox="0 0 32 32" width="28" height="28"><path d="M2 14h28v4H2z" fill="currentColor"/><path d="M6 18v10M26 18v10" stroke="currentColor" stroke-width="3"/><path d="M9 28c2-6 12-6 14 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-    </div>
+    <svg class="mark" viewBox="0 0 48 32" width="44" height="30" aria-hidden="true">
+      <path class="mark-water" d="M14 26h20l-4-8H18z"/>
+      <path class="mark-deck" d="M2 8h44v5H2z"/>
+      <path class="mark-abut" d="M9 13h6l-2 15H6zM33 13h6l3 15h-7z"/>
+    </svg>
     <div>
+      <p class="eyebrow">I &amp; CAD · Canal crossings</p>
       <h1>SLRB / DLRB Design Generator</h1>
-      <p class="sub">Road bridge across canal &middot; from Hydraulic Particulars to design, drawings &amp; estimate</p>
     </div>
   </div>
   <div class="type-switch" role="radiogroup" aria-label="Bridge type">
-    <button type="button" data-type="SLRB" class="active" role="radio">S.L.R.B.<small>Single lane 4.25 m</small></button>
-    <button type="button" data-type="DLRB" role="radio">D.L.R.B.<small>Two lane 7.50 m</small></button>
+    <button type="button" data-type="SLRB" class="active" role="radio" id="type-slrb">S.L.R.B.<small>Single lane · 4.25 m</small></button>
+    <button type="button" data-type="DLRB" role="radio" id="type-dlrb">D.L.R.B.<small>Two lane · 7.50 m</small></button>
   </div>
 </header>
 
 <div class="layout">
   <aside class="inputs" id="inputs">
-    <div class="input-actions">
-      <button type="button" id="btn-auto" class="primary">Auto design</button>
-      <select id="sel-example" aria-label="Load example">
-        <option value="">Load example…</option>
-        <option value="km0450">SLRB Km 0.450 (reference)</option>
-        <option value="km1580">SLRB Km 1.580 (reference)</option>
-        <option value="dlrb">DLRB (same canal, 7.5 m)</option>
-      </select>
-    </div>
-    <div class="input-actions small">
-      <button type="button" id="btn-save">Save inputs</button>
-      <label class="filebtn">Open inputs<input type="file" id="file-open" accept=".json,application/json"></label>
-      <button type="button" id="btn-reset">Reset</button>
+    <div class="panel-head">
+      <h2>Inputs</h2>
+      <div class="input-actions">
+        <button type="button" id="btn-auto" class="primary">Auto design</button>
+        <select id="sel-example" aria-label="Load an example bridge">
+          <option value="">Load example…</option>
+          <option value="km0450">SLRB Km 0.450 (reference)</option>
+          <option value="km1580">SLRB Km 1.580 (reference)</option>
+          <option value="dlrb">DLRB, same canal, 7.5 m</option>
+        </select>
+      </div>
+      <div class="input-actions small">
+        <button type="button" id="btn-save">Save inputs</button>
+        <label class="filebtn" for="file-open">Open inputs<input type="file" id="file-open" accept=".json,application/json"></label>
+        <button type="button" id="btn-reset">Reset</button>
+      </div>
     </div>
     <form id="form" autocomplete="off"></form>
   </aside>
 
   <main class="output">
-    <div class="status" id="status"></div>
+    <details class="guide" id="guide" open>
+      <summary>How to use this tool</summary>
+      <ol class="guide-steps">
+        <li><b>Choose the bridge</b><span>S.L.R.B. or D.L.R.B. at the top right.</span></li>
+        <li><b>Enter the HPs</b><span>Q, bed width, FSD, side slope (1.5 for 1.5:1), free board, bed fall (2500 for 1 in 2500), design CBL.</span></li>
+        <li><b>Enter road &amp; levels</b><span>FRL and ground level in metres, no + sign. Press <i>use</i> on the suggested span and foundation level.</span></li>
+        <li><b>Check and download</b><span>Green means done. If red, press <i>Auto design</i>. Then download PDF, Excel or DXF from the tabs.</span></li>
+      </ol>
+    </details>
+
+    <section class="status" id="status" aria-live="polite"></section>
+
     <nav class="tabs" role="tablist">
-      <button type="button" role="tab" data-tab="report" class="active">Design report</button>
-      <button type="button" role="tab" data-tab="drawings">Drawings</button>
-      <button type="button" role="tab" data-tab="estimate">Estimate</button>
+      <button type="button" role="tab" data-tab="report" class="active" id="tab-btn-report">Design report</button>
+      <button type="button" role="tab" data-tab="drawings" id="tab-btn-drawings">Drawings</button>
+      <button type="button" role="tab" data-tab="estimate" id="tab-btn-estimate">Estimate</button>
     </nav>
 
     <section class="tab" id="tab-report">
       <div class="toolbar">
-        <button type="button" id="btn-pdf-report">Download PDF</button>
-        <button type="button" id="btn-xlsx-design">Download Excel</button>
+        <button type="button" id="btn-pdf-report" class="dl">Download PDF</button>
+        <button type="button" id="btn-xlsx-design" class="dl">Download Excel</button>
       </div>
       <div id="report" class="report"></div>
     </section>
 
     <section class="tab" id="tab-drawings" hidden>
       <div class="toolbar">
-        <button type="button" id="btn-pdf-dwg">Download PDF (2 × A2)</button>
-        <button type="button" id="btn-dxf">Download DXF for AutoCAD (zip)</button>
+        <button type="button" id="btn-pdf-dwg" class="dl">Download PDF (2 × A2)</button>
+        <button type="button" id="btn-dxf" class="dl">Download DXF for AutoCAD (zip)</button>
       </div>
-      <p class="hint">Sheet 1: plan &amp; sectional elevation. Sheet 2: sections &amp; reinforcement details. Use + / − to zoom.</p>
+      <p class="hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
       <div id="drawings"></div>
     </section>
 
     <section class="tab" id="tab-estimate" hidden>
       <div class="toolbar">
-        <button type="button" id="btn-pdf-est">Download PDF</button>
-        <button type="button" id="btn-xlsx-est">Download Excel (with formulas)</button>
+        <button type="button" id="btn-pdf-est" class="dl">Download PDF</button>
+        <button type="button" id="btn-xlsx-est" class="dl">Download Excel (with formulas)</button>
         <button type="button" id="btn-rates-reset">Reset rates to SSR 2026-27</button>
       </div>
       <div id="estimate" class="report"></div>
     </section>
+
+    <footer class="foot">Design to IRC 5, IRC 6, IRC 21 (WSM), IRC 78, IRC SP:13 and IS 456. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</footer>
   </main>
 </div>
 
@@ -2274,24 +2407,24 @@ input.rate { width: 90px; text-align: right; border: 1px solid var(--line); bord
 
   // [key, label, unit, step] ; text fields have step = 'text'
   const GROUPS = [
-    ['Hydraulic particulars (HPs)', true, [
+    ['Hydraulic particulars (HPs)', true, { step: 1, note: 'Copy from the approved HP statement / L-section at the bridge chainage.' }, [
       ['Q', 'Discharge Q', 'cumecs', 0.001], ['bedWidth', 'Bed width', 'm', 0.001], ['fsd', 'Full supply depth', 'm', 0.001],
       ['sideSlope', 'Side slope (H:1)', '', 0.25], ['freeBoard', 'Free board', 'm', 0.01], ['bedFall', 'Bed fall 1 in', '', 100],
       ['manningN', "Manning's n", '', 0.001], ['cbl', 'Design CBL', 'm', 0.001], ['cblExisting', 'Existing CBL', 'm', 0.001],
       ['bankWidthL', 'Bank top width L', 'm', 0.1], ['bankWidthR', 'Bank top width R', 'm', 0.1],
     ]],
-    ['Road & levels', true, [
+    ['Road & levels', true, { step: 2, note: 'From the site survey. Levels in metres, without the + sign.' }, [
       ['span', 'Clear span', 'm', 0.25], ['carriageway', 'Carriageway', 'm', 0.05], ['frl', 'Road level (FRL)', 'm', 0.001],
       ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05], ['frlNote', 'FRL note', '', 'text'],
       ['sbc', 'Safe bearing capacity', 't/sqm', 0.5], ['siltFactor', 'Silt factor f', '', 0.1],
     ]],
-    ['Project details (for title block & estimate)', false, [
+    ['Project details', false, { step: 3, note: 'Printed on the drawings, report and estimate.' }, [
       ['chainage', 'Chainage (Km)', '', 'text'], ['canalName', 'Canal', '', 'text'],
       ['location', 'Place / village', '', 'text'], ['district', 'District', '', 'text'],
       ['project', 'Project', '', 'text'], ['state', 'Government', '', 'text'], ['department', 'Department', '', 'text'],
       ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'], ['roadType', 'Type of road', '', 'text'],
     ]],
-    ['Deck slab', false, [
+    ['Deck slab', false, { adv: true }, [
       ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
       ['mainSpacing', 'Main bar spacing', 'mm', 5], ['distDia', 'Distribution dia', 'mm', 1], ['distSpacing', 'Distribution spacing', 'mm', 5],
       ['topDia', 'Top bar dia', 'mm', 1], ['topSpacing', 'Top bar spacing', 'mm', 5], ['cover', 'Clear cover', 'm', 0.005],
@@ -2299,13 +2432,13 @@ input.rate { width: 90px; text-align: right; border: 1px solid var(--line); bord
       ['approachLen', 'Approach slab length', 'm', 0.5], ['approachThk', 'Approach slab thk', 'm', 0.025],
       ['scbc', 'σcbc (M20)', 'N/mm²', 0.5], ['sst', 'σst (Fe415)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
     ]],
-    ['Abutment', false, [
+    ['Abutment', false, { adv: true }, [
       ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
       ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
       ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1], ['phi', 'Backfill φ', 'deg', 1],
       ['surcharge', 'LL surcharge height', 'm', 0.1], ['mu', 'Friction coefficient', '', 0.05],
     ]],
-    ['Wing walls & canal protection', false, [
+    ['Wing walls & canal protection', false, { adv: true }, [
       ['wTopW', 'Wing top width', 'm', 0.05], ['wFrontBatter', 'Wing front batter', 'm', 0.05], ['wBaseW', 'Wing base width', 'm', 0.1],
       ['wToe', 'Wing toe', 'm', 0.05], ['wHeel', 'Wing heel', 'm', 0.05], ['wFootT', 'Wing footing thk', 'm', 0.05],
       ['wingLen', 'Wing length', 'm', 0.1], ['keyW', 'Shear key width', 'm', 0.05], ['keyD', 'Shear key depth', 'm', 0.05],
@@ -2331,21 +2464,32 @@ input.rate { width: 90px; text-align: right; border: 1px solid var(--line); bord
   function buildForm() {
     const form = $('#form');
     form.innerHTML = '';
-    for (const [title, open, fields] of GROUPS) {
+    let advBox = null;
+    for (const [title, open, meta, fields] of GROUPS) {
       const det = document.createElement('details');
       det.open = open;
-      det.innerHTML = `<summary>${title}</summary><div class="grid"></div>`;
+      det.className = meta.adv ? 'group adv' : 'group step';
+      det.innerHTML = `<summary>${meta.step ? `<span class="stepno">${meta.step}</span>` : ''}<span class="gtitle">${title}</span></summary>` +
+        (meta.note ? `<p class="gnote">${meta.note}</p>` : '') + '<div class="grid"></div>';
       const grid = det.querySelector('.grid');
       for (const [key, label, unit, step] of fields) {
         const isText = step === 'text';
         const wrap = document.createElement('label');
         wrap.className = 'field' + (isText ? ' wide' : '');
-        wrap.innerHTML = `<span>${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
-          `<input name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
+        wrap.innerHTML = `<span class="flabel">${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
+          `<input id="in-${key}" name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
           `<small class="hint-inline" data-hint="${key}"></small>`;
         grid.appendChild(wrap);
       }
-      form.appendChild(det);
+      if (meta.adv) {
+        if (!advBox) {
+          advBox = document.createElement('div');
+          advBox.className = 'advbox';
+          advBox.innerHTML = '<div class="advhead"><span class="stepno ghost">4</span><div><b>Standard section</b><p class="gnote">Pre-filled with the office type design. Leave as is; <b>Auto design</b> adjusts these when a check fails.</p></div></div>';
+          form.appendChild(advBox);
+        }
+        advBox.appendChild(det);
+      } else form.appendChild(det);
     }
     form.addEventListener('input', (e) => {
       const t = e.target;
@@ -2393,17 +2537,63 @@ input.rate { width: 90px; text-align: right; border: 1px solid var(--line); bord
     for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
     const R = cur.R;
     const gov = R.govM.veh.name;
-    $('#status').innerHTML =
-      `<div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
+      $('#status').innerHTML =
+      `<div class="status-head"><div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
+      `<span class="gov">Governing live load: ${esc(gov)}</span></div>` +
+      `<div class="status-body"><figure class="xsec">${sectionSVG()}<figcaption>Section across the canal, drawn to scale from your inputs</figcaption></figure>` +
       `<div class="kpis">
-        <div><b>${R.typ}</b><span>${fmt(state.span, 2)} m span × ${fmt(R.B, 2)} m wide</span></div>
-        <div><b>${fmt(state.D * 1000, 0)} mm</b><span>deck, ${state.mainDia}φ @ ${state.mainSpacing}</span></div>
-        <div><b>${fmt(R.abWorst.pmax, 2)}</b><span>max base pressure t/m² (SBC ${state.sbc})</span></div>
-        <div><b>₹ ${est.lakhs.toFixed(2)} L</b><span>estimate</span></div>
-      </div>` +
-      (fails.length ? `<ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p class="hint">Tip: <b>Auto design</b> sizes the deck, abutment and wing walls to pass all checks.</p>` : '') +
-      (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '') +
-      `<p class="hint">Governing live load: ${esc(gov)}.</p>`;
+        <div><span>Bridge</span><b>${R.typ}</b><small>${fmt(state.span, 2)} m clear span × ${fmt(R.B, 2)} m wide</small></div>
+        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)} mm</b><small>${state.mainDia} mm dia @ ${state.mainSpacing} c/c main</small></div>
+        <div><span>Base pressure</span><b>${fmt(R.abWorst.pmax, 2)} t/m²</b><small>SBC ${state.sbc} t/m² · FOS ${fmt(R.abWorst.fosO, 2)} / ${fmt(R.abWorst.fosS, 2)}</small></div>
+        <div><span>Estimate</span><b>Rs ${est.lakhs.toFixed(2)} lakhs</b><small>SSR 2026-27, incl. GST</small></div>
+      </div></div>` +
+      (fails.length ? `<div class="fixbox"><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Click <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
+      (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+  }
+
+  // Cross-section across the canal (along the road), to scale, with levels.
+  function sectionSVG() {
+    const p = cur.p, R = cur.R;
+    const s2 = p.span / 2, fb = p.frontBatter;
+    const xf1 = s2 - fb + R.stemBase + p.abHeel;
+    const ext = Math.max(xf1, s2 + p.abTopW + p.approachLen * 0.6) + 0.3;
+    const top = p.frl + 0.25, bot = p.foundationLevel - 0.15;
+    const W = 640, padL = 8, padR = 150;
+    const k = Math.min((W - padL - padR) / (2 * ext), 330 / (top - bot));
+    const Hh = Math.ceil((top - bot) * k + 22);
+    const cx = padL + ((W - padL - padR) / 2);
+    const X = (x) => cx + x * k, Y = (l) => 8 + (top - l) * k;
+    const pts = (a) => a.map(([x, l]) => `${X(x).toFixed(1)},${Y(l).toFixed(1)}`).join(' ');
+    let g = '';
+    // ground / bank beyond
+    g += `<polygon class="soil" points="${pts([[-ext, p.gl], [-R.topTBL / 2 - 0.4, p.gl], [-R.topTBL / 2, R.tbl], [-p.bedWidth / 2, p.cbl], [p.bedWidth / 2, p.cbl], [R.topTBL / 2, R.tbl], [R.topTBL / 2 + 0.4, p.gl], [ext, p.gl], [ext, bot], [-ext, bot]])}"/>`;
+    // water
+    const wf = R.topFSL / 2;
+    g += `<polygon class="water" points="${pts([[-wf, R.fsl], [wf, R.fsl], [p.bedWidth / 2, p.cbl], [-p.bedWidth / 2, p.cbl]])}"/>`;
+    for (const sg of [-1, 1]) {
+      const P = (a) => pts(a.map(([x, l]) => [sg * x, l]));
+      g += `<polygon class="conc" points="${P([[s2 - fb - p.abToe, p.foundationLevel], [xf1, p.foundationLevel], [xf1, R.ftgTop], [s2 - fb - p.abToe, R.ftgTop]])}"/>`;
+      g += `<polygon class="conc" points="${P([[s2 - fb, R.ftgTop], [s2, R.stemTop], [s2 + 0.5, R.stemTop], [s2 + 0.5, R.deckTop], [s2 + p.abTopW, R.deckTop], [s2 + p.abTopW + p.abBackBatter, R.ftgTop]])}"/>`;
+      g += `<polygon class="rcc" points="${P([[s2 + p.abTopW, R.approachBot], [ext, R.approachBot], [ext, R.deckTop], [s2 + p.abTopW, R.deckTop]])}"/>`;
+    }
+    g += `<polygon class="rcc deck" points="${pts([[-s2 - p.bearingW, R.soffit], [s2 + p.bearingW, R.soffit], [s2 + p.bearingW, R.deckTop], [-s2 - p.bearingW, R.deckTop]])}"/>`;
+    g += `<line class="road" x1="${X(-ext)}" y1="${Y(p.frl)}" x2="${X(ext)}" y2="${Y(p.frl)}"/>`;
+    // level ladder on the right
+    const lv = [['FRL', p.frl], ['Soffit', R.soffit], ['TBL', R.tbl], ['FSL', R.fsl], ['CBL', p.cbl], ['Foundation', p.foundationLevel]];
+    let lastY = -99;
+    const xl = X(ext) + 6;
+    for (const [n, l] of lv) {
+      let y = Y(l);
+      const yt = Math.max(y, lastY + 13);
+      lastY = yt;
+      const cls = n === 'FSL' || n === 'CBL' ? 'lv water-t' : n === 'Soffit' && !R.okSoffit ? 'lv bad-t' : 'lv';
+      g += `<line class="tick" x1="${X(-ext)}" y1="${y}" x2="${xl}" y2="${y}"/>`;
+      g += `<text class="${cls}" x="${xl + 4}" y="${yt + 4}"><tspan class="lvn">${n}</tspan> ${l.toFixed(3)}</text>`;
+    }
+    // span dimension
+    const yd = Y(R.deckTop) - 12;
+    g += `<line class="dim" x1="${X(-s2)}" y1="${yd}" x2="${X(s2)}" y2="${yd}"/><text class="dimt" x="${X(0)}" y="${yd - 4}" text-anchor="middle">${fmt(p.span, 2)} m clear span</text>`;
+    return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Cross-section of the bridge and canal with levels">${g}</svg>`;
   }
 
   function renderHints() {
@@ -2509,6 +2699,9 @@ input.rate { width: 90px; text-align: right; border: 1px solid var(--line); bord
   // ---------------------------------------------------------------- wiring
   function init() {
     buildForm(); fillForm();
+    const guide = $('#guide');
+    if (load('bd-guide') === 'closed') guide.open = false;
+    guide.addEventListener('toggle', () => save('bd-guide', guide.open ? 'open' : 'closed'));
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
       if (state.bridgeType === b.dataset.type) return;
       state.bridgeType = b.dataset.type;

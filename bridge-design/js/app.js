@@ -8,24 +8,24 @@
 
   // [key, label, unit, step] ; text fields have step = 'text'
   const GROUPS = [
-    ['Hydraulic particulars (HPs)', true, [
+    ['Hydraulic particulars (HPs)', true, { step: 1, note: 'Copy from the approved HP statement / L-section at the bridge chainage.' }, [
       ['Q', 'Discharge Q', 'cumecs', 0.001], ['bedWidth', 'Bed width', 'm', 0.001], ['fsd', 'Full supply depth', 'm', 0.001],
       ['sideSlope', 'Side slope (H:1)', '', 0.25], ['freeBoard', 'Free board', 'm', 0.01], ['bedFall', 'Bed fall 1 in', '', 100],
       ['manningN', "Manning's n", '', 0.001], ['cbl', 'Design CBL', 'm', 0.001], ['cblExisting', 'Existing CBL', 'm', 0.001],
       ['bankWidthL', 'Bank top width L', 'm', 0.1], ['bankWidthR', 'Bank top width R', 'm', 0.1],
     ]],
-    ['Road & levels', true, [
+    ['Road & levels', true, { step: 2, note: 'From the site survey. Levels in metres, without the + sign.' }, [
       ['span', 'Clear span', 'm', 0.25], ['carriageway', 'Carriageway', 'm', 0.05], ['frl', 'Road level (FRL)', 'm', 0.001],
       ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05], ['frlNote', 'FRL note', '', 'text'],
       ['sbc', 'Safe bearing capacity', 't/sqm', 0.5], ['siltFactor', 'Silt factor f', '', 0.1],
     ]],
-    ['Project details (for title block & estimate)', false, [
+    ['Project details', false, { step: 3, note: 'Printed on the drawings, report and estimate.' }, [
       ['chainage', 'Chainage (Km)', '', 'text'], ['canalName', 'Canal', '', 'text'],
       ['location', 'Place / village', '', 'text'], ['district', 'District', '', 'text'],
       ['project', 'Project', '', 'text'], ['state', 'Government', '', 'text'], ['department', 'Department', '', 'text'],
       ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'], ['roadType', 'Type of road', '', 'text'],
     ]],
-    ['Deck slab', false, [
+    ['Deck slab', false, { adv: true }, [
       ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
       ['mainSpacing', 'Main bar spacing', 'mm', 5], ['distDia', 'Distribution dia', 'mm', 1], ['distSpacing', 'Distribution spacing', 'mm', 5],
       ['topDia', 'Top bar dia', 'mm', 1], ['topSpacing', 'Top bar spacing', 'mm', 5], ['cover', 'Clear cover', 'm', 0.005],
@@ -33,13 +33,13 @@
       ['approachLen', 'Approach slab length', 'm', 0.5], ['approachThk', 'Approach slab thk', 'm', 0.025],
       ['scbc', 'σcbc (M20)', 'N/mm²', 0.5], ['sst', 'σst (Fe415)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
     ]],
-    ['Abutment', false, [
+    ['Abutment', false, { adv: true }, [
       ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
       ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
       ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1], ['phi', 'Backfill φ', 'deg', 1],
       ['surcharge', 'LL surcharge height', 'm', 0.1], ['mu', 'Friction coefficient', '', 0.05],
     ]],
-    ['Wing walls & canal protection', false, [
+    ['Wing walls & canal protection', false, { adv: true }, [
       ['wTopW', 'Wing top width', 'm', 0.05], ['wFrontBatter', 'Wing front batter', 'm', 0.05], ['wBaseW', 'Wing base width', 'm', 0.1],
       ['wToe', 'Wing toe', 'm', 0.05], ['wHeel', 'Wing heel', 'm', 0.05], ['wFootT', 'Wing footing thk', 'm', 0.05],
       ['wingLen', 'Wing length', 'm', 0.1], ['keyW', 'Shear key width', 'm', 0.05], ['keyD', 'Shear key depth', 'm', 0.05],
@@ -65,21 +65,32 @@
   function buildForm() {
     const form = $('#form');
     form.innerHTML = '';
-    for (const [title, open, fields] of GROUPS) {
+    let advBox = null;
+    for (const [title, open, meta, fields] of GROUPS) {
       const det = document.createElement('details');
       det.open = open;
-      det.innerHTML = `<summary>${title}</summary><div class="grid"></div>`;
+      det.className = meta.adv ? 'group adv' : 'group step';
+      det.innerHTML = `<summary>${meta.step ? `<span class="stepno">${meta.step}</span>` : ''}<span class="gtitle">${title}</span></summary>` +
+        (meta.note ? `<p class="gnote">${meta.note}</p>` : '') + '<div class="grid"></div>';
       const grid = det.querySelector('.grid');
       for (const [key, label, unit, step] of fields) {
         const isText = step === 'text';
         const wrap = document.createElement('label');
         wrap.className = 'field' + (isText ? ' wide' : '');
-        wrap.innerHTML = `<span>${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
-          `<input name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
+        wrap.innerHTML = `<span class="flabel">${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
+          `<input id="in-${key}" name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
           `<small class="hint-inline" data-hint="${key}"></small>`;
         grid.appendChild(wrap);
       }
-      form.appendChild(det);
+      if (meta.adv) {
+        if (!advBox) {
+          advBox = document.createElement('div');
+          advBox.className = 'advbox';
+          advBox.innerHTML = '<div class="advhead"><span class="stepno ghost">4</span><div><b>Standard section</b><p class="gnote">Pre-filled with the office type design. Leave as is; <b>Auto design</b> adjusts these when a check fails.</p></div></div>';
+          form.appendChild(advBox);
+        }
+        advBox.appendChild(det);
+      } else form.appendChild(det);
     }
     form.addEventListener('input', (e) => {
       const t = e.target;
@@ -127,17 +138,63 @@
     for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
     const R = cur.R;
     const gov = R.govM.veh.name;
-    $('#status').innerHTML =
-      `<div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
+      $('#status').innerHTML =
+      `<div class="status-head"><div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
+      `<span class="gov">Governing live load: ${esc(gov)}</span></div>` +
+      `<div class="status-body"><figure class="xsec">${sectionSVG()}<figcaption>Section across the canal, drawn to scale from your inputs</figcaption></figure>` +
       `<div class="kpis">
-        <div><b>${R.typ}</b><span>${fmt(state.span, 2)} m span × ${fmt(R.B, 2)} m wide</span></div>
-        <div><b>${fmt(state.D * 1000, 0)} mm</b><span>deck, ${state.mainDia}φ @ ${state.mainSpacing}</span></div>
-        <div><b>${fmt(R.abWorst.pmax, 2)}</b><span>max base pressure t/m² (SBC ${state.sbc})</span></div>
-        <div><b>₹ ${est.lakhs.toFixed(2)} L</b><span>estimate</span></div>
-      </div>` +
-      (fails.length ? `<ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p class="hint">Tip: <b>Auto design</b> sizes the deck, abutment and wing walls to pass all checks.</p>` : '') +
-      (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '') +
-      `<p class="hint">Governing live load: ${esc(gov)}.</p>`;
+        <div><span>Bridge</span><b>${R.typ}</b><small>${fmt(state.span, 2)} m clear span × ${fmt(R.B, 2)} m wide</small></div>
+        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)} mm</b><small>${state.mainDia} mm dia @ ${state.mainSpacing} c/c main</small></div>
+        <div><span>Base pressure</span><b>${fmt(R.abWorst.pmax, 2)} t/m²</b><small>SBC ${state.sbc} t/m² · FOS ${fmt(R.abWorst.fosO, 2)} / ${fmt(R.abWorst.fosS, 2)}</small></div>
+        <div><span>Estimate</span><b>Rs ${est.lakhs.toFixed(2)} lakhs</b><small>SSR 2026-27, incl. GST</small></div>
+      </div></div>` +
+      (fails.length ? `<div class="fixbox"><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Click <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
+      (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+  }
+
+  // Cross-section across the canal (along the road), to scale, with levels.
+  function sectionSVG() {
+    const p = cur.p, R = cur.R;
+    const s2 = p.span / 2, fb = p.frontBatter;
+    const xf1 = s2 - fb + R.stemBase + p.abHeel;
+    const ext = Math.max(xf1, s2 + p.abTopW + p.approachLen * 0.6) + 0.3;
+    const top = p.frl + 0.25, bot = p.foundationLevel - 0.15;
+    const W = 640, padL = 8, padR = 150;
+    const k = Math.min((W - padL - padR) / (2 * ext), 330 / (top - bot));
+    const Hh = Math.ceil((top - bot) * k + 22);
+    const cx = padL + ((W - padL - padR) / 2);
+    const X = (x) => cx + x * k, Y = (l) => 8 + (top - l) * k;
+    const pts = (a) => a.map(([x, l]) => `${X(x).toFixed(1)},${Y(l).toFixed(1)}`).join(' ');
+    let g = '';
+    // ground / bank beyond
+    g += `<polygon class="soil" points="${pts([[-ext, p.gl], [-R.topTBL / 2 - 0.4, p.gl], [-R.topTBL / 2, R.tbl], [-p.bedWidth / 2, p.cbl], [p.bedWidth / 2, p.cbl], [R.topTBL / 2, R.tbl], [R.topTBL / 2 + 0.4, p.gl], [ext, p.gl], [ext, bot], [-ext, bot]])}"/>`;
+    // water
+    const wf = R.topFSL / 2;
+    g += `<polygon class="water" points="${pts([[-wf, R.fsl], [wf, R.fsl], [p.bedWidth / 2, p.cbl], [-p.bedWidth / 2, p.cbl]])}"/>`;
+    for (const sg of [-1, 1]) {
+      const P = (a) => pts(a.map(([x, l]) => [sg * x, l]));
+      g += `<polygon class="conc" points="${P([[s2 - fb - p.abToe, p.foundationLevel], [xf1, p.foundationLevel], [xf1, R.ftgTop], [s2 - fb - p.abToe, R.ftgTop]])}"/>`;
+      g += `<polygon class="conc" points="${P([[s2 - fb, R.ftgTop], [s2, R.stemTop], [s2 + 0.5, R.stemTop], [s2 + 0.5, R.deckTop], [s2 + p.abTopW, R.deckTop], [s2 + p.abTopW + p.abBackBatter, R.ftgTop]])}"/>`;
+      g += `<polygon class="rcc" points="${P([[s2 + p.abTopW, R.approachBot], [ext, R.approachBot], [ext, R.deckTop], [s2 + p.abTopW, R.deckTop]])}"/>`;
+    }
+    g += `<polygon class="rcc deck" points="${pts([[-s2 - p.bearingW, R.soffit], [s2 + p.bearingW, R.soffit], [s2 + p.bearingW, R.deckTop], [-s2 - p.bearingW, R.deckTop]])}"/>`;
+    g += `<line class="road" x1="${X(-ext)}" y1="${Y(p.frl)}" x2="${X(ext)}" y2="${Y(p.frl)}"/>`;
+    // level ladder on the right
+    const lv = [['FRL', p.frl], ['Soffit', R.soffit], ['TBL', R.tbl], ['FSL', R.fsl], ['CBL', p.cbl], ['Foundation', p.foundationLevel]];
+    let lastY = -99;
+    const xl = X(ext) + 6;
+    for (const [n, l] of lv) {
+      let y = Y(l);
+      const yt = Math.max(y, lastY + 13);
+      lastY = yt;
+      const cls = n === 'FSL' || n === 'CBL' ? 'lv water-t' : n === 'Soffit' && !R.okSoffit ? 'lv bad-t' : 'lv';
+      g += `<line class="tick" x1="${X(-ext)}" y1="${y}" x2="${xl}" y2="${y}"/>`;
+      g += `<text class="${cls}" x="${xl + 4}" y="${yt + 4}"><tspan class="lvn">${n}</tspan> ${l.toFixed(3)}</text>`;
+    }
+    // span dimension
+    const yd = Y(R.deckTop) - 12;
+    g += `<line class="dim" x1="${X(-s2)}" y1="${yd}" x2="${X(s2)}" y2="${yd}"/><text class="dimt" x="${X(0)}" y="${yd - 4}" text-anchor="middle">${fmt(p.span, 2)} m clear span</text>`;
+    return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Cross-section of the bridge and canal with levels">${g}</svg>`;
   }
 
   function renderHints() {
@@ -243,6 +300,9 @@
   // ---------------------------------------------------------------- wiring
   function init() {
     buildForm(); fillForm();
+    const guide = $('#guide');
+    if (load('bd-guide') === 'closed') guide.open = false;
+    guide.addEventListener('toggle', () => save('bd-guide', guide.open ? 'open' : 'closed'));
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
       if (state.bridgeType === b.dataset.type) return;
       state.bridgeType = b.dataset.type;

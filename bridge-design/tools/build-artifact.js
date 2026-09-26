@@ -13,13 +13,14 @@ const CDN = {
   'vendor/jszip.min.js': 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
 };
 const title = html.match(/<title>[\s\S]*?<\/title>/)[0];
+const fonts = (html.match(/<link rel="(preconnect|stylesheet)" href="https:\/\/fonts[^>]*>/g) || []).join('\n');
 let body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>'));
 body = body.replace(/<script src="([^"]+)"( defer)?><\/script>/g, (m, src) => {
   if (CDN[src]) return `<script src="${CDN[src]}"></script>`;
   // keep "</script" out of inlined code
   return `<script>\n${read(src).replace(/<\/script/gi, '<\\/script')}\n</script>`;
 });
-const out = `${title}\n<style>\n${read('css/style.css')}\n</style>\n${body.trim()}\n`;
+const out = `${title}\n${fonts}\n<style>\n${read('css/style.css')}\n</style>\n${body.trim()}\n`;
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(root, 'dist/bridge-design.html'), out);
 console.log('dist/bridge-design.html', (out.length / 1024).toFixed(0), 'KB');
