@@ -35,28 +35,41 @@ server needed; the Excel / PDF / zip libraries are bundled in `vendor/`.
 
 ## Design basis
 
-* Codes: IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014,
-  IRC SP:13-2004, IS 456-2000, IS 1786, IS 2502.
-* **SLRB**: 4.25 m carriageway, one lane of IRC Class A — reproduces the
-  reference Excel design sheet (see *Verification*).
-* **DLRB**: 7.50 m carriageway (IRC 5 cl.104.3.1). As per IRC 6 Table 6A the
-  deck and abutments are checked for **two lanes of Class A** (1.2 m between
-  trains; braking 20 % + 10 %), **one lane of Class 70R tracked**
-  (70 t on 4.57 × 0.84 m tracks at 2.06 m c/c, impact 25 % → 10 % for 5–9 m
-  spans) and **Class 70R wheeled bogie** (2 × 20 t axles at 1.22 m, wheel
-  groups at 1.93 m c/c, 1.2 m clearance to kerb); the worst governs. Each
-  loading is a separate abutment stability case.
-* Effective width (IRC 21 cl.305.16): dispersions of adjacent wheels/tracks
-  are combined only where they overlap, and are limited by the deck edges.
-* Abutments / wing walls: plain CC M15 with plums, Rankine earth pressure +
-  1.2 m LL surcharge, no-tension check on the stem, FOS 2.0 / 1.5,
-  base pressure ≤ SBC.
+Every site-dependent assumption is an input with a code-based default, so the
+tool is not tied to one office's type design:
+
+| Area | Options | Basis |
+|---|---|---|
+| Deck method | IRC 21:2000 WSM (department type designs) or IRC 112:2020 LSM (current code: ULS flexure & shear, SLS stresses, minimum steel) | IRC 21, IRC 112 |
+| Materials | Deck M20–M40, Fe415/500/550 (permissible stresses follow the grade), exposure → cover 40/45/50/75 mm, substructure CC M15–M25 | IRC 21 Tables 9–10, IRC 112 Table 14.2, IS 456 Table 21 |
+| Live load | Automatic per IRC 6:2017 Table 6A (< 5.3 m: 1-lane Class A; 5.3–9.6 m: 2-lane Class A or 1-lane 70R tracked / wheeled bogie) or chosen classes incl. Class B | IRC 6 cl.204–211 |
+| Edge | Kerb + hand railing (MORTH SD/202) or RCC crash barrier; optional footpaths with pedestrian load | IRC 5, IRC 6 cl.206 |
+| Vents | 1..n vents; gravity piers added with their own stability, scour at piers 2.0 dsm | IRC 78 cl.703 |
+| Seismic | Zone II–V, importance factor; exemption of IRC 6 cl.219.1 applied automatically (span < 10 m, or Zone II/III with span < 15 m and length < 60 m) or forced; Ah = (Z/2)(I)(Sa/g)/R; Mononobe-Okabe dynamic increment; FOS 1.5 / 1.25, SBC +25 % | IRC 6 cl.219, 214.1.2; IRC 78 |
+| Soil / scour | SBC, φ, γ, μ, silt factor (from bed material), floor protection yes/no, shear key under abutment | IRC 78, IRC SP:13 |
+| Geometry | Skew (span along road = span / cos θ; > 20° flagged), all section dimensions | IRC 21 |
+
+**Auto design** sets vents and span from the canal width, the foundation level
+from scour, and sizes deck, abutments, piers and wing walls. It keeps gravity
+proportions practical; when a site cannot be met by a plain gravity
+substructure (tall walls on weak soil, Zone IV–V sliding) it says so and
+recommends an RCC / counterfort substructure or deep foundation instead of
+producing an unrealistic section.
+
+Values verified against published summaries of IRC 6:2017 (Table 6A, Class 70R
+700 kN on 4.57 × 0.84 m tracks at 2.06 m, bogie 2 × 20 t at 1.22 m, 70R impact,
+cl.219.1 exemption, Z = 0.10/0.16/0.24/0.36) and IRC 21 / IRC 112 (σcbc = fck/3,
+σst 200 MPa for Fe415, M25 minimum for RCC, cover by exposure). Items still to
+confirm against your code copies: Class B wheel spacing (1.8 m assumed), the
+vehicle clearances used for 70R (1.2 m) and IRC 112 bar-spacing limit.
 
 ## Verification
 
 ```
 node tests/verify-design.js    # engine vs reference DESIGN sheets (Km 0.450 & 1.580)
 node tests/verify-estimate.js  # quantities vs reference estimate (Km 0.450)
+node tests/scenarios.js        # 14 site scenarios: LSM, Class B, footpaths, seismic,
+                               # multi-vent, skew, poor soil, no apron
 ```
 
 All levels, deck moment, steel, abutment and wing-wall results match the

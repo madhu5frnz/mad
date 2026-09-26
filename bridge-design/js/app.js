@@ -6,7 +6,9 @@
   const fmt = BD.fmt;
   const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1';
 
-  // [key, label, unit, step] ; text fields have step = 'text'
+  // [key, label, unit, step]; step = 'text' for text, or an array of
+  // [value, label] pairs for a drop-down.
+  const YN = [['yes', 'Yes'], ['no', 'No']];
   const GROUPS = [
     ['Hydraulic particulars (HPs)', true, { step: 1, note: 'Copy from the approved HP statement / L-section at the bridge chainage.' }, [
       ['Q', 'Discharge Q', 'cumecs', 0.001], ['bedWidth', 'Bed width', 'm', 0.001], ['fsd', 'Full supply depth', 'm', 0.001],
@@ -14,30 +16,55 @@
       ['manningN', "Manning's n", '', 0.001], ['cbl', 'Design CBL', 'm', 0.001], ['cblExisting', 'Existing CBL', 'm', 0.001],
       ['bankWidthL', 'Bank top width L', 'm', 0.1], ['bankWidthR', 'Bank top width R', 'm', 0.1],
     ]],
-    ['Road & levels', true, { step: 2, note: 'From the site survey. Levels in metres, without the + sign.' }, [
-      ['span', 'Clear span', 'm', 0.25], ['carriageway', 'Carriageway', 'm', 0.05], ['frl', 'Road level (FRL)', 'm', 0.001],
-      ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05], ['frlNote', 'FRL note', '', 'text'],
-      ['sbc', 'Safe bearing capacity', 't/sqm', 0.5], ['siltFactor', 'Silt factor f', '', 0.1],
+    ['Road, levels & soil', true, { step: 2, note: 'From the site survey and soil investigation. Levels in metres, without the + sign.' }, [
+      ['nVents', 'Number of vents', 'Nos', 1], ['span', 'Clear span of each vent', 'm', 0.25],
+      ['carriageway', 'Carriageway', 'm', 0.05], ['skew', 'Skew angle', 'deg', 1],
+      ['frl', 'Road level (FRL)', 'm', 0.001], ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05],
+      ['sbc', 'Safe bearing capacity', 't/sqm', 0.5],
+      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5']]],
+      ['siltFactor', 'Silt factor f', '', 0.05], ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1],
+      ['mu', 'Friction (concrete/soil)', '', 0.05], ['apron', 'Floor protection (apron + lining)', '', YN],
+      ['frlNote', 'FRL note', '', 'text'],
     ]],
-    ['Project details', false, { step: 3, note: 'Printed on the drawings, report and estimate.' }, [
+    ['Design standard & loading', true, { step: 3, note: 'Defaults follow IRC 6 / IRC 21 as in department type designs. Change them for your authority and site.' }, [
+      ['method', 'Deck design method', '', [['WSM', 'IRC 21 WSM (type designs)'], ['LSM', 'IRC 112 LSM (current code)']]],
+      ['fck', 'Deck concrete', '', [[20, 'M20'], [25, 'M25'], [30, 'M30'], [35, 'M35'], [40, 'M40']]],
+      ['fy', 'Reinforcement', '', [[415, 'Fe415'], [500, 'Fe500'], [550, 'Fe550']]],
+      ['exposure', 'Exposure (sets cover)', '', [['moderate', 'Moderate - 40 mm'], ['severe', 'Severe - 45 mm'], ['very severe', 'Very severe - 50 mm'], ['extreme', 'Extreme - 75 mm']]],
+      ['subFck', 'Substructure concrete', '', [[15, 'CC M15'], [20, 'CC M20'], [25, 'CC M25']]],
+      ['liveMode', 'Live load', '', [['auto', 'As per IRC 6 Table 6A'], ['manual', 'Choose classes']]],
+      ['llA1', 'Class A, 1 lane', '', YN], ['llA2', 'Class A, 2 lanes', '', YN], ['llB', 'Class B', '', YN],
+      ['ll70T', '70R tracked', '', YN], ['ll70W', '70R wheeled bogie', '', YN],
+      ['edgeType', 'Deck edge', '', [['railing', 'Kerb + hand railing (SD/202)'], ['crash', 'RCC crash barrier (MORTH)']]],
+      ['fpW', 'Footpath width each side (0 = none)', 'm', 0.25],
+      ['seismicZone', 'Seismic zone', '', [['II', 'Zone II (Z 0.10)'], ['III', 'Zone III (Z 0.16)'], ['IV', 'Zone IV (Z 0.24)'], ['V', 'Zone V (Z 0.36)']]],
+      ['seismicMode', 'Seismic check', '', [['auto', 'As per IRC 6 cl.219.1'], ['include', 'Always check'], ['exclude', 'Do not check']]],
+      ['impFactor', 'Importance factor I', '', [[1.0, '1.0 normal'], [1.2, '1.2 important'], [1.5, '1.5 large / critical']]],
+    ]],
+    ['Project details', false, { step: 4, note: 'Printed on the drawings, report and estimate.' }, [
       ['chainage', 'Chainage (Km)', '', 'text'], ['canalName', 'Canal', '', 'text'],
       ['location', 'Place / village', '', 'text'], ['district', 'District', '', 'text'],
       ['project', 'Project', '', 'text'], ['state', 'Government', '', 'text'], ['department', 'Department', '', 'text'],
       ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'], ['roadType', 'Type of road', '', 'text'],
     ]],
-    ['Deck slab', false, { adv: true }, [
+    ['Deck slab & edge', false, { adv: true }, [
       ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
       ['mainSpacing', 'Main bar spacing', 'mm', 5], ['distDia', 'Distribution dia', 'mm', 1], ['distSpacing', 'Distribution spacing', 'mm', 5],
       ['topDia', 'Top bar dia', 'mm', 1], ['topSpacing', 'Top bar spacing', 'mm', 5], ['cover', 'Clear cover', 'm', 0.005],
-      ['kerbW', 'Kerb width', 'm', 0.025], ['kerbH', 'Kerb height', 'm', 0.025], ['bearingW', 'Bearing width', 'm', 0.01],
+      ['bearingW', 'Bearing width', 'm', 0.01], ['maxSlabSpan', 'Max solid-slab span', 'm', 0.5],
+      ['kerbW', 'Kerb width', 'm', 0.025], ['kerbH', 'Kerb height', 'm', 0.025], ['railingLoad', 'Railing load', 't/m', 0.01],
+      ['barrierW', 'Crash barrier width', 'm', 0.025], ['barrierLoad', 'Crash barrier weight', 't/m', 0.05],
+      ['fpThk', 'Footpath fill thickness', 'm', 0.025], ['fpLoad', 'Footpath live load', 't/sqm', 0.05],
       ['approachLen', 'Approach slab length', 'm', 0.5], ['approachThk', 'Approach slab thk', 'm', 0.025],
-      ['scbc', 'σcbc (M20)', 'N/mm²', 0.5], ['sst', 'σst (Fe415)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
+      ['scbc', 'σcbc (WSM)', 'N/mm²', 0.01], ['sst', 'σst (WSM)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
     ]],
-    ['Abutment', false, { adv: true }, [
+    ['Abutment & piers', false, { adv: true }, [
       ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
       ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
-      ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1], ['phi', 'Backfill φ', 'deg', 1],
-      ['surcharge', 'LL surcharge height', 'm', 0.1], ['mu', 'Friction coefficient', '', 0.05],
+      ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['surcharge', 'LL surcharge height', 'm', 0.1],
+      ['abKey', 'Shear key under abutment', '', YN], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
+      ['pierTopW', 'Pier top width', 'm', 0.05], ['pierBatter', 'Pier batter each face', 'm', 0.05], ['pierToe', 'Pier footing projection', 'm', 0.05],
+      ['saG', 'Seismic Sa/g', '', 0.1], ['respR', 'Response reduction R', '', 0.5],
     ]],
     ['Wing walls & canal protection', false, { adv: true }, [
       ['wTopW', 'Wing top width', 'm', 0.05], ['wFrontBatter', 'Wing front batter', 'm', 0.05], ['wBaseW', 'Wing base width', 'm', 0.1],
@@ -46,15 +73,40 @@
       ['apronThk', 'Apron thickness', 'm', 0.025], ['liningLen', 'Lining length u/s & d/s', 'm', 1], ['liningThk', 'Lining thickness', 'm', 0.025],
     ]],
   ];
+  // Fields shown only when relevant.
+  const SHOW_IF = {
+    llA1: (s) => s.liveMode === 'manual', llA2: (s) => s.liveMode === 'manual', llB: (s) => s.liveMode === 'manual',
+    ll70T: (s) => s.liveMode === 'manual', ll70W: (s) => s.liveMode === 'manual',
+    impFactor: (s) => s.seismicMode !== 'exclude',
+    kerbW: (s) => s.edgeType !== 'crash', kerbH: (s) => s.edgeType !== 'crash', railingLoad: (s) => s.edgeType !== 'crash',
+    barrierW: (s) => s.edgeType === 'crash', barrierLoad: (s) => s.edgeType === 'crash',
+    fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
+    scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
+    pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
+    apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
+  };
+  // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
+  function onChoice(key) {
+    if (key === 'fck') state.scbc = BD.scbcFor(Number(state.fck));
+    if (key === 'fy') state.sst = BD.sstFor(Number(state.fy));
+    if (key === 'exposure') state.cover = BD.COVER[state.exposure] || state.cover;
+    if (key === 'subFck') state.subAllow = BD.subAllowFor(Number(state.subFck));
+    if (key === 'soilType' && state.soilType) state.siltFactor = Number(state.soilType);
+    if (key === 'method' && state.method === 'LSM' && Number(state.fck) < 25) { state.fck = 25; state.scbc = BD.scbcFor(25); }
+    if (key === 'edgeType' || key === 'fpW' || key === 'nVents') return true;
+    return ['fck', 'fy', 'exposure', 'subFck', 'soilType', 'method'].includes(key);
+  }
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
     km0450: () => Object.assign({}, BD.DEFAULTS),
     km1580: () => Object.assign({}, BD.DEFAULTS, KM1580),
     dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
+    general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
+    wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
   };
 
-  let state = load(STORE) || Object.assign({}, BD.DEFAULTS);
+  let state = Object.assign({}, BD.DEFAULTS, load(STORE) || {});
   let rates = load(RSTORE) || {};
   let cur = null, est = null;
 
@@ -74,19 +126,21 @@
         (meta.note ? `<p class="gnote">${meta.note}</p>` : '') + '<div class="grid"></div>';
       const grid = det.querySelector('.grid');
       for (const [key, label, unit, step] of fields) {
-        const isText = step === 'text';
+        const isText = step === 'text', isSel = Array.isArray(step);
         const wrap = document.createElement('label');
-        wrap.className = 'field' + (isText ? ' wide' : '');
-        wrap.innerHTML = `<span class="flabel">${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
-          `<input id="in-${key}" name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
-          `<small class="hint-inline" data-hint="${key}"></small>`;
+        wrap.className = 'field' + (isText || (isSel && step.length > 4) ? ' wide' : '');
+        wrap.dataset.field = key;
+        const ctl = isSel
+          ? `<select id="in-${key}" name="${key}" data-num="${typeof step[step.length - 1][0] === 'number' ? 1 : ''}">${step.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>`
+          : `<input id="in-${key}" name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>`;
+        wrap.innerHTML = `<span class="flabel">${label}${unit ? ` <em>${unit}</em>` : ''}</span>${ctl}<small class="hint-inline" data-hint="${key}"></small>`;
         grid.appendChild(wrap);
       }
       if (meta.adv) {
         if (!advBox) {
           advBox = document.createElement('div');
           advBox.className = 'advbox';
-          advBox.innerHTML = '<div class="advhead"><span class="stepno ghost">4</span><div><b>Standard section</b><p class="gnote">Pre-filled with the office type design. Leave as is; <b>Auto design</b> adjusts these when a check fails.</p></div></div>';
+          advBox.innerHTML = '<div class="advhead"><span class="stepno ghost">5</span><div><b>Dimensions & detailed parameters</b><p class="gnote">Pre-filled with a standard section. Leave as is; <b>Auto design</b> sizes these to pass every check.</p></div></div>';
           form.appendChild(advBox);
         }
         advBox.appendChild(det);
@@ -95,8 +149,17 @@
     form.addEventListener('input', (e) => {
       const t = e.target;
       if (!t.name) return;
+      if (t.tagName === 'SELECT') return;
       state[t.name] = t.type === 'number' ? (t.value === '' ? state[t.name] : Number(t.value)) : t.value;
+      if (t.name === 'fpW' || t.name === 'nVents') applyVisibility();
       schedule();
+    });
+    form.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.tagName !== 'SELECT' || !t.name) return;
+      state[t.name] = t.dataset.num ? Number(t.value) : t.value;
+      if (onChoice(t.name)) fillForm(); else applyVisibility();
+      run();
     });
     form.addEventListener('click', (e) => {
       const b = e.target.closest('[data-use]');
@@ -107,8 +170,16 @@
     });
   }
 
+  function applyVisibility() {
+    for (const [k, f] of Object.entries(SHOW_IF)) {
+      const el = document.querySelector(`[data-field="${k}"]`);
+      if (el) el.hidden = !f(state);
+    }
+  }
+
   function fillForm() {
     for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
+    applyVisibility();
     document.querySelectorAll('.type-switch button').forEach((b) => b.classList.toggle('active', b.dataset.type === state.bridgeType));
   }
 
@@ -220,7 +291,12 @@
     document.querySelectorAll('[data-hint]').forEach((el) => (el.innerHTML = ''));
     if (Math.abs(state.span - R.spanSuggested) > 1e-6) set('span', `Suggested ${fmt(R.spanSuggested, 2)} m (canal top width at FSL ${fmt(R.topFSL, 3)}) <button data-use="span" data-val="${R.spanSuggested}">use</button>`);
     else set('span', `= suggested from top width at FSL ${fmt(R.topFSL, 3)} m`);
-    set('foundationLevel', `Deepest allowed by scour / apron check: +${fmt(Math.max(R.flScour + 0.01, R.flApron))}${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use ${fmt(R.flSuggested)}</button>`}`);
+    set('foundationLevel', `Must be at or below +${fmt(R.flSuggested)} (IRC 78 scour${state.apron !== 'no' ? ' / IRC SP:13 apron' : ''})${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use</button>`}`);
+    if (R.ventsSuggested > state.nVents) set('nVents', `Canal ${fmt(R.topFSL, 2)} m wide at FSL > ${fmt(state.maxSlabSpan, 1)} m slab span: ${R.ventsSuggested} vents suggested <button data-use="nVents" data-val="${R.ventsSuggested}">use</button>`);
+    set('seismicZone', R.seismic ? `Seismic check applied, Ah = ${fmt(R.Ah, 3)}` : 'Not required for this span / zone (IRC 6 cl.219.1)');
+    set('liveMode', `Checking: ${R.vehicles.map((e) => e.veh.name.replace('IRC ', '')).join(', ')}`);
+    set('method', state.method === 'LSM' ? 'IRC 112:2020; minimum M25 for RCC' : 'IRC 21:2000 as in department type designs');
+    set('skew', state.skew > 20 ? 'Above 20°: needs skew slab analysis' : '');
     if (!R.okSoffit) set('frl', `Soffit below TBL – FRL ≥ +${fmt(R.frlMin)} <button data-use="frl" data-val="${R.frlMin.toFixed(3)}">use</button>`);
     set('carriageway', state.bridgeType === 'DLRB' ? 'IRC 5: 7.50 m two-lane' : 'IRC 5: 4.25 m single lane');
   }

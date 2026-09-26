@@ -20,6 +20,7 @@
     'IRR-CCDW-2-25': 11609,
     'IRR-CCDW-2-29': 6729.7,
     'IRR-CCDW-5-5': 1740.9,
+    'MORTH-2700': 9500,
   };
   const SEIG_RATES = { metal: 117, nsand: 40, msand: 117 };
   const GA = { labourCess: 0.01, nac: 0.001, smet: 0.02, dmf: 0.3, permit: 0.8, gst: 0.18, roundExtra: 2000 };
@@ -52,6 +53,9 @@
     { code: 'IRR-CCDW-5-5', unit: 'Rm', key: 'rail', rateNote: 'SoR 2026-27 rate - verify',
       short: 'Providing hand railing with RCC posts and GI pipe rails as per MOST Drg. No. SD/202, complete.',
       long: 'Providing hand railing with RCC posts and GI pipe rails as per MOST Drg. No. SD/202 including painting etc., complete.' },
+    { code: 'MORTH-2700', unit: 'Rm', key: 'crash', rateNote: 'Enter SSR rate for RCC crash barrier',
+      short: 'Providing and laying RCC crash barrier (M40, including reinforcement) on the edges of deck and approaches as per MORTH standard drawing, complete.',
+      long: 'Providing and laying cast in situ RCC crash barrier of M40 grade concrete including reinforcement, formwork, finishing, painting and all leads and lifts, on the edges of deck slab and approach slabs as per MORTH Specifications Section 2700 and standard drawing, complete.' },
   ];
 
   const unitWt = (dia) => Math.round((dia * dia / 162) * 1000) / 1000;
@@ -59,24 +63,32 @@
 
   function bbs(d) {
     const { p, R } = d;
-    const L = R.deckL, B = R.B, c = 0.04;
+    const L = R.deckL, B = R.B, c = 0.04, nV = R.nV || 1;
     const rows = [];
     const add = (member, desc, dia, sp, shape, len, nb, nm) => {
       const tl = len * nb * nm, w = unitWt(dia);
       rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w, kg: r2(tl * w) });
     };
-    const m1 = `Deck slab  (1 No.)  ${L.toFixed(2)} x ${B.toFixed(2)} x ${p.D.toFixed(3)} m - M20`;
+    const m1 = `Deck slab  (${nV} No${nV > 1 ? 's' : ''}.)  ${L.toFixed(2)} x ${B.toFixed(2)} x ${p.D.toFixed(3)} m - M20`;
     add(m1, '(i) Main bars - bottom (200 end bends)', p.mainDia, p.mainSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.mainSpacing / 1000), 1);
     add(m1, '(ii) Top bars (span direction)', p.topDia, p.topSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.topSpacing / 1000), 1);
     add(m1, '(iii) Distributaries - bottom', p.distDia, p.distSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.distSpacing / 1000), 1);
     add(m1, '(iv) Distributaries - top', p.topDia, p.topSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.topSpacing / 1000), 1);
     add(m1, '(v) Supporting chairs @ 1 No./sqm', 10, '-', '2 legs 0.30 + 2 feet 0.15', 0.9, Math.ceil(L * B - 1e-9), 1);
-    const m2 = `Kerbs  (2 Nos.)  ${p.kerbW.toFixed(3)} x ${p.kerbH.toFixed(2)} m`;
-    add(m2, '(i) Main bars', 10, '-', 'Straight', L - 2 * c, 4, 2);
-    add(m2, '(ii) Stirrups', 8, 0.2, '2x(0.145+0.22) + 2x0.32 anch. + 0.10', 2 * (0.145 + 0.22) + 2 * 0.32 + 0.1, nBars(L, 0.2), 2);
+    if (nV > 1) for (const x of rows) if (x.member === m1) { x.nm = nV; x.tl = r2(x.len * x.nb * nV); x.kg = r2(x.tl * x.w); }
+    if (p.edgeType !== 'crash') {
+      const m2 = `Kerbs  (${2 * nV} Nos.)  ${p.kerbW.toFixed(3)} x ${p.kerbH.toFixed(2)} m`;
+      add(m2, '(i) Main bars', 10, '-', 'Straight', L - 2 * c, 4, 2 * nV);
+      add(m2, '(ii) Stirrups', 8, 0.2, '2x(0.145+0.22) + 2x0.32 anch. + 0.10', 2 * (0.145 + 0.22) + 2 * 0.32 + 0.1, nBars(L, 0.2), 2 * nV);
+    }
     const m3 = `Bed block over abutment  (2 Nos.)  ${B.toFixed(2)} x 0.50 x ${p.bedBlockT.toFixed(2)} m`;
     add(m3, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(0.5, 0.15), 2);
     add(m3, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', 0.5 - 2 * c, 2 * nBars(B, 0.15), 2);
+    if (nV > 1) {
+      const m5 = `Bed block over piers  (${nV - 1} Nos.)  ${B.toFixed(2)} x ${p.pierTopW.toFixed(2)} x ${p.bedBlockT.toFixed(2)} m`;
+      add(m5, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.pierTopW, 0.15), nV - 1);
+      add(m5, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', p.pierTopW - 2 * c, 2 * nBars(B, 0.15), nV - 1);
+    }
     const m4 = `Approach slab  (2 Nos.)  ${p.approachLen.toFixed(2)} x ${B.toFixed(2)} x ${p.approachThk.toFixed(2)} m`;
     add(m4, '(i) Main bars (T&B)', 12, 0.15, 'Straight', p.approachLen - 2 * c, 2 * nBars(B, 0.15), 2);
     add(m4, '(ii) Distributaries (T&B)', 12, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.approachLen, 0.15), 2);
@@ -101,45 +113,56 @@
     const abH = R.deckTop - R.ftgTop;
     const wAvg = (p.wTopW + p.wBaseW) / 2;
     const b = bbs(d);
+    const nV = R.nV || 1, cosS = Math.cos(((p.skew || 0) * Math.PI) / 180);
+    const abL = B / cosS; // abutment / pier length along the skew
+    const railing = p.edgeType !== 'crash', apron = p.apron !== 'no';
+    const pierArea = ((p.pierTopW + (R.pierBase || p.pierTopW)) / 2) * R.stemH;
     // [desc, no, x, L, W, D]
     const M = {
       exc: [
-        ['For abutments', 1, 2, B + 0.6, R.ftgW + 0.6, excDepthAb],
+        ['For abutments', 1, 2, abL + 0.6, R.ftgW + 0.6, excDepthAb],
+        ...(nV > 1 ? [[`for piers (${nV - 1} Nos)`, 1, nV - 1, abL + 0.6, R.pierFtgW + 0.6, r3(p.cbl - p.foundationLevel)]] : []),
         ['for splayed wing walls', 1, 4, p.wingLen + 0.6, R.wFtgW + 0.6, excDepthW],
         ['for return walls', 1, 4, 2.6, 2.7, 1.236],
-        ['bed & slope trimming for apron / lining', 1, 1, 2 * p.liningLen + B, lining, 0.15],
+        ...(apron ? [['bed & slope trimming for apron / lining', 1, 1, 2 * p.liningLen + abL, lining, 0.15]] : []),
         ['for shear keys below wing wall footings', 1, 4, p.wingLen, p.keyW, p.keyD],
-        ['for curtain walls at u/s & d/s ends of lining', 1, 2, lining, 0.5, 1],
+        ...(p.abKey === 'yes' ? [['for shear keys below abutment footings', 1, 2, abL, p.keyW, p.keyD]] : []),
+        ...(apron ? [['for curtain walls at u/s & d/s ends of lining', 1, 2, lining, 0.5, 1]] : []),
       ],
       pcc: [
-        ['For abutment foundation', 1, 2, B, R.ftgW, p.footingT],
+        ['For abutment foundation', 1, 2, abL, R.ftgW, p.footingT],
+        ...(nV > 1 ? [['for pier foundations', 1, nV - 1, abL, R.pierFtgW, p.footingT]] : []),
         ['for splayed wing walls', 1, 4, p.wingLen, R.wFtgW, p.wFootT],
         ['for return walls', 1, 4, 2, 2.1, 0.3],
         ['for shear keys under wing walls', 1, 4, p.wingLen, p.keyW, p.keyD],
-        ['for curtain walls 300 x 1000 at u/s & d/s ends of lining', 1, 2, lining, 0.3, 1],
+        ...(p.abKey === 'yes' ? [['for shear keys under abutment footings', 1, 2, abL, p.keyW, p.keyD]] : []),
+        ...(apron ? [['for curtain walls 300 x 1000 at u/s & d/s ends of lining', 1, 2, lining, 0.3, 1]] : []),
       ],
-      lining: [
-        [`Bed apron in between abutments (${(p.apronThk * 1000).toFixed(0)} thk)`, 1, 1, B, r3(R.clearCBL), p.apronThk],
+      lining: apron ? [
+        [`Bed apron in between abutments (${(p.apronThk * 1000).toFixed(0)} thk)`, 1, 1, abL, r3(R.clearCBL), p.apronThk],
         [`CC lining bed & slopes u/s & d/s ${p.liningLen} m each (${(p.liningThk * 1000).toFixed(0)} thk)`, 1, 2, p.liningLen, lining, p.liningThk],
-      ],
+      ] : [],
       plum: [
-        [`For abutments (section ${abArea.toFixed(3)} sqm = ${(abArea / abH).toFixed(4)} avg x ${abH.toFixed(3)} ht)`, 1, 2, B, r3(abArea / abH), r3(abH)],
+        [`For abutments (section ${abArea.toFixed(3)} sqm = ${(abArea / abH).toFixed(4)} avg x ${abH.toFixed(3)} ht)`, 1, 2, abL, r3(abArea / abH), r3(abH)],
+        ...(nV > 1 ? [[`for piers (section ${pierArea.toFixed(3)} sqm)`, 1, nV - 1, abL, r3(pierArea / R.stemH), r3(R.stemH)]] : []),
         [`for splayed wing walls (${p.wTopW.toFixed(2)}+${p.wBaseW.toFixed(2)})/2 tapering, avg ${wAvg.toFixed(3)}`, 1, 4, p.wingLen, r3(wAvg), r3(R.wFreeH)],
         ['for return walls (1000 x 1100)', 1, 4, 1, 1.1, 1.5],
       ],
-      bedblock: [['for bed blocks on abutments', 1, 2, B, 0.5, p.bedBlockT]],
+      bedblock: [['for bed blocks on abutments', 1, 2, abL, 0.5, p.bedBlockT], ...(nV > 1 ? [['for bed blocks on piers', 1, nV - 1, abL, p.pierTopW, p.bedBlockT]] : [])],
       deck: [
-        ['for deck slab', 1, 1, L, B, p.D],
-        ['for kerb walls', 1, 2, L, p.kerbW, p.kerbH],
+        ['for deck slab', 1, nV, L, B, p.D],
+        ...(railing ? [['for kerb walls', 1, 2 * nV, L, p.kerbW, p.kerbH]] : []),
+        ...(p.fpW > 0 ? [['for raised footpaths', 1, 2 * nV, L, p.fpW, p.fpThk]] : []),
         ['for approach slab', 1, 2, p.approachLen, B, p.approachThk],
       ],
       wc: [
-        ['wearing coat over carriageway (deck)', 1, 1, L, p.carriageway, p.wc],
+        ['wearing coat over carriageway (deck)', 1, nV, L, p.carriageway, p.wc],
         ['wearing coat over approach slabs', 1, 2, p.approachLen, p.carriageway, p.wc],
       ],
-      rail: [['on both sides of deck', 1, 2, L, 1, 1]],
+      rail: railing ? [['on both sides of deck', 1, 2, R.totalLength, 1, 1]] : [],
+      crash: railing ? [] : [['on both sides of deck and approach slabs', 1, 2, R.totalLength + 2 * p.approachLen, 1, 1]],
     };
-    const items = ITEMS.map((it, i) => {
+    const items = ITEMS.filter((it) => it.key === 'steel' || (M[it.key] || []).length).map((it, i) => {
       const rows = (M[it.key] || []).map(([desc, n1, n2, l, w, dd]) => {
         const l3 = r3(l), w3 = r3(w), d3 = r3(dd);
         return { desc, n1, n2, l: l3, w: w3, d: d3, qty: r3(n1 * n2 * l3 * w3 * d3) };
