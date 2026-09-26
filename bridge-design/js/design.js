@@ -54,7 +54,7 @@
     // scour / floor protection
     siltFactor: 1.0, apron: 'yes', apronThk: 0.15, liningLen: 15, liningThk: 0.1,
     // design method & materials
-    method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
+    deckAuto: 'yes', minD: 0.3, method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
     scbc: 7, sst: 200, modRatio: 10, cover: 0.04, mainDia: 16, mainSpacing: 125,
     distDia: 10, distSpacing: 150, topDia: 10, topSpacing: 200,
     subFck: 15, subAllow: 400, gammaConc: 2.4,
@@ -526,6 +526,16 @@
     R.AstDProv = row(`Provided ${p.distDia} dia @ ${p.distSpacing} c/c (bottom)`, Ab(p.distDia, p.distSpacing), 'sqmm/m');
     R.okDist = R.AstDProv >= Math.max(R.AstD, R.AstMin);
     chk('Check distribution', R.okDist, R.okDist ? 'OK' : 'REVISE');
+    row('(d) Deflection - span / effective depth', '', '', '', { sub: true });
+    {
+      const rho = R.AstProv / (1000 * R.d), r0 = Math.sqrt(p.fck) * 1e-3, sf = Math.sqrt(p.fck);
+      const basic = rho <= r0 ? 11 + 1.5 * sf * (r0 / rho) + 3.2 * sf * Math.pow(r0 / rho - 1, 1.5) : 11 + 1.5 * sf * r0 / rho;
+      const mod = Math.min(1.5, 500 / (p.fy * Math.max(R.AstReq, 1) / R.AstProv));
+      R.ldAllow = row('Allowable L/d = K [11 + 1.5 sqrt(fck) rho0/rho ...] x 500/(fy As,req/As,prov), K = 1', basic * mod, '', 'IRC 112 cl.12.4.1 (simply supported)');
+      R.ldAct = row('Actual L/d', (L * 1000) / R.d, '');
+      R.okDefl = R.ldAct <= R.ldAllow;
+      chk('Check deflection', R.okDefl, R.okDefl ? 'OK' : 'REVISE - increase D');
+    }
     R.AstTop = row(`Top steel both ways ${p.topDia} dia @ ${p.topSpacing} c/c`, Ab(p.topDia, p.topSpacing), 'sqmm/m');
 
     // 6. abutment
@@ -787,7 +797,7 @@
     for (const [a, b] of R.summary) row(a, b, '');
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
-    R.allOk = R.okSoffit && R.okFound && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
+    R.allOk = R.okSoffit && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
     const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
@@ -795,6 +805,35 @@
     R.codes = `Codes: IRC 5-2015, IRC 6-2017, ${LSM ? 'IRC 112-2020 (LSM)' : 'IRC 21-2000 (WSM)'}, IRC 78-2014, IRC SP:13-2004, IS 456-2000, IS 1786-2008, IS 2502-1963, MORTH standard drawings.`;
     R.nameOfWork = `Construction of ${typ} across ${String(p.canalName).replace(/\s*\(.*\)\s*/, '')} at Km ${p.chainage} in ${p.location}, ${p.district} District.`;
     return { p, R, sections: secs, warnings };
+  }
+
+  // Most economical deck: least thickness (25 mm steps, from max(250 mm,
+  // L/20)) for which a bar dia / spacing passes depth, steel, shear (and SLS
+  // for LSM); widest main spacing >= 100 mm preferred, then least steel.
+  function sizeDeck(input) {
+    const p = Object.assign({}, DEFAULTS, input);
+    const L0 = design(p).R.Leff;
+    let D = Math.max(p.minD || 0.25, Math.ceil((L0 / 20) / 0.025 - 1e-9) * 0.025);
+    const spacings = [200, 175, 150, 140, 125, 110, 100, 90, 80, 75];
+    for (let i = 0; i < 60; i++, D = +(D + 0.025).toFixed(3)) {
+      let best = null;
+      for (const dia of [12, 16, 20, 25]) {
+        for (const sp of spacings) {
+          const t = design(Object.assign({}, p, { D, mainDia: dia, mainSpacing: sp })).R;
+          if (t.okDepth && t.okAst && t.okShear && t.okDefl) {
+            const ast = t.AstProv;
+            if (sp >= 100 && (!best || ast < best.ast)) best = { dia, sp, ast };
+            break;
+          }
+        }
+      }
+      if (best) {
+        Object.assign(p, { D, mainDia: best.dia, mainSpacing: best.sp });
+        for (const sp of [250, 200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+        return { D, mainDia: best.dia, mainSpacing: best.sp, distDia: p.distDia, distSpacing: p.distSpacing };
+      }
+    }
+    return null;
   }
 
   // Auto design: vents, span, foundation level, deck, abutment, piers, wings.
@@ -805,24 +844,8 @@
     if (r.R.ventsSuggested > p.nVents) { p.nVents = r.R.ventsSuggested; log.push(`${p.nVents} vents`); r = design(p); }
     if (p.span * p.nVents + (p.nVents - 1) * p.pierTopW < r.R.topFSL - 1e-6 || p.span > p.maxSlabSpan) { p.span = r.R.spanSuggested; log.push(`span ${p.span} m`); r = design(p); }
     if (!r.R.okFound) { p.foundationLevel = r.R.flSuggested; log.push(`foundation level ${fmt(p.foundationLevel)}`); r = design(p); }
-    const spacings = [200, 175, 150, 125, 110, 100, 90, 80, 75];
-    const dias = [...new Set([p.mainDia, 16, 20, 25])];
-    deck: for (let i = 0; i < 48; i++) {
-      let fallback = null;
-      for (const dia of dias) {
-        for (const sp of spacings) {
-          const t = design(Object.assign({}, p, { mainDia: dia, mainSpacing: sp })).R;
-          if (t.okDepth && t.okAst && t.okShear) {
-            if (sp >= 100) { p.mainDia = dia; p.mainSpacing = sp; break deck; }
-            if (!fallback) fallback = [dia, sp];
-            break;
-          }
-        }
-      }
-      if (fallback) { [p.mainDia, p.mainSpacing] = fallback; break; }
-      p.D = +(p.D + 0.025).toFixed(3);
-    }
-    for (const sp of [200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+    const dk = sizeDeck(p);
+    if (dk) Object.assign(p, dk);
     log.push(`deck ${fmt(p.D * 1000, 0)} mm, ${p.mainDia} dia @ ${p.mainSpacing}, dist ${p.distDia} @ ${p.distSpacing}`);
     r = design(p);
     // gravity proportions kept practical: back batter <= 0.8 x wall height,
@@ -864,5 +887,5 @@
     return { input: p, log, result: r };
   }
 
-  Object.assign(BD, { DEFAULTS, CARRIAGEWAY, ZONE_Z, COVER, scbcFor, sstFor, subAllowFor, design, autoDesign, alphaFor, fmt, liveLoadSet });
+  Object.assign(BD, { sizeDeck, DEFAULTS, CARRIAGEWAY, ZONE_Z, COVER, scbcFor, sstFor, subAllowFor, design, autoDesign, alphaFor, fmt, liveLoadSet });
 })(typeof window !== 'undefined' ? window : globalThis);
