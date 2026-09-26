@@ -8,8 +8,8 @@ function near(name, got, exp, tol = 1e-3) {
   if (!ok) fails++;
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${name}: ${typeof got === 'number' ? got.toFixed(4) : got} (ref ${exp})`);
 }
-const km0450 = {};
-const km1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2 };
+const km0450 = { tempFriction: 'no' };
+const km1580 = { tempFriction: 'no', chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2 };
 const refs = [
   ['Km 0.450', km0450, { fsl: 146.368, soffit: 147.495, stemH: 2.145, clearCBL: 2.73020979, flScour: 144.5676905, M: 7.593245, AstReq: 1246.72875, V: 9.14621875, tv: 0.27438656,
     fosO1: 4.75550345, fosS1: 1.63553653, pmax1: 8.70609141, pmin1: 4.57069279, fosO2: 4.64110300, fosS2: 1.80243820, pmax2: 11.41021597, pmin2: 4.22070975,
@@ -39,7 +39,7 @@ for (const [n, inp, e] of refs) {
   console.log('all checks OK:', R.allOk);
 }
 console.log('== DLRB (same site, 7.5 m carriageway)');
-const d = BD.design({ bridgeType: 'DLRB', carriageway: 7.5 });
+const d = BD.design({ bridgeType: 'DLRB', carriageway: 7.5, tempFriction: 'no' });
 for (const v of d.R.vehicles) console.log(`  ${v.veh.name}: M=${v.M.toFixed(3)} V=${v.V.toFixed(3)}`);
 console.log('  M', d.R.M.toFixed(3), 'dReq', d.R.dReq.toFixed(1), 'd', d.R.d, 'Ast', d.R.AstReq.toFixed(0), '/', d.R.AstProv.toFixed(0), 'allOk', d.R.allOk);
 for (const c of d.R.abCases) console.log('  ', c.name, c.fosO.toFixed(2), c.fosS.toFixed(2), c.pmax.toFixed(2), c.pmin.toFixed(2));

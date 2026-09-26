@@ -577,7 +577,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     bedFall: 2500, cbl: 145.819, cblExisting: 145.968, manningN: 0.025,
     bankWidthL: 1.5, bankWidthR: 1.5,
     // general arrangement
-    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 10, affluxLimit: 0.05,
+    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 10, affluxLimit: 0.05, spanBasis: 'fsl', bermW: 0,
     carriageway: 4.25, edgeType: 'railing', kerbW: 0.225, kerbH: 0.3, railingLoad: 0.1,
     barrierW: 0.45, barrierLoad: 0.75, fpW: 0, fpThk: 0.225, fpLoad: 0.4,
     bearingW: 0.48, frl: 147.945, gl: 147.545, approachLen: 3.5, approachThk: 0.3,
@@ -596,7 +596,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     // seismic
     seismicZone: 'II', seismicMode: 'auto', impFactor: 1.0, saG: 2.5, respR: 1.0,
     // abutment
-    abKey: 'no', abTopW: 1.0, abBackBatter: 0.9, abToe: 0.5, abHeel: 0.5, gammaSoil: 2.0,
+    tempFriction: 'yes', bearingMu: 0.5, abKey: 'no', abTopW: 1.0, abBackBatter: 0.9, abToe: 0.5, abHeel: 0.5, gammaSoil: 2.0,
     phi: 28, surcharge: 1.2, mu: 0.5, sbc: 15,
     // piers (multi-vent)
     pierTopW: 1.0, pierBatter: 0.0, pierToe: 0.5,
@@ -814,8 +814,14 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.topTBL = row('Top width at TBL', p.bedWidth + 2 * p.sideSlope * (p.fsd + p.freeBoard), 'm');
     R.area = row('Canal waterway area at FSL', (p.bedWidth + p.sideSlope * p.fsd) * p.fsd, 'sqm');
     R.vel = row('Velocity', p.Q / R.area, 'm/s');
-    R.ventsSuggested = R.topFSL > p.maxSlabSpan ? Math.ceil(R.topFSL / p.maxSlabSpan) : 1;
-    const spanFor = (n) => Math.max(2, Math.ceil(((R.topFSL - (n - 1) * p.pierTopW) / n - 1e-9) / 0.5) * 0.5);
+    // canal width at any level; berms (if any) at TBL level
+    const widthAt = (z) => p.bedWidth + 2 * p.sideSlope * Math.max(0, z - p.cbl) + (z > R.tbl + 1e-9 ? 2 * p.bermW : 0);
+    R.widthAt = widthAt;
+    const soffitEst = p.frl - p.wc - p.D;
+    R.spanBasisW = p.spanBasis === 'soffit' ? widthAt(soffitEst) : p.spanBasis === 'tbl' ? widthAt(R.tbl) : R.topFSL;
+    if (p.spanBasis !== 'fsl') row(p.spanBasis === 'soffit' ? `Canal width at soffit level +${fmt(soffitEst)}${p.bermW ? ` incl. berms ${fmt(p.bermW, 2)} m` : ''} (abutments buried in cut slopes)` : 'Canal width at TBL', R.spanBasisW, 'm', 'Basis for span');
+    R.ventsSuggested = R.spanBasisW > p.maxSlabSpan ? Math.ceil(R.spanBasisW / p.maxSlabSpan) : 1;
+    const spanFor = (n) => Math.max(2, Math.ceil(((R.spanBasisW - (n - 1) * p.pierTopW) / n - 1e-9) / 0.5) * 0.5);
     R.spanSuggested = spanFor(nV);
 
     // 2. general arrangement
@@ -879,6 +885,13 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.ratio = row('Ratio canal area / vent area', R.area / R.ventArea, '', R.area / R.ventArea < 1 ? '< 1 : no contraction' : 'Contraction - afflux computed');
     R.afflux = row('Afflux (Molesworth)', Math.max(0, (R.vel ** 2 / 17.88 + 0.01524) * ((R.area / R.ventArea) ** 2 - 1)), 'm');
     R.okVent = R.afflux <= p.affluxLimit + 1e-9;
+    const Q = p.Q;
+    R.vcReq = Q <= 0.3 ? 0.15 : Q <= 3 ? 0.45 : Q <= 30 ? 0.6 : Q <= 300 ? 0.9 : Q <= 3000 ? 1.2 : 1.5;
+    R.vcAct = R.soffit - (R.fsl + R.afflux);
+    R.okVC = R.vcAct >= R.vcReq - 1e-9;
+    R.frlMin = Math.max(R.frlMin, R.fsl + R.afflux + R.vcReq + p.D + p.wc);
+    row(`Minimum vertical clearance for Q = ${fmt(Q, 2)} cumecs`, R.vcReq, 'm', 'IRC 5 cl.106.2.1 (above HFL)');
+    chk('Check vertical clearance: soffit - (FSL + afflux)', R.okVC, R.okVC ? `OK (${fmt(R.vcAct)} m)` : `REVISE - raise FRL to at least +${fmt(R.frlMin)}`);
     chk(`Check waterway: afflux <= ${fmt(p.affluxLimit, 3)} m`, R.okVent, R.okVent ? 'OK' : `REVISE - vent too narrow; use span ${fmt(R.spanSuggested, 2)} m or more vents`, 'Vent should not constrict the canal (IRC 5 / IRC SP:13)');
     R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
     inp('Silt factor f = 1.76 sqrt(dm, mm)', 'siltFactor', '', 'From bed material; confirm by soil test');
@@ -1113,6 +1126,9 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     row('Active earth pressure 0.5 Ka g H^2 (H = FRL - base)', Pa, 't', `y = ${fmt(yPa, 3)} m`);
     row('LL surcharge Ka g h H', Ps, 't', `y = ${fmt(yPs, 3)} m`);
     for (const c of R.LLcases) row(`Braking - ${c.name}, shared by 2 supports, at bearing level`, c.Hb, 't', `y = ${fmt(yBr, 3)} m`);
+    R.Hfr = yes(p.tempFriction) ? p.bearingMu * deckDL : 0;
+    if (R.Hfr) row(`Bearing friction due to temperature = ${fmt(p.bearingMu, 2)} x DL reaction (acts instead of braking when larger)`, R.Hfr, 't', `y = ${fmt(yBr, 3)} m; IRC 6 cl.211`);
+    for (const c of R.LLcases) { c.HbBrake = c.Hb; c.Hb = Math.max(c.Hb, R.Hfr); }
     const sumV1 = W.reduce((s, o) => s + o.w, 0), sumMR1 = W.reduce((s, o) => s + o.w * o.x, 0);
     const sumH1 = Pa + Ps, sumMO1 = Pa * yPa + Ps * yPs;
     const dkA = p.cbl - p.foundationLevel;
@@ -1122,7 +1138,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       const e = bw / 2 - (MR - MO) / V;
       return { V, MR, H, MO, fosO: MR / MO, fosS: (p.mu * V + key) / H, e, pmax: (V / bw) * (1 + (6 * e) / bw), pmin: (V / bw) * (1 - (6 * e) / bw) };
     };
-    const cases = [Object.assign({ name: 'Case 1: span unloaded', lim: [2, 1.5, 1] }, stab(sumV1, sumMR1, sumH1, sumMO1, R.ftgW, R.PkeyAb))];
+    const cases = [Object.assign({ name: 'Case 1: span unloaded', lim: [2, 1.5, 1] }, stab(sumV1, sumMR1, sumH1 + R.Hfr, sumMO1 + R.Hfr * yBr, R.ftgW, R.PkeyAb))];
     for (const c of R.LLcases) cases.push(Object.assign({ name: `Case 2: ${c.name} on span`, lim: [2, 1.5, 1] }, stab(sumV1 + c.R, sumMR1 + c.R * xBrg, sumH1 + c.Hb, sumMO1 + c.Hb * yBr, R.ftgW, R.PkeyAb)));
     // seismic case (IRC 6 cl.219 / 214.1.2), no live load, no braking
     let dPae = 0, Kae = 0;
@@ -1203,12 +1219,13 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       const vw = Math.SQRT2 * R.vel;
       R.waterForce = 52 * 1.5 * vw ** 2 / 1000 * p.fsd; // t per m of pier length, square nose (IRC 6 cl.210)
       row('Water current force along the pier (IRC 6 cl.210, K = 1.5)', R.waterForce, 't/m', 'acts along the pier length - resisted by the full pier length; not critical');
+      if (R.Hfr) row('Bearing friction from the two spans acts in opposite directions at a pier and cancels; braking governs', '', '', 'IRC 6 cl.211');
       const pcases = [];
       for (const c of R.LLcases) {
         const V = Vp + c.R;
         const MR = Vp * fw / 2 + c.R * (fw / 2 - ecc);
-        const MO = c.Hb * yBr;
-        pcases.push(Object.assign({ name: `${c.name} on one span + braking`, lim: [2, 1.5, 1] }, stab(V, MR, c.Hb, MO, fw)));
+        const MO = c.HbBrake * yBr;
+        pcases.push(Object.assign({ name: `${c.name} on one span + braking`, lim: [2, 1.5, 1] }, stab(V, MR, c.HbBrake, MO, fw)));
       }
       if (R.seismic) {
         const Hs = Wp.reduce((s, o) => s + R.Ah * o[1], 0), Ms = Wp.reduce((s, o) => s + R.Ah * o[1] * o[2], 0);
@@ -1227,7 +1244,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       const Vs = Wp[1][1] + Wp[2][1] + Wp[3][1];
       let sworst = null;
       for (const c of R.LLcases) {
-        const V = Vs + c.R, M = c.R * ecc + c.Hb * (R.soffit - R.ftgTop);
+        const V = Vs + c.R, M = c.R * ecc + c.HbBrake * (R.soffit - R.ftgTop);
         const e = M / V;
         const s = { smax: (V / pb) * (1 + (6 * e) / pb), smin: (V / pb) * (1 - (6 * e) / pb) };
         if (!sworst || s.smin < sworst.smin) sworst = s;
@@ -1332,7 +1349,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     for (const [a, b] of R.summary) row(a, b, '');
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
-    R.allOk = R.okSoffit && R.okVent && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
+    R.allOk = R.okSoffit && R.okVC && R.okVent && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
     const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
@@ -2954,10 +2971,11 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     ]],
     ['Road, levels & soil', true, { step: 2, note: 'From the site survey and soil investigation. Levels in metres, without the + sign.' }, [
       ['nVents', 'Number of vents', 'Nos', 1], ['span', 'Clear span of each vent', 'm', 0.25],
+      ['spanBasis', 'Span to cover canal width at', '', [['fsl', 'FSL (abutments at canal banks)'], ['tbl', 'TBL'], ['soffit', 'Soffit level (deep cut, abutments buried)']]], ['bermW', 'Berm width each side (0 = none)', 'm', 0.5],
       ['carriageway', 'Carriageway', 'm', 0.05], ['skew', 'Skew angle', 'deg', 1],
       ['frl', 'Road level (FRL)', 'm', 0.001], ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05],
       ['sbc', 'Safe bearing capacity', 't/sqm', 0.5],
-      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5']]],
+      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5'], ['4.75', 'Boulders / hard strata f = 4.75']]],
       ['siltFactor', 'Silt factor f', '', 0.05], ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1],
       ['mu', 'Friction (concrete/soil)', '', 0.05], ['apron', 'Floor protection (apron + lining)', '', YN],
       ['floorDepth', 'Foundation depth below floor protection', 'm', 0.05], ['affluxLimit', 'Permissible afflux', 'm', 0.01],
@@ -3000,7 +3018,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
       ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
       ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['surcharge', 'LL surcharge height', 'm', 0.1],
-      ['abKey', 'Shear key under abutment', '', YN], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
+      ['tempFriction', 'Bearing friction (temperature)', '', YN], ['bearingMu', 'Friction coefficient at bearing', '', 0.05], ['abKey', 'Shear key under abutment', '', YN], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
       ['pierTopW', 'Pier top width', 'm', 0.05], ['pierBatter', 'Pier batter each face', 'm', 0.05], ['pierToe', 'Pier footing projection', 'm', 0.05],
       ['saG', 'Seismic Sa/g', '', 0.1], ['respR', 'Response reduction R', '', 0.5],
     ]],
@@ -3021,7 +3039,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     minD: (s) => s.deckAuto !== 'no', fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
     scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
     pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
-    floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
+    bearingMu: (s) => s.tempFriction !== 'no', floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
   };
   // Fields the tool fills in itself (read-only unless the designer overrides).
   const AUTO_FIELDS = {
@@ -3037,7 +3055,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
     cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
     subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
-    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
+    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', bearingMu: 'Slab on bed block with kraft paper: 0.5', bermW: 'Berm at TBL level, as in deep cuttings', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
   };
 
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
@@ -3054,8 +3072,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
-    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no' }),
-    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no' }),
+    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }),
+    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }),
     dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
     general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
