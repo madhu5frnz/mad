@@ -13,7 +13,8 @@ reference package (SLRB @ Km 0.450 / Km 1.580, L-1 Minor of Perur Major):
 
 ## How to use
 
-**Online:** https://claude.ai/artifact/MsTdXDHtBDhDDayet3FRCX (shared from the owner's Share menu).
+**Online (public):** https://madhu5frnz.github.io/mad/ — deployed by
+`.github/workflows/pages.yml` on every push to `main` that touches `bridge-design/`.
 
 **Offline:** open `index.html` in any modern browser — no installation or
 server needed; the Excel / PDF / zip libraries are bundled in `vendor/`.
