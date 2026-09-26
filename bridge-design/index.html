@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SLRB / DLRB Design Generator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M2 14h28v4H2z%22 fill=%22%230f766e%22/%3E%3Cpath d=%22M6 18v10M26 18v10%22 stroke=%22%2314213d%22 stroke-width=%223%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 48 32" width="44" height="30" aria-hidden="true">
+      <path class="mark-water" d="M14 26h20l-4-8H18z"/>
+      <path class="mark-deck" d="M2 8h44v5H2z"/>
+      <path class="mark-abut" d="M9 13h6l-2 15H6zM33 13h6l3 15h-7z"/>
+    </svg>
+    <div>
+      <p class="eyebrow">I &amp; CAD · Canal crossings</p>
+      <h1>SLRB / DLRB Design Generator</h1>
+    </div>
+  </div>
+  <div class="type-switch" role="radiogroup" aria-label="Bridge type">
+    <button type="button" data-type="SLRB" class="active" role="radio" id="type-slrb">S.L.R.B.<small>Single lane · 4.25 m</small></button>
+    <button type="button" data-type="DLRB" role="radio" id="type-dlrb">D.L.R.B.<small>Two lane · 7.50 m</small></button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="inputs" id="inputs">
+    <div class="panel-head">
+      <h2>Inputs</h2>
+      <div class="input-actions">
+        <button type="button" id="btn-auto" class="primary">Auto design</button>
+        <select id="sel-example" aria-label="Load an example bridge">
+          <option value="">Load example…</option>
+          <option value="km0450">SLRB Km 0.450 (reference)</option>
+          <option value="km1580">SLRB Km 1.580 (reference)</option>
+          <option value="dlrb">DLRB, same canal, 7.5 m</option>
+        </select>
+      </div>
+      <div class="input-actions small">
+        <button type="button" id="btn-save">Save inputs</button>
+        <label class="filebtn" for="file-open">Open inputs<input type="file" id="file-open" accept=".json,application/json"></label>
+        <button type="button" id="btn-reset">Reset</button>
+      </div>
+    </div>
+    <form id="form" autocomplete="off"></form>
+  </aside>
+
+  <main class="output">
+    <details class="guide" id="guide" open>
+      <summary>How to use this tool</summary>
+      <ol class="guide-steps">
+        <li><b>Choose the bridge</b><span>S.L.R.B. or D.L.R.B. at the top right.</span></li>
+        <li><b>Enter the HPs</b><span>Q, bed width, FSD, side slope (1.5 for 1.5:1), free board, bed fall (2500 for 1 in 2500), design CBL.</span></li>
+        <li><b>Enter road &amp; levels</b><span>FRL and ground level in metres, no + sign. Press <i>use</i> on the suggested span and foundation level.</span></li>
+        <li><b>Check and download</b><span>Green means done. If red, press <i>Auto design</i>. Then download PDF, Excel or DXF from the tabs.</span></li>
+      </ol>
+    </details>
+
+    <section class="status" id="status" aria-live="polite"></section>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="report" class="active" id="tab-btn-report">Design report</button>
+      <button type="button" role="tab" data-tab="drawings" id="tab-btn-drawings">Drawings</button>
+      <button type="button" role="tab" data-tab="estimate" id="tab-btn-estimate">Estimate</button>
+    </nav>
+
+    <section class="tab" id="tab-report">
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-report" class="dl">Download PDF</button>
+        <button type="button" id="btn-xlsx-design" class="dl">Download Excel</button>
+      </div>
+      <div id="report" class="report"></div>
+    </section>
+
+    <section class="tab" id="tab-drawings" hidden>
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-dwg" class="dl">Download PDF (2 × A2)</button>
+        <button type="button" id="btn-dxf" class="dl">Download DXF for AutoCAD (zip)</button>
+      </div>
+      <p class="hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
+      <div id="drawings"></div>
+    </section>
+
+    <section class="tab" id="tab-estimate" hidden>
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-est" class="dl">Download PDF</button>
+        <button type="button" id="btn-xlsx-est" class="dl">Download Excel (with formulas)</button>
+        <button type="button" id="btn-rates-reset">Reset rates to SSR 2026-27</button>
+      </div>
+      <div id="estimate" class="report"></div>
+    </section>
+
+    <footer class="foot">Design to IRC 5, IRC 6, IRC 21 (WSM), IRC 78, IRC SP:13 and IS 456. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</footer>
+  </main>
+</div>
+
+<script src="vendor/exceljs.min.js" defer></script>
+<script src="vendor/jspdf.umd.min.js" defer></script>
+<script src="vendor/jspdf.plugin.autotable.min.js" defer></script>
+<script src="vendor/jszip.min.js" defer></script>
+<script src="js/design.js"></script>
+<script src="js/estimate.js"></script>
+<script src="js/cad.js"></script>
+<script src="js/sheets.js"></script>
+<script src="js/export-xlsx.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
