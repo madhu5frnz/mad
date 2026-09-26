@@ -199,6 +199,8 @@ button.primary svg { fill: currentColor; }
 .bcard i { font-style: normal; font-weight: 600; color: var(--accent-2); }
 .bcard.warn { border-color: color-mix(in srgb, #f59e0b 45%, var(--rule)); }
 .field[hidden] { display: none; }
+.field.is-auto input { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); color: var(--accent-2); cursor: default; }
+.field.is-auto .flabel::after { content: "AUTO"; margin-left: 6px; font: 700 9.5px var(--f-mono); letter-spacing: .08em; color: var(--on-accent); background: var(--accent); padding: 1px 5px; border-radius: 4px; vertical-align: 1px; }
 .field select { width: 100%; border: 1px solid var(--rule); border-radius: 8px; padding: 7px 9px; background: var(--head); color: var(--ink); font-size: 13.5px; }
 
 /* ------------------------------------------------------------ workspace */
@@ -585,7 +587,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     // scour / floor protection
     siltFactor: 1.0, apron: 'yes', apronThk: 0.15, liningLen: 15, liningThk: 0.1,
     // design method & materials
-    method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
+    deckAuto: 'yes', minD: 0.3, method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
     scbc: 7, sst: 200, modRatio: 10, cover: 0.04, mainDia: 16, mainSpacing: 125,
     distDia: 10, distSpacing: 150, topDia: 10, topSpacing: 200,
     subFck: 15, subAllow: 400, gammaConc: 2.4,
@@ -1057,6 +1059,16 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.AstDProv = row(`Provided ${p.distDia} dia @ ${p.distSpacing} c/c (bottom)`, Ab(p.distDia, p.distSpacing), 'sqmm/m');
     R.okDist = R.AstDProv >= Math.max(R.AstD, R.AstMin);
     chk('Check distribution', R.okDist, R.okDist ? 'OK' : 'REVISE');
+    row('(d) Deflection - span / effective depth', '', '', '', { sub: true });
+    {
+      const rho = R.AstProv / (1000 * R.d), r0 = Math.sqrt(p.fck) * 1e-3, sf = Math.sqrt(p.fck);
+      const basic = rho <= r0 ? 11 + 1.5 * sf * (r0 / rho) + 3.2 * sf * Math.pow(r0 / rho - 1, 1.5) : 11 + 1.5 * sf * r0 / rho;
+      const mod = Math.min(1.5, 500 / (p.fy * Math.max(R.AstReq, 1) / R.AstProv));
+      R.ldAllow = row('Allowable L/d = K [11 + 1.5 sqrt(fck) rho0/rho ...] x 500/(fy As,req/As,prov), K = 1', basic * mod, '', 'IRC 112 cl.12.4.1 (simply supported)');
+      R.ldAct = row('Actual L/d', (L * 1000) / R.d, '');
+      R.okDefl = R.ldAct <= R.ldAllow;
+      chk('Check deflection', R.okDefl, R.okDefl ? 'OK' : 'REVISE - increase D');
+    }
     R.AstTop = row(`Top steel both ways ${p.topDia} dia @ ${p.topSpacing} c/c`, Ab(p.topDia, p.topSpacing), 'sqmm/m');
 
     // 6. abutment
@@ -1318,7 +1330,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     for (const [a, b] of R.summary) row(a, b, '');
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
-    R.allOk = R.okSoffit && R.okFound && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
+    R.allOk = R.okSoffit && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
     const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
@@ -1326,6 +1338,35 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.codes = `Codes: IRC 5-2015, IRC 6-2017, ${LSM ? 'IRC 112-2020 (LSM)' : 'IRC 21-2000 (WSM)'}, IRC 78-2014, IRC SP:13-2004, IS 456-2000, IS 1786-2008, IS 2502-1963, MORTH standard drawings.`;
     R.nameOfWork = `Construction of ${typ} across ${String(p.canalName).replace(/\s*\(.*\)\s*/, '')} at Km ${p.chainage} in ${p.location}, ${p.district} District.`;
     return { p, R, sections: secs, warnings };
+  }
+
+  // Most economical deck: least thickness (25 mm steps, from max(250 mm,
+  // L/20)) for which a bar dia / spacing passes depth, steel, shear (and SLS
+  // for LSM); widest main spacing >= 100 mm preferred, then least steel.
+  function sizeDeck(input) {
+    const p = Object.assign({}, DEFAULTS, input);
+    const L0 = design(p).R.Leff;
+    let D = Math.max(p.minD || 0.25, Math.ceil((L0 / 20) / 0.025 - 1e-9) * 0.025);
+    const spacings = [200, 175, 150, 140, 125, 110, 100, 90, 80, 75];
+    for (let i = 0; i < 60; i++, D = +(D + 0.025).toFixed(3)) {
+      let best = null;
+      for (const dia of [12, 16, 20, 25]) {
+        for (const sp of spacings) {
+          const t = design(Object.assign({}, p, { D, mainDia: dia, mainSpacing: sp })).R;
+          if (t.okDepth && t.okAst && t.okShear && t.okDefl) {
+            const ast = t.AstProv;
+            if (sp >= 100 && (!best || ast < best.ast)) best = { dia, sp, ast };
+            break;
+          }
+        }
+      }
+      if (best) {
+        Object.assign(p, { D, mainDia: best.dia, mainSpacing: best.sp });
+        for (const sp of [250, 200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+        return { D, mainDia: best.dia, mainSpacing: best.sp, distDia: p.distDia, distSpacing: p.distSpacing };
+      }
+    }
+    return null;
   }
 
   // Auto design: vents, span, foundation level, deck, abutment, piers, wings.
@@ -1336,24 +1377,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     if (r.R.ventsSuggested > p.nVents) { p.nVents = r.R.ventsSuggested; log.push(`${p.nVents} vents`); r = design(p); }
     if (p.span * p.nVents + (p.nVents - 1) * p.pierTopW < r.R.topFSL - 1e-6 || p.span > p.maxSlabSpan) { p.span = r.R.spanSuggested; log.push(`span ${p.span} m`); r = design(p); }
     if (!r.R.okFound) { p.foundationLevel = r.R.flSuggested; log.push(`foundation level ${fmt(p.foundationLevel)}`); r = design(p); }
-    const spacings = [200, 175, 150, 125, 110, 100, 90, 80, 75];
-    const dias = [...new Set([p.mainDia, 16, 20, 25])];
-    deck: for (let i = 0; i < 48; i++) {
-      let fallback = null;
-      for (const dia of dias) {
-        for (const sp of spacings) {
-          const t = design(Object.assign({}, p, { mainDia: dia, mainSpacing: sp })).R;
-          if (t.okDepth && t.okAst && t.okShear) {
-            if (sp >= 100) { p.mainDia = dia; p.mainSpacing = sp; break deck; }
-            if (!fallback) fallback = [dia, sp];
-            break;
-          }
-        }
-      }
-      if (fallback) { [p.mainDia, p.mainSpacing] = fallback; break; }
-      p.D = +(p.D + 0.025).toFixed(3);
-    }
-    for (const sp of [200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+    const dk = sizeDeck(p);
+    if (dk) Object.assign(p, dk);
     log.push(`deck ${fmt(p.D * 1000, 0)} mm, ${p.mainDia} dia @ ${p.mainSpacing}, dist ${p.distDia} @ ${p.distSpacing}`);
     r = design(p);
     // gravity proportions kept practical: back batter <= 0.8 x wall height,
@@ -1395,7 +1420,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     return { input: p, log, result: r };
   }
 
-  Object.assign(BD, { DEFAULTS, CARRIAGEWAY, ZONE_Z, COVER, scbcFor, sstFor, subAllowFor, design, autoDesign, alphaFor, fmt, liveLoadSet });
+  Object.assign(BD, { sizeDeck, DEFAULTS, CARRIAGEWAY, ZONE_Z, COVER, scbcFor, sstFor, subAllowFor, design, autoDesign, alphaFor, fmt, liveLoadSet });
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -2955,7 +2980,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'], ['roadType', 'Type of road', '', 'text'],
     ]],
     ['Deck slab & edge', false, { adv: true }, [
-      ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
+      ['deckAuto', 'Deck thickness & bars', '', [['yes', 'Auto - most economical (recommended)'], ['no', 'Enter my own']]],
+      ['minD', 'Minimum slab thickness', 'm', 0.025], ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
       ['mainSpacing', 'Main bar spacing', 'mm', 5], ['distDia', 'Distribution dia', 'mm', 1], ['distSpacing', 'Distribution spacing', 'mm', 5],
       ['topDia', 'Top bar dia', 'mm', 1], ['topSpacing', 'Top bar spacing', 'mm', 5], ['cover', 'Clear cover', 'm', 0.005],
       ['bearingW', 'Bearing width', 'm', 0.01], ['maxSlabSpan', 'Max solid-slab span', 'm', 0.5],
@@ -2987,11 +3013,28 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     impFactor: (s) => s.seismicMode !== 'exclude',
     kerbW: (s) => s.edgeType !== 'crash', kerbH: (s) => s.edgeType !== 'crash', railingLoad: (s) => s.edgeType !== 'crash',
     barrierW: (s) => s.edgeType === 'crash', barrierLoad: (s) => s.edgeType === 'crash',
-    fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
+    minD: (s) => s.deckAuto !== 'no', fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
     scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
     pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
     apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
   };
+  // Fields the tool fills in itself (read-only unless the designer overrides).
+  const AUTO_FIELDS = {
+    minD: () => false, D: (s) => s.deckAuto !== 'no', mainDia: (s) => s.deckAuto !== 'no', mainSpacing: (s) => s.deckAuto !== 'no',
+    distDia: () => false, distSpacing: (s) => s.deckAuto !== 'no',
+  };
+  // Where each standard (not calculated) value comes from.
+  const STD_NOTE = {
+    wc: 'Standard 75 mm (IRC SP:13 / MORTH; 65 mm min)', kerbW: 'IRC 5: min 225 mm', kerbH: 'Standard 300 mm (225 above road)',
+    railingLoad: 'MORTH SD/202 RCC posts + pipes', bearingW: 'Bed block 500 mm - 20 mm joint', approachLen: 'Standard 3.5 m (MORTH type approach slab)',
+    approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', distDia: 'Standard 10 mm',
+    maxSlabSpan: 'Solid slab economical up to about 8-10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
+    scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
+    cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
+    subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
+    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', minD: 'Practical minimum for road bridge slabs (designer choice)',
+  };
+
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
   function onChoice(key) {
     if (key === 'fck') state.scbc = BD.scbcFor(Number(state.fck));
@@ -3006,8 +3049,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
-    km0450: () => Object.assign({}, BD.DEFAULTS),
-    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580),
+    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no' }),
+    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no' }),
     dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
     general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
@@ -3082,6 +3125,13 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       const el = document.querySelector(`[data-field="${k}"]`);
       if (el) el.hidden = !f(state);
     }
+    for (const [k, f] of Object.entries(AUTO_FIELDS)) {
+      const el = document.getElementById('in-' + k);
+      if (!el) continue;
+      const on = f(state);
+      el.readOnly = on;
+      el.closest('.field').classList.toggle('is-auto', on);
+    }
   }
 
   function fillForm() {
@@ -3094,8 +3144,18 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   function schedule() { clearTimeout(timer); timer = setTimeout(run, 150); }
 
   // ---------------------------------------------------------------- render
+  let lastDeckKey = '';
   function run() {
     try {
+      if (state.deckAuto === 'no') lastDeckKey = '';
+      else {
+        const key = JSON.stringify(Object.assign({}, state, { D: 0, mainDia: 0, mainSpacing: 0, distSpacing: 0 }));
+        if (key !== lastDeckKey) {
+          lastDeckKey = key;
+          const dk = BD.sizeDeck(state);
+          if (dk) { Object.assign(state, dk); for (const k of ['D', 'mainDia', 'mainSpacing', 'distSpacing']) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; } }
+        }
+      }
       cur = BD.design(state);
       est = BD.estimate(cur, { rates });
     } catch (err) {
@@ -3204,6 +3264,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     set('liveMode', `Checking: ${R.vehicles.map((e) => e.veh.name.replace('IRC ', '')).join(', ')}`);
     set('method', state.method === 'LSM' ? 'IRC 112:2020; minimum M25 for RCC' : 'IRC 21:2000 as in department type designs');
     set('skew', state.skew > 20 ? 'Above 20°: needs skew slab analysis' : '');
+    for (const [k, t] of Object.entries(STD_NOTE)) if (!document.querySelector(`[data-hint="${k}"]`)?.innerHTML) set(k, t);
+    if (state.deckAuto !== 'no') {
+      set('D', `Auto: least thickness passing all deck checks (d req ${fmt(R.dReq, 0)} mm)`);
+      set('mainSpacing', `Auto: Ast req ${fmt(R.AstReq, 0)} / prov ${fmt(R.AstProv, 0)} sqmm/m`);
+      set('distSpacing', 'Auto: widest spacing passing distribution check');
+    }
     if (!R.okSoffit) set('frl', `Soffit below TBL – FRL ≥ +${fmt(R.frlMin)} <button data-use="frl" data-val="${R.frlMin.toFixed(3)}">use</button>`);
     set('carriageway', state.bridgeType === 'DLRB' ? 'IRC 5: 7.50 m two-lane' : 'IRC 5: 4.25 m single lane');
   }

@@ -194,6 +194,8 @@ button.primary svg { fill: currentColor; }
 .bcard i { font-style: normal; font-weight: 600; color: var(--accent-2); }
 .bcard.warn { border-color: color-mix(in srgb, #f59e0b 45%, var(--rule)); }
 .field[hidden] { display: none; }
+.field.is-auto input { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, var(--rule)); color: var(--accent-2); cursor: default; }
+.field.is-auto .flabel::after { content: "AUTO"; margin-left: 6px; font: 700 9.5px var(--f-mono); letter-spacing: .08em; color: var(--on-accent); background: var(--accent); padding: 1px 5px; border-radius: 4px; vertical-align: 1px; }
 .field select { width: 100%; border: 1px solid var(--rule); border-radius: 8px; padding: 7px 9px; background: var(--head); color: var(--ink); font-size: 13.5px; }
 
 /* ------------------------------------------------------------ workspace */
