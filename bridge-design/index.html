@@ -20,6 +20,7 @@
   </a>
   <nav class="nav-links" aria-label="Page sections">
     <a href="#how">How it works</a>
+    <a href="#basis">Design basis</a>
     <a href="#work">Workspace</a>
     <span class="codes">IRC 5 · 6 · 21 · 78 · SP:13</span>
   </nav>
@@ -55,6 +56,8 @@
             <option value="km0450">SLRB Km 0.450 (reference)</option>
             <option value="km1580">SLRB Km 1.580 (reference)</option>
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
+            <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
+            <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
           </select>
         </label>
         <a class="ghost-link" href="#work">Enter your HPs ↓</a>
@@ -89,13 +92,50 @@
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M6 20V9h12v11M3 9h18M9 13h2M13 13h2"/></svg>
-      <b>Road &amp; levels</b><span>FRL and ground level in metres, no + sign. Press <i>use</i> on the suggested span and foundation level.</span>
+      <b>Site &amp; design conditions</b><span>FRL, ground level, soil, vents; then code, grades, loading, edge and seismic zone for your site. Press <i>use</i> on suggestions.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>
       <b>Check &amp; download</b><span>Green means done; if red press <i>Auto design</i>. Download PDF, Excel or DXF.</span>
     </li>
   </ol>
+</section>
+
+<section class="how basis" id="basis" aria-labelledby="basis-h">
+  <h2 id="basis-h" class="sec-h"><span>Design basis</span></h2>
+  <div class="basis-grid">
+    <div class="bcard">
+      <b>What you can set for your site</b>
+      <ul>
+        <li>Hydraulic particulars, road and ground levels, bed material (silt factor), SBC, backfill φ and unit weight, friction</li>
+        <li>Number of vents (piers added automatically), clear span, skew, carriageway, footpaths</li>
+        <li>Deck edge: kerb with hand railing or RCC crash barrier</li>
+        <li>Design method (IRC 21 WSM or IRC 112 LSM), concrete and steel grades, exposure and cover</li>
+        <li>Live load classes, seismic zone and importance factor, floor protection</li>
+      </ul>
+    </div>
+    <div class="bcard">
+      <b>Codes applied</b>
+      <ul class="codes-list">
+        <li><i>IRC 5:2015</i> carriageway, kerb, clearances</li>
+        <li><i>IRC 6:2017</i> Class A / B / 70R, impact, braking, footpath load, surcharge, seismic (cl.219)</li>
+        <li><i>IRC 21:2000</i> WSM deck, effective width (cl.305.16), permissible stresses</li>
+        <li><i>IRC 112:2020</i> LSM deck: flexure, shear, SLS stresses, minimum steel, cover</li>
+        <li><i>IRC 78:2014</i> scour (1.27 / 2.0 dsm), foundation depth, stability FOS</li>
+        <li><i>IRC SP:13:2004</i> small bridges, floor protection</li>
+        <li><i>IS 456, IS 1786, IS 2502</i>; <i>MORTH</i> SD/202 railing, crash barrier, specifications</li>
+      </ul>
+    </div>
+    <div class="bcard warn">
+      <b>Scope and limits</b>
+      <ul>
+        <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent; wider canals use more vents</li>
+        <li>Plain concrete gravity abutments, piers and wing walls on open foundations; where they cannot work (high walls, poor soil, Zone IV–V) the tool says so</li>
+        <li>Up to two traffic lanes; skew above 20° needs separate skew-slab analysis</li>
+        <li>Results are a design aid. They must be checked and approved by the competent engineer; soil values must come from investigation</li>
+      </ul>
+    </div>
+  </div>
 </section>
 
 <div class="work" id="work">
