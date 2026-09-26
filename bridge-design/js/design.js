@@ -44,7 +44,7 @@
     bedFall: 2500, cbl: 145.819, cblExisting: 145.968, manningN: 0.025,
     bankWidthL: 1.5, bankWidthR: 1.5,
     // general arrangement
-    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 8,
+    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 10, affluxLimit: 0.05,
     carriageway: 4.25, edgeType: 'railing', kerbW: 0.225, kerbH: 0.3, railingLoad: 0.1,
     barrierW: 0.45, barrierLoad: 0.75, fpW: 0, fpThk: 0.225, fpLoad: 0.4,
     bearingW: 0.48, frl: 147.945, gl: 147.545, approachLen: 3.5, approachThk: 0.3,
@@ -52,7 +52,7 @@
     foundationLevel: 144.55, wc: 0.075, D: 0.375, bedBlockT: 0.3, footingT: 0.5,
     frontBatter: 0.6,
     // scour / floor protection
-    siltFactor: 1.0, apron: 'yes', apronThk: 0.15, liningLen: 15, liningThk: 0.1,
+    siltFactor: 1.0, apron: 'yes', floorDepth: 1.0, apronThk: 0.15, liningLen: 15, liningThk: 0.1,
     // design method & materials
     deckAuto: 'yes', minD: 0.3, method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
     scbc: 7, sst: 200, modRatio: 10, cover: 0.04, mainDia: 16, mainSpacing: 125,
@@ -345,6 +345,8 @@
     R.ventArea = row('Vent area at FSL = avg clear width x FSD', ((R.clearCBL + R.clearFSLw) / 2) * p.fsd, 'sqm');
     R.ratio = row('Ratio canal area / vent area', R.area / R.ventArea, '', R.area / R.ventArea < 1 ? '< 1 : no contraction' : 'Contraction - afflux computed');
     R.afflux = row('Afflux (Molesworth)', Math.max(0, (R.vel ** 2 / 17.88 + 0.01524) * ((R.area / R.ventArea) ** 2 - 1)), 'm');
+    R.okVent = R.afflux <= p.affluxLimit + 1e-9;
+    chk(`Check waterway: afflux <= ${fmt(p.affluxLimit, 3)} m`, R.okVent, R.okVent ? 'OK' : `REVISE - vent too narrow; use span ${fmt(R.spanSuggested, 2)} m or more vents`, 'Vent should not constrict the canal (IRC 5 / IRC SP:13)');
     R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
     inp('Silt factor f = 1.76 sqrt(dm, mm)', 'siltFactor', '', 'From bed material; confirm by soil test');
     R.q = row('Discharge per m width q (on width at bed)', R.Qs / R.clearCBL, 'cumec/m');
@@ -353,7 +355,7 @@
     R.msl = row('Max scour level at abutments = FSL - 1.27 dsm', R.fsl - R.maxScourD, 'm');
     R.flScour = row('Foundation level required <= MSL - 1.20 m', R.msl - 1.2, 'm', 'IRC 78 cl.705.2.1.1');
     const apron = yes(p.apron);
-    R.flApron = apron ? row(`With rigid CC apron + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= apron bottom - 1.0 m (IRC SP:13)`, p.cbl - p.apronThk - 1, 'm', 'Floor-protected criterion') : -Infinity;
+    R.flApron = apron ? row(`With rigid floor protection + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= floor bottom - ${fmt(p.floorDepth, 2)} m`, p.cbl - p.apronThk - p.floorDepth, 'm', 'Floor-protected criterion (IRC SP:13); depth below floor set by designer') : -Infinity;
     if (!apron) row('Floor protection (apron / lining)', 'not provided', '', 'Scour criterion alone governs');
     let flReq = Math.max(R.flScour + 0.01, R.flApron);
     if (nV > 1) {
@@ -797,7 +799,7 @@
     for (const [a, b] of R.summary) row(a, b, '');
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
-    R.allOk = R.okSoffit && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
+    R.allOk = R.okSoffit && R.okVent && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
     const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
@@ -829,7 +831,9 @@
       }
       if (best) {
         Object.assign(p, { D, mainDia: best.dia, mainSpacing: best.sp });
-        for (const sp of [250, 200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+        dist: for (const dd of [10, 12, 16]) {
+          for (const sp of [250, 200, 175, 150, 125, 100]) { p.distDia = dd; p.distSpacing = sp; if (design(p).R.okDist) break dist; }
+        }
         return { D, mainDia: best.dia, mainSpacing: best.sp, distDia: p.distDia, distSpacing: p.distSpacing };
       }
     }

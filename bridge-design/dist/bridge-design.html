@@ -577,7 +577,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     bedFall: 2500, cbl: 145.819, cblExisting: 145.968, manningN: 0.025,
     bankWidthL: 1.5, bankWidthR: 1.5,
     // general arrangement
-    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 8,
+    span: 3.5, nVents: 1, skew: 0, maxSlabSpan: 10, affluxLimit: 0.05,
     carriageway: 4.25, edgeType: 'railing', kerbW: 0.225, kerbH: 0.3, railingLoad: 0.1,
     barrierW: 0.45, barrierLoad: 0.75, fpW: 0, fpThk: 0.225, fpLoad: 0.4,
     bearingW: 0.48, frl: 147.945, gl: 147.545, approachLen: 3.5, approachThk: 0.3,
@@ -585,7 +585,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     foundationLevel: 144.55, wc: 0.075, D: 0.375, bedBlockT: 0.3, footingT: 0.5,
     frontBatter: 0.6,
     // scour / floor protection
-    siltFactor: 1.0, apron: 'yes', apronThk: 0.15, liningLen: 15, liningThk: 0.1,
+    siltFactor: 1.0, apron: 'yes', floorDepth: 1.0, apronThk: 0.15, liningLen: 15, liningThk: 0.1,
     // design method & materials
     deckAuto: 'yes', minD: 0.3, method: 'WSM', fck: 20, fy: 415, exposure: 'moderate',
     scbc: 7, sst: 200, modRatio: 10, cover: 0.04, mainDia: 16, mainSpacing: 125,
@@ -878,6 +878,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.ventArea = row('Vent area at FSL = avg clear width x FSD', ((R.clearCBL + R.clearFSLw) / 2) * p.fsd, 'sqm');
     R.ratio = row('Ratio canal area / vent area', R.area / R.ventArea, '', R.area / R.ventArea < 1 ? '< 1 : no contraction' : 'Contraction - afflux computed');
     R.afflux = row('Afflux (Molesworth)', Math.max(0, (R.vel ** 2 / 17.88 + 0.01524) * ((R.area / R.ventArea) ** 2 - 1)), 'm');
+    R.okVent = R.afflux <= p.affluxLimit + 1e-9;
+    chk(`Check waterway: afflux <= ${fmt(p.affluxLimit, 3)} m`, R.okVent, R.okVent ? 'OK' : `REVISE - vent too narrow; use span ${fmt(R.spanSuggested, 2)} m or more vents`, 'Vent should not constrict the canal (IRC 5 / IRC SP:13)');
     R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
     inp('Silt factor f = 1.76 sqrt(dm, mm)', 'siltFactor', '', 'From bed material; confirm by soil test');
     R.q = row('Discharge per m width q (on width at bed)', R.Qs / R.clearCBL, 'cumec/m');
@@ -886,7 +888,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     R.msl = row('Max scour level at abutments = FSL - 1.27 dsm', R.fsl - R.maxScourD, 'm');
     R.flScour = row('Foundation level required <= MSL - 1.20 m', R.msl - 1.2, 'm', 'IRC 78 cl.705.2.1.1');
     const apron = yes(p.apron);
-    R.flApron = apron ? row(`With rigid CC apron + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= apron bottom - 1.0 m (IRC SP:13)`, p.cbl - p.apronThk - 1, 'm', 'Floor-protected criterion') : -Infinity;
+    R.flApron = apron ? row(`With rigid floor protection + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= floor bottom - ${fmt(p.floorDepth, 2)} m`, p.cbl - p.apronThk - p.floorDepth, 'm', 'Floor-protected criterion (IRC SP:13); depth below floor set by designer') : -Infinity;
     if (!apron) row('Floor protection (apron / lining)', 'not provided', '', 'Scour criterion alone governs');
     let flReq = Math.max(R.flScour + 0.01, R.flApron);
     if (nV > 1) {
@@ -1330,7 +1332,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     for (const [a, b] of R.summary) row(a, b, '');
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
-    R.allOk = R.okSoffit && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
+    R.allOk = R.okSoffit && R.okVent && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
     const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
@@ -1362,7 +1364,9 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       }
       if (best) {
         Object.assign(p, { D, mainDia: best.dia, mainSpacing: best.sp });
-        for (const sp of [250, 200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+        dist: for (const dd of [10, 12, 16]) {
+          for (const sp of [250, 200, 175, 150, 125, 100]) { p.distDia = dd; p.distSpacing = sp; if (design(p).R.okDist) break dist; }
+        }
         return { D, mainDia: best.dia, mainSpacing: best.sp, distDia: p.distDia, distSpacing: p.distSpacing };
       }
     }
@@ -2956,6 +2960,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5']]],
       ['siltFactor', 'Silt factor f', '', 0.05], ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1],
       ['mu', 'Friction (concrete/soil)', '', 0.05], ['apron', 'Floor protection (apron + lining)', '', YN],
+      ['floorDepth', 'Foundation depth below floor protection', 'm', 0.05], ['affluxLimit', 'Permissible afflux', 'm', 0.01],
       ['frlNote', 'FRL note', '', 'text'],
     ]],
     ['Design standard & loading', true, { step: 3, note: 'Defaults follow IRC 6 / IRC 21 as in department type designs. Change them for your authority and site.' }, [
@@ -3016,23 +3021,23 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     minD: (s) => s.deckAuto !== 'no', fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
     scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
     pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
-    apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
+    floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
   };
   // Fields the tool fills in itself (read-only unless the designer overrides).
   const AUTO_FIELDS = {
     minD: () => false, D: (s) => s.deckAuto !== 'no', mainDia: (s) => s.deckAuto !== 'no', mainSpacing: (s) => s.deckAuto !== 'no',
-    distDia: () => false, distSpacing: (s) => s.deckAuto !== 'no',
+    distDia: (s) => s.deckAuto !== 'no', distSpacing: (s) => s.deckAuto !== 'no',
   };
   // Where each standard (not calculated) value comes from.
   const STD_NOTE = {
     wc: 'Standard 75 mm (IRC SP:13 / MORTH; 65 mm min)', kerbW: 'IRC 5: min 225 mm', kerbH: 'Standard 300 mm (225 above road)',
     railingLoad: 'MORTH SD/202 RCC posts + pipes', bearingW: 'Bed block 500 mm - 20 mm joint', approachLen: 'Standard 3.5 m (MORTH type approach slab)',
-    approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', distDia: 'Standard 10 mm',
-    maxSlabSpan: 'Solid slab economical up to about 8-10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
+    approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', 
+    maxSlabSpan: 'MORTH standard solid slabs up to about 10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
     scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
     cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
     subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
-    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', minD: 'Practical minimum for road bridge slabs (designer choice)',
+    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
   };
 
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
@@ -3149,11 +3154,11 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
-        const key = JSON.stringify(Object.assign({}, state, { D: 0, mainDia: 0, mainSpacing: 0, distSpacing: 0 }));
+        const key = JSON.stringify(Object.assign({}, state, { D: 0, mainDia: 0, mainSpacing: 0, distDia: 0, distSpacing: 0 }));
         if (key !== lastDeckKey) {
           lastDeckKey = key;
           const dk = BD.sizeDeck(state);
-          if (dk) { Object.assign(state, dk); for (const k of ['D', 'mainDia', 'mainSpacing', 'distSpacing']) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; } }
+          if (dk) { Object.assign(state, dk); for (const k of ['D', 'mainDia', 'mainSpacing', 'distDia', 'distSpacing']) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; } }
         }
       }
       cur = BD.design(state);

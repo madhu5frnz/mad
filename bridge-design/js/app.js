@@ -24,6 +24,7 @@
       ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5']]],
       ['siltFactor', 'Silt factor f', '', 0.05], ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1],
       ['mu', 'Friction (concrete/soil)', '', 0.05], ['apron', 'Floor protection (apron + lining)', '', YN],
+      ['floorDepth', 'Foundation depth below floor protection', 'm', 0.05], ['affluxLimit', 'Permissible afflux', 'm', 0.01],
       ['frlNote', 'FRL note', '', 'text'],
     ]],
     ['Design standard & loading', true, { step: 3, note: 'Defaults follow IRC 6 / IRC 21 as in department type designs. Change them for your authority and site.' }, [
@@ -84,23 +85,23 @@
     minD: (s) => s.deckAuto !== 'no', fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
     scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
     pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
-    apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
+    floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
   };
   // Fields the tool fills in itself (read-only unless the designer overrides).
   const AUTO_FIELDS = {
     minD: () => false, D: (s) => s.deckAuto !== 'no', mainDia: (s) => s.deckAuto !== 'no', mainSpacing: (s) => s.deckAuto !== 'no',
-    distDia: () => false, distSpacing: (s) => s.deckAuto !== 'no',
+    distDia: (s) => s.deckAuto !== 'no', distSpacing: (s) => s.deckAuto !== 'no',
   };
   // Where each standard (not calculated) value comes from.
   const STD_NOTE = {
     wc: 'Standard 75 mm (IRC SP:13 / MORTH; 65 mm min)', kerbW: 'IRC 5: min 225 mm', kerbH: 'Standard 300 mm (225 above road)',
     railingLoad: 'MORTH SD/202 RCC posts + pipes', bearingW: 'Bed block 500 mm - 20 mm joint', approachLen: 'Standard 3.5 m (MORTH type approach slab)',
-    approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', distDia: 'Standard 10 mm',
-    maxSlabSpan: 'Solid slab economical up to about 8-10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
+    approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', 
+    maxSlabSpan: 'MORTH standard solid slabs up to about 10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
     scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
     cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
     subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
-    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', minD: 'Practical minimum for road bridge slabs (designer choice)',
+    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
   };
 
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
@@ -217,11 +218,11 @@
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
-        const key = JSON.stringify(Object.assign({}, state, { D: 0, mainDia: 0, mainSpacing: 0, distSpacing: 0 }));
+        const key = JSON.stringify(Object.assign({}, state, { D: 0, mainDia: 0, mainSpacing: 0, distDia: 0, distSpacing: 0 }));
         if (key !== lastDeckKey) {
           lastDeckKey = key;
           const dk = BD.sizeDeck(state);
-          if (dk) { Object.assign(state, dk); for (const k of ['D', 'mainDia', 'mainSpacing', 'distSpacing']) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; } }
+          if (dk) { Object.assign(state, dk); for (const k of ['D', 'mainDia', 'mainSpacing', 'distDia', 'distSpacing']) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; } }
         }
       }
       cur = BD.design(state);
