@@ -77,7 +77,7 @@
       ['Estimate Amount Rs.', { formula: 'TEXT(\'Gen Abst\'!C18,"0.00")&" Lakhs"', result: e.lakhs.toFixed(2) + ' Lakhs' }],
       ['Category of Project /Scheme /Work', p.project],
       ['Location /District /Mandal /Village', `${p.location}, ${p.district} Dist.`],
-      ['Scope of work in brief', `Construction of single vent ${R.typ} of ${p.span.toFixed(2)} m clear span with ${p.carriageway.toFixed(2)} m carriageway across ${p.canalName} at Km ${p.chainage}`],
+      ['Scope of work in brief', R.scope || `Construction of single vent ${R.typ} of ${p.span.toFixed(2)} m clear span with ${p.carriageway.toFixed(2)} m carriageway across ${p.canalName} at Km ${p.chainage}`],
       ['Whether the approved Designs /Drawings /Hydraulic particulars /Cross sections are enclosed', 'ENCLOSED'],
       ['Whether the data enclosed is based on the current SSR with year', '2026-27'],
       ['Whether geological and foundation investigations carried out', 'Trial pit to be taken before execution'],

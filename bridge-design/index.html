@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SLRB / DLRB Design Generator</title>
-<meta name="description" content="Design single and double lane road bridges across irrigation canals from the hydraulic particulars: IRC design report, A2 drawings and estimate.">
+<title>Canal Crossing Design Generator</title>
+<meta name="description" content="Design single and double lane road bridges and under tunnels (U.T.) across irrigation canals from the hydraulic particulars: design report, A2 drawings and estimate.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230b1730%22/%3E%3Cpath d=%22M4 11h24v4H4z%22 fill=%22%23e2f3ff%22/%3E%3Cpath d=%22M8 15h4l-1 11H6zM20 15h4l2 11h-5z%22 fill=%22%237dd3fc%22/%3E%3Cpath d=%22M12 24h8l-2-4h-4z%22 fill=%22%2322d3ee%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +16,13 @@
 <header class="nav">
   <a class="brand" href="#top" aria-label="SLRB / DLRB Design Generator, top of page">
     <svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" class="m-bg"/><path d="M4 11h24v4H4z" class="m-deck"/><path d="M8 15h4l-1 11H6zM20 15h4l2 11h-5z" class="m-abut"/><path d="M12 24h8l-2-4h-4z" class="m-water"/></svg>
-    <span>SLRB<b>/</b>DLRB <em>Design Generator</em></span>
+    <span>SLRB<b>/</b>DLRB<b>/</b>UT <em>Design Generator</em></span>
   </a>
   <nav class="nav-links" aria-label="Page sections">
     <a href="#how">How it works</a>
     <a href="#basis">Design basis</a>
     <a href="#work">Workspace</a>
-    <span class="codes">IRC 5 · 6 · 21 · 78 · SP:13</span>
+    <span class="codes">IRC 5 · 6 · 21 · 78 · SP:13 · IS 7784</span>
   </nav>
 </header>
 
@@ -31,17 +31,21 @@
   <div class="hero-inner">
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>I &amp; CAD · Irrigation canal crossings</p>
-      <h1>Canal road bridges, <span class="grad">designed from the HPs.</span></h1>
-      <p class="lead">Type the hydraulic particulars of the canal. Get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC codes as you type.</p>
+      <h1>Canal crossings, <span class="grad">designed from the HPs.</span></h1>
+      <p class="lead">Road bridges over the canal, or an under tunnel taking a drain beneath it. Type the hydraulic particulars and get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC / IS codes as you type.</p>
 
-      <div class="type-switch" role="radiogroup" aria-label="Bridge type">
+      <div class="type-switch" role="radiogroup" aria-label="Structure type">
         <button type="button" data-type="SLRB" class="active" role="radio" id="type-slrb">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 8h60v5H2z"/><path class="lane" d="M8 5h48"/><path d="M10 13h6l-2 13H8zM48 13h6l2 13h-8z"/></svg>
-          <span><b>S.L.R.B.</b><small>Single lane · 4.25 m · Class A</small></span>
+          <span><b>S.L.R.B.</b><small>Single lane · 4.25 m</small></span>
         </button>
         <button type="button" data-type="DLRB" role="radio" id="type-dlrb">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 8h60v5H2z"/><path class="lane" d="M6 5h22M36 5h22"/><path d="M10 13h6l-2 13H8zM48 13h6l2 13h-8z"/></svg>
-          <span><b>D.L.R.B.</b><small>Two lane · 7.50 m · Class A / 70R</small></span>
+          <span><b>D.L.R.B.</b><small>Two lane · 7.50 m</small></span>
+        </button>
+        <button type="button" data-type="UT" role="radio" id="type-ut">
+          <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 2h60v3H2z" opacity=".55"/><path d="M18 12h28v14H18zM22 15v8h20v-8z" fill-rule="evenodd"/><path class="lane" d="M2 19h16M46 19h16"/></svg>
+          <span><b>U.T.</b><small>Drain under canal · RCC box</small></span>
         </button>
       </div>
 
@@ -58,6 +62,7 @@
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
             <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
             <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
+            <option value="ut25615">U.T. Km 25.615 (department workbook data)</option>
           </select>
         </label>
         <a class="ghost-link" href="#work">Enter your HPs ↓</a>
@@ -73,7 +78,7 @@
         </div>
         <div id="xsec" class="bp-draw"></div>
         <div id="kpis" class="kpis"></div>
-        <p class="bp-foot">Drawn to scale from your inputs · levels in metres</p>
+        <p class="bp-foot" id="bp-foot">Drawn to scale from your inputs · levels in metres</p>
       </div>
     </div>
   </div>
@@ -84,7 +89,7 @@
   <ol class="steps">
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="17" r="2"/></svg>
-      <b>Choose the bridge</b><span>S.L.R.B. or D.L.R.B. at the top.</span>
+      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B. or U.T. (drain under the canal) at the top.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 20c3-3 6 3 9 0s6 3 9 0M12 3v8M9 8l3 3 3-3"/></svg>
@@ -124,6 +129,7 @@
         <li><i>IRC 78:2014</i> scour (1.27 / 2.0 dsm), foundation depth, stability FOS</li>
         <li><i>IRC SP:13:2004</i> small bridges, floor protection</li>
         <li><i>IS 456, IS 1786, IS 2502</i>; <i>MORTH</i> SD/202 railing, crash barrier, specifications</li>
+        <li><i>IS 7784 Pt 1 &amp; 2</i> U.T.: Lacey waterway, fluming, transitions, Unwin barrel loss; Dicken's flood; CDO drop-wall rules</li>
       </ul>
     </div>
     <div class="bcard warn">
@@ -132,6 +138,7 @@
         <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent; wider canals use more vents</li>
         <li>Plain concrete gravity abutments, piers and wing walls on open foundations; where they cannot work (high walls, poor soil, Zone IV–V) the tool says so</li>
         <li>Up to two traffic lanes; skew above 20° needs separate skew-slab analysis</li>
+        <li>U.T.: single / multi-cell RCC box (closed-frame analysis, WSM) with vertical drop, cistern, splayed transitions and gravity head / wing / return walls</li>
         <li>Results are a design aid. They must be checked and approved by the competent engineer; soil values must come from investigation</li>
       </ul>
     </div>
@@ -176,7 +183,7 @@
         <button type="button" id="btn-pdf-dwg" class="dl">Download PDF (2 × A2)</button>
         <button type="button" id="btn-dxf" class="dl">Download DXF for AutoCAD (zip)</button>
       </div>
-      <p class="hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
+      <p class="hint" id="dwg-hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
       <div id="drawings"></div>
     </section>
 
@@ -193,8 +200,8 @@
 
 <footer class="foot">
   <div>
-    <b>SLRB / DLRB Design Generator</b>
-    <p>Design to IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014, IRC SP:13-2004 and IS 456-2000. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</p>
+    <b>SLRB / DLRB / UT Design Generator</b>
+    <p>Design to IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014, IRC SP:13-2004, IS 7784 and IS 456-2000. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</p>
   </div>
 </footer>
 
@@ -208,6 +215,10 @@
 <script src="js/sheets.js"></script>
 <script src="js/export-xlsx.js"></script>
 <script src="js/pdf.js"></script>
+<script src="js/ut.js"></script>
+<script src="js/ut-estimate.js"></script>
+<script src="js/ut-sheets.js"></script>
+<script src="js/ut-ui.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

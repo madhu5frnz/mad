@@ -1,4 +1,4 @@
-<title>SLRB / DLRB Design Generator</title>
+<title>Canal Crossing Design Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -113,7 +113,10 @@ button:disabled { opacity: .6; cursor: progress; }
 .grad { background: linear-gradient(92deg, #67e8f9 0%, #38bdf8 45%, #a5f3fc 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .lead { max-width: 56ch; margin: 18px 0 26px; font-size: clamp(15px, 1.25vw, 17px); color: #b7c8e2; }
 
-.type-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 560px; }
+.type-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 680px; }
+.type-switch button { padding: 12px 12px; gap: 10px; }
+.type-switch svg { width: 40px; }
+.type-switch small { display: block; font-size: 11.5px; line-height: 1.35; }
 .type-switch button {
   display: flex; align-items: center; gap: 14px; text-align: left; padding: 14px 16px; border-radius: 14px;
   background: rgba(255, 255, 255, .04); border: 1px solid rgba(125, 211, 252, .2); color: var(--bp-text);
@@ -330,6 +333,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   .grid { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
   .type-switch { grid-template-columns: 1fr; }
+  .type-switch svg { width: 58px; }
   .brand em, .codes { display: none; }
   .kpis b { font-size: 22px; }
   .tabs { width: 100%; }
@@ -344,13 +348,13 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 <header class="nav">
   <a class="brand" href="#top" aria-label="SLRB / DLRB Design Generator, top of page">
     <svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" class="m-bg"/><path d="M4 11h24v4H4z" class="m-deck"/><path d="M8 15h4l-1 11H6zM20 15h4l2 11h-5z" class="m-abut"/><path d="M12 24h8l-2-4h-4z" class="m-water"/></svg>
-    <span>SLRB<b>/</b>DLRB <em>Design Generator</em></span>
+    <span>SLRB<b>/</b>DLRB<b>/</b>UT <em>Design Generator</em></span>
   </a>
   <nav class="nav-links" aria-label="Page sections">
     <a href="#how">How it works</a>
     <a href="#basis">Design basis</a>
     <a href="#work">Workspace</a>
-    <span class="codes">IRC 5 · 6 · 21 · 78 · SP:13</span>
+    <span class="codes">IRC 5 · 6 · 21 · 78 · SP:13 · IS 7784</span>
   </nav>
 </header>
 
@@ -359,17 +363,21 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   <div class="hero-inner">
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>I &amp; CAD · Irrigation canal crossings</p>
-      <h1>Canal road bridges, <span class="grad">designed from the HPs.</span></h1>
-      <p class="lead">Type the hydraulic particulars of the canal. Get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC codes as you type.</p>
+      <h1>Canal crossings, <span class="grad">designed from the HPs.</span></h1>
+      <p class="lead">Road bridges over the canal, or an under tunnel taking a drain beneath it. Type the hydraulic particulars and get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC / IS codes as you type.</p>
 
-      <div class="type-switch" role="radiogroup" aria-label="Bridge type">
+      <div class="type-switch" role="radiogroup" aria-label="Structure type">
         <button type="button" data-type="SLRB" class="active" role="radio" id="type-slrb">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 8h60v5H2z"/><path class="lane" d="M8 5h48"/><path d="M10 13h6l-2 13H8zM48 13h6l2 13h-8z"/></svg>
-          <span><b>S.L.R.B.</b><small>Single lane · 4.25 m · Class A</small></span>
+          <span><b>S.L.R.B.</b><small>Single lane · 4.25 m</small></span>
         </button>
         <button type="button" data-type="DLRB" role="radio" id="type-dlrb">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 8h60v5H2z"/><path class="lane" d="M6 5h22M36 5h22"/><path d="M10 13h6l-2 13H8zM48 13h6l2 13h-8z"/></svg>
-          <span><b>D.L.R.B.</b><small>Two lane · 7.50 m · Class A / 70R</small></span>
+          <span><b>D.L.R.B.</b><small>Two lane · 7.50 m</small></span>
+        </button>
+        <button type="button" data-type="UT" role="radio" id="type-ut">
+          <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 2h60v3H2z" opacity=".55"/><path d="M18 12h28v14H18zM22 15v8h20v-8z" fill-rule="evenodd"/><path class="lane" d="M2 19h16M46 19h16"/></svg>
+          <span><b>U.T.</b><small>Drain under canal · RCC box</small></span>
         </button>
       </div>
 
@@ -386,6 +394,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
             <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
             <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
+            <option value="ut25615">U.T. Km 25.615 (department workbook data)</option>
           </select>
         </label>
         <a class="ghost-link" href="#work">Enter your HPs ↓</a>
@@ -401,7 +410,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         </div>
         <div id="xsec" class="bp-draw"></div>
         <div id="kpis" class="kpis"></div>
-        <p class="bp-foot">Drawn to scale from your inputs · levels in metres</p>
+        <p class="bp-foot" id="bp-foot">Drawn to scale from your inputs · levels in metres</p>
       </div>
     </div>
   </div>
@@ -412,7 +421,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   <ol class="steps">
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="17" r="2"/></svg>
-      <b>Choose the bridge</b><span>S.L.R.B. or D.L.R.B. at the top.</span>
+      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B. or U.T. (drain under the canal) at the top.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 20c3-3 6 3 9 0s6 3 9 0M12 3v8M9 8l3 3 3-3"/></svg>
@@ -452,6 +461,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         <li><i>IRC 78:2014</i> scour (1.27 / 2.0 dsm), foundation depth, stability FOS</li>
         <li><i>IRC SP:13:2004</i> small bridges, floor protection</li>
         <li><i>IS 456, IS 1786, IS 2502</i>; <i>MORTH</i> SD/202 railing, crash barrier, specifications</li>
+        <li><i>IS 7784 Pt 1 &amp; 2</i> U.T.: Lacey waterway, fluming, transitions, Unwin barrel loss; Dicken's flood; CDO drop-wall rules</li>
       </ul>
     </div>
     <div class="bcard warn">
@@ -460,6 +470,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent; wider canals use more vents</li>
         <li>Plain concrete gravity abutments, piers and wing walls on open foundations; where they cannot work (high walls, poor soil, Zone IV–V) the tool says so</li>
         <li>Up to two traffic lanes; skew above 20° needs separate skew-slab analysis</li>
+        <li>U.T.: single / multi-cell RCC box (closed-frame analysis, WSM) with vertical drop, cistern, splayed transitions and gravity head / wing / return walls</li>
         <li>Results are a design aid. They must be checked and approved by the competent engineer; soil values must come from investigation</li>
       </ul>
     </div>
@@ -504,7 +515,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         <button type="button" id="btn-pdf-dwg" class="dl">Download PDF (2 × A2)</button>
         <button type="button" id="btn-dxf" class="dl">Download DXF for AutoCAD (zip)</button>
       </div>
-      <p class="hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
+      <p class="hint" id="dwg-hint">Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.</p>
       <div id="drawings"></div>
     </section>
 
@@ -521,8 +532,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
 <footer class="foot">
   <div>
-    <b>SLRB / DLRB Design Generator</b>
-    <p>Design to IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014, IRC SP:13-2004 and IS 456-2000. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</p>
+    <b>SLRB / DLRB / UT Design Generator</b>
+    <p>Design to IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014, IRC SP:13-2004, IS 7784 and IS 456-2000. Results must be checked and approved by the competent engineer before use. SBC, silt factor and backfill φ are assumptions until confirmed at site.</p>
   </div>
 </footer>
 
@@ -1469,6 +1480,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     'IRR-CCDW-2-29': 6729.7,
     'IRR-CCDW-5-5': 1740.9,
     'MORTH-2700': 9500,
+    'RCC-M30': 9200,
   };
   const SEIG_RATES = { metal: 117, nsand: 40, msand: 117 };
   const GA = { labourCess: 0.01, nac: 0.001, smet: 0.02, dmf: 0.3, permit: 0.8, gst: 0.18, roundExtra: 2000 };
@@ -1547,10 +1559,6 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   }
 
   function estimate(d, opts) {
-    const o = Object.assign({ rates: {}, seigRates: {}, ga: {} }, opts || {});
-    const rates = Object.assign({}, RATES, o.rates);
-    const sr = Object.assign({}, SEIG_RATES, o.seigRates);
-    const ga = Object.assign({}, GA, o.ga);
     const { p, R } = d;
     const B = R.B, L = R.deckL, typ = R.typ;
     const where = `${typ} @ Km ${p.chainage}`;
@@ -1610,7 +1618,19 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       rail: railing ? [['on both sides of deck', 1, 2, R.totalLength, 1, 1]] : [],
       crash: railing ? [] : [['on both sides of deck and approach slabs', 1, 2, R.totalLength + 2 * p.approachLen, 1, 1]],
     };
-    const items = ITEMS.filter((it) => it.key === 'steel' || (M[it.key] || []).length).map((it, i) => {
+    return price(ITEMS, M, b, { typ, where, nameOfWork: R.nameOfWork }, opts);
+  }
+
+  // Priced estimate from measurement rows M[key] = [[desc, n1, n2, L, W, D]...]
+  // and a bar bending schedule: abstract, seigniorage, theoretical
+  // requirement and general abstract (shared by every structure type).
+  function price(itemDefs, M, b, meta, opts) {
+    const o = Object.assign({ rates: {}, seigRates: {}, ga: {} }, opts || {});
+    const rates = Object.assign({}, RATES, o.rates);
+    const sr = Object.assign({}, SEIG_RATES, o.seigRates);
+    const ga = Object.assign({}, GA, o.ga);
+    const { typ, where } = meta;
+    const items = itemDefs.filter((it) => it.key === 'steel' || (M[it.key] || []).length).map((it, i) => {
       const rows = (M[it.key] || []).map(([desc, n1, n2, l, w, dd]) => {
         const l3 = r3(l), w3 = r3(w), d3 = r3(dd);
         return { desc, n1, n2, l: l3, w: w3, d: d3, qty: r3(n1 * n2 * l3 * w3 * d3) };
@@ -1653,12 +1673,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       ['Rounding off and unforseen expenditure', rounding],
     ];
     return {
-      nameOfWork: `Name of work:- ${R.nameOfWork}`, items, ecv, bbs: b, seig, seigTot: tot, seigAmt: amt, seigRates: sr, seigTotal, dmf, smet, permit,
+      nameOfWork: `Name of work:- ${meta.nameOfWork}`, items, ecv, bbs: b, seig, seigTot: tot, seigAmt: amt, seigRates: sr, seigTotal, dmf, smet, permit,
       theo, genAbst, lc, nac, partB, gst, rounding, total, lakhs: total / 100000, rates, ga,
     };
   }
 
-  Object.assign(BD, { estimate, bbs, RATES, SEIG_RATES, GA, EST_ITEMS: ITEMS });
+  Object.assign(BD, { estimate, priceEstimate: price, unitWt, nBars, bbs, RATES, SEIG_RATES, GA, EST_ITEMS: ITEMS });
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -2474,7 +2494,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     return dw;
   }
 
-  Object.assign(BD, { sheet1, sheet2 });
+  Object.assign(BD, { sheet1, sheet2, sheetFrame: frame, wrapText, pickScale: pick });
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -2558,7 +2578,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       ['Estimate Amount Rs.', { formula: 'TEXT(\'Gen Abst\'!C18,"0.00")&" Lakhs"', result: e.lakhs.toFixed(2) + ' Lakhs' }],
       ['Category of Project /Scheme /Work', p.project],
       ['Location /District /Mandal /Village', `${p.location}, ${p.district} Dist.`],
-      ['Scope of work in brief', `Construction of single vent ${R.typ} of ${p.span.toFixed(2)} m clear span with ${p.carriageway.toFixed(2)} m carriageway across ${p.canalName} at Km ${p.chainage}`],
+      ['Scope of work in brief', R.scope || `Construction of single vent ${R.typ} of ${p.span.toFixed(2)} m clear span with ${p.carriageway.toFixed(2)} m carriageway across ${p.canalName} at Km ${p.chainage}`],
       ['Whether the approved Designs /Drawings /Hydraulic particulars /Cross sections are enclosed', 'ENCLOSED'],
       ['Whether the data enclosed is based on the current SSR with year', '2026-27'],
       ['Whether geological and foundation investigations carried out', 'Trial pit to be taken before execution'],
@@ -2951,13 +2971,1443 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
 </script>
 <script>
+/*
+ * U.T. (under tunnel) design engine - a drain passing under an irrigation
+ * canal through a single / multi-cell RCC box, with a vertical drop at the
+ * upstream end, cistern, splayed transitions, gravity head walls and gravity
+ * wing / return walls, in the format of the I&CAD UT design workbooks.
+ *
+ *   hydrology   maximum flood discharge by Dicken's formula (or given)
+ *   ventway     vents from an assumed barrel velocity; Lacey waterway
+ *               P = 4.8 Q^1/2 (IS 7784 Pt 1 cl.8.1.2) with fluming
+ *   hydraulics  tail channel by Manning; water levels / TELs section by
+ *               section upstream: expansion / contraction eddy losses,
+ *               barrel loss by Unwin's formula, Sarda-type drop crest
+ *               (free or drowned, Villemonte), approach channel
+ *   drop        drop wall top / base width, cistern length and floor
+ *               thickness (CDO guidelines, as in the department workbooks)
+ *   scour       Lacey, 1.5 d upstream, 2.0 d downstream; cut-off levels
+ *   box         closed RCC frame solved by the stiffness method for
+ *               4 cases under the canal (box / canal empty or full) and
+ *               2 cases under the banks (fill + live load); members
+ *               designed by WSM (IRC 21) incl. axial force; shear;
+ *               base pressure
+ *   walls       head walls on the box, wing / return walls: no tension in
+ *               concrete (e <= b/6), base pressure, FOS 2.0 / 1.5
+ *
+ * Defaults reproduce the UT @ Km 25.615 workbook (1 vent 2.5 x 1.5 m).
+ * Units: metres, tonnes, t/sqm; mm and N/sqmm where noted.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const G = 9.81;
+  const fmt = (v, n = 3) => (typeof v === 'number' && isFinite(v) ? v.toFixed(n) : String(v));
+  const ceilTo = (x, s) => Math.ceil(x / s - 1e-9) * s;
+  const floorTo = (x, s) => Math.floor(x / s + 1e-9) * s;
+  const yes = (v) => v === 'yes' || v === true;
+
+  const UT_DEFAULTS = {
+    structure: 'UT',
+    chainage: '25.615',
+    canalName: 'Main Canal',
+    location: '',
+    district: '',
+    state: 'GOVERNMENT OF TELANGANA',
+    department: 'IRRIGATION & CAD DEPARTMENT',
+    subDivision: 'Irr. Sub-Division',
+    division: 'Irr. Division',
+    project: '',
+    // canal
+    Qc: 10.848, bedWidth: 5.5, fsd: 1.5, sideSlope: 1.5, freeBoard: 0.6, bedFall: 2000, manningN: 0.025,
+    cbl: 406.295, bankWidthL: 4, bankWidthR: 4, skew: 0,
+    // drain
+    floodMode: 'dicken', catchment: 0.218, dickenC: 19.5, mfdGiven: 6.221,
+    drainBed: 407.025, drainSideSlope: 1.5, drainN: 0.025, tailFall: 3300, siltFactor: 2.0, fluming: 60,
+    // box
+    vBarrel: 3.0, nVents: 1, ventW: 2.5, ventH: 1.5, cushion: 0.1, sealing: 0.04, wcBox: 0.075,
+    boxAuto: 'yes', minT: 0.3, tTop: 0.3, tBot: 0.3, tWall: 0.3, tMid: 0.3, haunch: 0.15, pcc: 0.15,
+    // hydraulics
+    nConc: 0.018, usSplay: 2, dsSplay: 3, kTail: 0.5, kExit: 0.3, kEntry: 0.2, kApproach: 0.5,
+    barrelF1: 0.505, unwinA: 0.00316, unwinB: 0.03, crestDepth: 0, drainFB: 0.6,
+    // drop / floors
+    rhoConc: 2.4, floorWc: 0.15, cistern: 0, dsFloorT: 0.3,
+    // materials & soil
+    fck: 30, fy: 415, scbc: 10, sst: 200, modRatio: 10, cover: 0.04, exposure: 'moderate',
+    subFck: 15, subAllow: 400, gammaRcc: 2.5, gammaConc: 2.4, gammaSoil: 2.1, gammaSub: 1.1,
+    phi: 28, kMode: 'active', sbc: 15, mu: 0.5,
+    // loads
+    llBank: 'A', wallSurcharge: 'yes', llDisp: 1.0, llImpact: 0, surcharge: 1.2, surchargeHead: 0.5,
+    // head wall
+    hwTopW: 0.5, hwRearBatter: 1.3, hwFrontBatter: 0,
+    // wing / return walls
+    wallAuto: 'yes', wTopW: 0.5, wRearBatter: 1.2, wFrontBatter: 0, wToe: 0.3, wHeel: 0.3, wFootT: 0.45,
+    wFdnUs: 0, wFdnDs: 0, returnLen: 2.0,
+  };
+
+  // ------------------------------------------------------------ hydraulics
+  const area = (B, s, d) => (B + s * d) * d;
+  const perim = (B, s, d) => B + 2 * d * Math.sqrt(1 + s * s);
+  const topW = (B, s, d) => B + 2 * s * d;
+
+  function critical(Q, B, s) {
+    let lo = 1e-4, hi = 20;
+    for (let i = 0; i < 100; i++) {
+      const d = (lo + hi) / 2;
+      const f = (Q * Q * topW(B, s, d)) / (G * area(B, s, d) ** 3);
+      if (f > 1) lo = d; else hi = d;
+    }
+    return (lo + hi) / 2;
+  }
+  // Subcritical depth for specific energy E above bed (choked -> critical).
+  function depthForE(Q, B, s, E) {
+    const dc = critical(Q, B, s);
+    const Ec = dc + (Q / area(B, s, dc)) ** 2 / (2 * G);
+    if (E <= Ec) return { d: dc, choked: E < Ec - 1e-6 };
+    let lo = dc, hi = E;
+    for (let i = 0; i < 100; i++) {
+      const d = (lo + hi) / 2;
+      const e = d + (Q / area(B, s, d)) ** 2 / (2 * G);
+      if (e > E) hi = d; else lo = d;
+    }
+    return { d: (lo + hi) / 2, choked: false };
+  }
+  function normalDepth(Q, B, s, n, S) {
+    let lo = 1e-4, hi = 20;
+    for (let i = 0; i < 100; i++) {
+      const d = (lo + hi) / 2;
+      const A = area(B, s, d), R = A / perim(B, s, d);
+      if ((A * R ** (2 / 3) * Math.sqrt(S)) / n > Q) hi = d; else lo = d;
+    }
+    return (lo + hi) / 2;
+  }
+  function section(name, Q, B, s, n, bl, d) {
+    const A = area(B, s, d), P = perim(B, s, d), Rh = A / P, v = Q / A, hv = (v * v) / (2 * G);
+    return { name, B, s, n, bl, d, A, P, R: Rh, v, hv, S: (v * v * n * n) / Rh ** (4 / 3), mfl: bl + d, tel: bl + d + hv };
+  }
+  // Section upstream of `prev`, energy balance with eddy coefficient k and friction over L.
+  function upstream(name, Q, B, s, n, bl, prev, k, L) {
+    // residual: energy at this section minus (energy downstream + losses); rises with depth in subcritical flow
+    const f = (d) => { const x = section(name, Q, B, s, n, bl, d); return x.tel - (prev.tel + k * Math.abs(x.hv - prev.hv) + (L * (x.S + prev.S)) / 2); };
+    const dc = critical(Q, B, s);
+    let choked = false, d;
+    if (f(dc) >= 0) { d = dc; choked = f(dc) > 1e-6; }
+    else {
+      let lo = dc, hi = Math.max(dc * 2, prev.tel - bl + 1);
+      for (let i = 0; i < 200 && f(hi) < 0; i++) hi *= 1.5;
+      for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (f(m) > 0) hi = m; else lo = m; }
+      d = (lo + hi) / 2;
+    }
+    const sec = section(name, Q, B, s, n, bl, d);
+    sec.eddy = k * Math.abs(sec.hv - prev.hv); sec.fric = (L * (sec.S + prev.S)) / 2; sec.L = L; sec.k = k; sec.choked = choked;
+    return sec;
+  }
+
+  // ------------------------------------------------------------ frame solver
+  // 2D frame, 3 dof / node. Members carry transverse trapezoidal loads
+  // (local +y, intensity w1 at i -> w2 at j); nodal loads [Fx, Fy, M].
+  function solveFrame(nodes, members, nodalLoads, fixed) {
+    const nd = nodes.length * 3;
+    const K = Array.from({ length: nd }, () => new Float64Array(nd));
+    const F = new Float64Array(nd);
+    for (const [ni, f] of nodalLoads) for (let k = 0; k < 3; k++) F[ni * 3 + k] += f[k] || 0;
+    const EI = 1, EA = 1e6;
+    for (const m of members) {
+      const a = nodes[m.i], b = nodes[m.j];
+      const L = Math.hypot(b.x - a.x, b.y - a.y), c = (b.x - a.x) / L, s = (b.y - a.y) / L;
+      m.L = L; m.c = c; m.s = s;
+      const I = m.I || 1;
+      const k1 = EA / L, k2 = (12 * EI * I) / L ** 3, k3 = (6 * EI * I) / L ** 2, k4 = (4 * EI * I) / L, k5 = (2 * EI * I) / L;
+      const kl = [
+        [k1, 0, 0, -k1, 0, 0], [0, k2, k3, 0, -k2, k3], [0, k3, k4, 0, -k3, k5],
+        [-k1, 0, 0, k1, 0, 0], [0, -k2, -k3, 0, k2, -k3], [0, k3, k5, 0, -k3, k4],
+      ];
+      const T = [[c, s, 0, 0, 0, 0], [-s, c, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, c, s, 0], [0, 0, 0, -s, c, 0], [0, 0, 0, 0, 0, 1]];
+      m.kl = kl; m.T = T;
+      // fixed-end reactions (local) for trapezoidal load: uniform w1 + triangle (0 -> w2-w1)
+      const w = m.w1 || 0, t = (m.w2 || 0) - w;
+      const fe = [0, -w * L / 2 - (3 * t * L) / 20, -w * L * L / 12 - (t * L * L) / 30, 0, -w * L / 2 - (7 * t * L) / 20, w * L * L / 12 + (t * L * L) / 20];
+      m.fe = fe;
+      const dofs = [m.i * 3, m.i * 3 + 1, m.i * 3 + 2, m.j * 3, m.j * 3 + 1, m.j * 3 + 2];
+      m.dofs = dofs;
+      // kg = T^t kl T
+      const kg = Array.from({ length: 6 }, () => new Float64Array(6));
+      for (let p = 0; p < 6; p++) for (let q = 0; q < 6; q++) {
+        let sum = 0;
+        for (let r = 0; r < 6; r++) { if (!T[r][p]) continue; for (let u = 0; u < 6; u++) if (T[u][q]) sum += T[r][p] * kl[r][u] * T[u][q]; }
+        kg[p][q] = sum;
+      }
+      for (let p = 0; p < 6; p++) for (let q = 0; q < 6; q++) K[dofs[p]][dofs[q]] += kg[p][q];
+      // equivalent nodal loads = -T^t fe
+      for (let p = 0; p < 6; p++) { let sum = 0; for (let r = 0; r < 6; r++) sum += T[r][p] * fe[r]; F[dofs[p]] -= sum; }
+    }
+    for (const dof of fixed) { for (let k = 0; k < nd; k++) { K[dof][k] = 0; K[k][dof] = 0; } K[dof][dof] = 1; F[dof] = 0; }
+    // Gauss elimination
+    const A = K.map((r) => Array.from(r)), x = Array.from(F);
+    for (let i = 0; i < nd; i++) {
+      let piv = i;
+      for (let r = i + 1; r < nd; r++) if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
+      [A[i], A[piv]] = [A[piv], A[i]]; [x[i], x[piv]] = [x[piv], x[i]];
+      for (let r = i + 1; r < nd; r++) {
+        const f = A[r][i] / A[i][i];
+        if (!f) continue;
+        for (let k = i; k < nd; k++) A[r][k] -= f * A[i][k];
+        x[r] -= f * x[i];
+      }
+    }
+    const u = new Array(nd).fill(0);
+    for (let i = nd - 1; i >= 0; i--) { let s = x[i]; for (let k = i + 1; k < nd; k++) s -= A[i][k] * u[k]; u[i] = s / A[i][i]; }
+    for (const m of members) {
+      const ug = m.dofs.map((d) => u[d]);
+      const ul = m.T.map((row) => row.reduce((s, v, k) => s + v * ug[k], 0));
+      m.f = m.kl.map((row, r) => row.reduce((s, v, k) => s + v * ul[k], 0) + m.fe[r]);
+      // internal moment (sagging +, tension on local -y) and shear along member
+      const Mi = m.f[2], Fy = m.f[1], w = m.w1 || 0, t = (m.w2 || 0) - w, L = m.L;
+      m.M = (x) => -Mi + Fy * x + (w * x * x) / 2 + (t * x ** 3) / (6 * L);
+      m.V = (x) => Fy + w * x + (t * x * x) / (2 * L);
+      m.N = m.f[0]; // + compression
+    }
+    return members;
+  }
+
+  // ------------------------------------------------------------ gravity walls
+  // Stem (top width a, front batter fb, rear batter rb, height H) on a footing
+  // (offset o each side, thickness tf). Rankine pressure on the vertical plane
+  // through the heel with level fill, soil on the rear batter / heel included.
+  function gravityWall(o) {
+    const { H, a, fb, rb, toe, heel, tf, K, gs, gc, hs, mu, sbc, allow } = o;
+    const b = fb + a + rb, B = b + toe + heel;
+    // stem alone, moments about the toe of the stem
+    const st = [];
+    st.push(['Front batter', 0.5 * fb * H * gc, (2 * fb) / 3]);
+    st.push(['Rectangular part', a * H * gc, fb + a / 2]);
+    st.push(['Rear batter', 0.5 * rb * H * gc, fb + a + rb / 3]);
+    st.push(['Soil on rear batter', 0.5 * rb * H * gs, fb + a + (2 * rb) / 3]);
+    const Ph = 0.5 * K * gs * H * H, Ps = K * gs * hs * H;
+    const stemV = st.reduce((s, x) => s + x[1], 0), stemMR = st.reduce((s, x) => s + x[1] * x[2], 0);
+    const stemMO = (Ph * H) / 3 + (Ps * H) / 2;
+    const xs = (stemMR - stemMO) / stemV, es = b / 2 - xs;
+    const stem = { V: stemV, H: Ph + Ps, MR: stemMR, MO: stemMO, x: xs, e: es, lim: b / 6, smax: (stemV / b) * (1 + (6 * es) / b), smin: (stemV / b) * (1 - (6 * es) / b), rows: st, Ph, Ps };
+    // whole wall on footing, moments about the toe of the footing
+    const Ht = H + tf;
+    const ft = st.map(([n, w, x]) => [n, w, x + toe]);
+    if (heel > 0) ft.push(['Soil over heel', heel * H * gs, toe + b + heel / 2]);
+    ft.push(['Footing', B * tf * gc, B / 2]);
+    const V = ft.reduce((s, x) => s + x[1], 0), MR = ft.reduce((s, x) => s + x[1] * x[2], 0);
+    const Ph2 = 0.5 * K * gs * Ht * Ht, Ps2 = K * gs * hs * Ht;
+    const MO = (Ph2 * Ht) / 3 + (Ps2 * Ht) / 2;
+    const x = (MR - MO) / V, e = B / 2 - x;
+    const base = { V, H: Ph2 + Ps2, MR, MO, x, e, lim: B / 6, smax: (V / B) * (1 + (6 * e) / B), smin: (V / B) * (1 - (6 * e) / B), rows: ft, fosO: MR / MO, fosS: (mu * V) / (Ph2 + Ps2), Ph: Ph2, Ps: Ps2 };
+    stem.ok = stem.e <= stem.lim + 1e-9 && stem.smax <= allow;
+    base.ok = base.smax <= sbc && base.smin >= -1e-9 && base.fosO >= 2 && base.fosS >= 1.5;
+    return { b, B, stem, base, ok: stem.ok && (tf > 0 ? base.ok : true), H, Ht, rb, toe, heel };
+  }
+  // Least section passing every check: rear batter for the stem, then the
+  // smallest footing (toe / heel in 0.1 m steps).
+  function sizeWall(o) {
+    for (let rb = 0.3; rb <= 10; rb = +(rb + 0.1).toFixed(2)) {
+      const w0 = gravityWall(Object.assign({}, o, { rb, toe: 0.3, heel: 0.3 }));
+      if (!w0.stem.ok) continue;
+      if (!(o.tf > 0)) return w0;
+      let best = null;
+      for (let toe = 0.3; toe <= 2.0 + 1e-9; toe = +(toe + 0.1).toFixed(2)) {
+        for (let heel = 0.3; heel <= 4.0 + 1e-9; heel = +(heel + 0.1).toFixed(2)) {
+          const w = gravityWall(Object.assign({}, o, { rb, toe, heel }));
+          if (w.base.ok) { if (!best || w.B < best.B - 1e-9) best = w; break; }
+        }
+      }
+      if (best) return best;
+    }
+    return null;
+  }
+
+  // ------------------------------------------------------------ WSM member design
+  function memberDesign(p, M, N, V, t, label) {
+    const m = p.modRatio, sc = p.scbc, ss = p.sst;
+    const k = m * sc / (m * sc + ss), j = 1 - k / 3, Q = 0.5 * sc * k * j; // N/mm2
+    const c = p.cover * 1000, D = t * 1000;
+    const out = { label, M, N, V, D };
+    const trial = (dia) => {
+      const d = D - c - dia / 2;
+      const Ms = Math.abs(M) + Math.max(N, 0) * (d - D / 2) / 1000; // t-m
+      const MsN = Ms * 9.81e6; // N-mm per m
+      const dReq = Math.sqrt(MsN / (Q * 1000));
+      const AstReq = Math.max(MsN / (ss * j * d) - (Math.max(N, 0) * 9810) / ss, 0.0012 * 1000 * D);
+      return { d, Ms, dReq, AstReq };
+    };
+    // choose bars: least steel with spacing 100..300 mm (multiples of 10)
+    let best = null;
+    for (const dia of [10, 12, 16, 20, 25]) {
+      const tr = trial(dia);
+      const ab = (Math.PI * dia * dia) / 4;
+      let sp = Math.min(300, Math.floor((1000 * ab) / tr.AstReq / 10) * 10);
+      if (sp < 100) continue;
+      const prov = (1000 * ab) / sp;
+      if (!best || prov < best.prov - 1 || (Math.abs(prov - best.prov) <= 1 && dia < best.dia)) best = Object.assign({ dia, sp, prov }, tr);
+    }
+    if (!best) { const tr = trial(25); best = Object.assign({ dia: 25, sp: 100, prov: (1000 * Math.PI * 625) / 4 / 100 }, tr); }
+    Object.assign(out, best);
+    out.okD = out.dReq <= out.d;
+    out.okAst = out.prov >= out.AstReq - 1e-6;
+    // shear (IS 456 Table 23 values used by IRC 21 for WSM)
+    out.tv = (Math.abs(V) * 9.81 * 1000) / (1000 * out.d);
+    const pt = (100 * out.prov) / (1000 * out.d);
+    const tc20 = pt <= 0.25 ? 0.18 + (pt - 0.15) * 0.4 : pt <= 0.5 ? 0.22 + (pt - 0.25) * 0.32 : 0.3 + (pt - 0.5) * 0.2;
+    out.tc = tc20 * (p.fck >= 25 ? 1 + Math.min(p.fck - 20, 20) * 0.006 : 1);
+    out.pt = pt;
+    out.okShear = out.tv <= out.tc;
+    out.ok = out.okD && out.okAst && out.okShear;
+    return out;
+  }
+
+  // ------------------------------------------------------------ design
+  function design(input) {
+    const p0 = Object.assign({}, UT_DEFAULTS, input);
+    if (!yes(p0.boxAuto)) return core(p0);
+    // least member thicknesses (25 mm steps) passing depth, steel and shear
+    const map = { top: 'tTop', bottom: 'tBot', wall: 'tWall', mid: 'tMid' };
+    const q = Object.assign({}, p0);
+    for (const k of Object.values(map)) q[k] = Math.max(p0.minT, 0.2);
+    let r = core(q);
+    for (let it = 0; it < 60; it++) {
+      let changed = false;
+      for (const [k, f] of Object.entries(r.R.members)) if (Object.values(f).some((d) => !d.ok)) { q[map[k]] = +(q[map[k]] + 0.025).toFixed(3); changed = true; }
+      if (!changed) break;
+      r = core(q);
+    }
+    return r;
+  }
+
+  function core(input) {
+    const p = Object.assign({}, UT_DEFAULTS, input);
+    const R = {};
+    const sections = [], warnings = [];
+    let cur = null;
+    const sec = (title) => { cur = { title, rows: [] }; sections.push(cur); };
+    const row = (label, value, unit = '', remark = '', o = {}) => { cur.rows.push(Object.assign({ label, value, unit, remark }, o)); return value; };
+    const inp = (label, value, unit = '', remark = '') => row(label, value, unit, remark, { input: true });
+    const chk = (label, ok, value, remark = '') => { cur.rows.push({ label, value, unit: '', remark, check: true, ok: !!ok }); return ok; };
+    const sub = (label) => cur.rows.push({ label, sub: true });
+
+    R.typ = 'U.T.';
+    R.nameOfWork = `Construction of Under Tunnel (U.T.) at Km ${p.chainage} of ${p.canalName}${p.location ? ` near ${p.location}` : ''}${p.district ? `, ${p.district} District` : ''}.`;
+    R.title = `DESIGN OF UNDER TUNNEL AT KM ${p.chainage} OF ${String(p.canalName).toUpperCase()}`;
+    R.subtitle = R.nameOfWork;
+    R.codes = 'IS 7784 (Pt 1 & 2), IRC 6:2017, IRC 21:2000 (WSM), IRC 78, IRC SP:13, IS 456; CDO guidelines.';
+    R.assumptions = 'The box is analysed as a closed rigid frame per metre length (member centre lines) with a uniform soil reaction; haunches are ignored in the analysis and in the barrel area. Earth pressure: Rankine ' + (p.kMode === 'rest' ? 'at-rest (1 - sin phi)' : 'active') + ' on the walls. Axial compression N: design moment Ms = M + N (d - D/2) about the tension steel, Ast = Ms / (sst j d) - N / sst (not less than 0.12 %). Gravity walls: no tension allowed in the plain concrete (e <= b/6).';
+
+    // ---- 1. hydraulic particulars
+    sec('1. HYDRAULIC PARTICULARS');
+    sub('Canal');
+    inp('Discharge (design)', p.Qc, 'cumecs');
+    inp('Bed width', p.bedWidth, 'm'); inp('Full supply depth', p.fsd, 'm');
+    inp('Side slopes', p.sideSlope, ': 1'); inp('Free board', p.freeBoard, 'm');
+    inp('Bank top width left / right', `${fmt(p.bankWidthL, 2)} / ${fmt(p.bankWidthR, 2)}`, 'm');
+    inp('Canal bed level (CBL)', p.cbl, 'm');
+    R.fsl = row('Full supply level = CBL + FSD', p.cbl + p.fsd, 'm');
+    R.tbl = row('Top of bank level = FSL + free board', R.fsl + p.freeBoard, 'm');
+    const cA = area(p.bedWidth, p.sideSlope, p.fsd), cP = perim(p.bedWidth, p.sideSlope, p.fsd);
+    R.vCanal = row('Canal velocity (Manning)', ((cA / cP) ** (2 / 3) * Math.sqrt(1 / p.bedFall)) / p.manningN, 'm/s', `n ${p.manningN}, S 1 in ${p.bedFall}`);
+    sub('Drain');
+    inp('Deep bed level of drain at crossing', p.drainBed, 'm');
+    chk('Drain bed below canal FSL -> U.T. is the right structure', p.drainBed < R.fsl, p.drainBed < R.fsl ? 'U.T.' : 'CONSIDER SUPER PASSAGE / AQUEDUCT', 'CBL < drain bed < FSL: U.T. with drop');
+
+    // ---- 2. flood
+    sec('2. MAXIMUM FLOOD DISCHARGE');
+    if (p.floodMode === 'given') R.Q = inp('Maximum flood discharge (given)', p.mfdGiven, 'cumecs');
+    else {
+      inp('Catchment area', p.catchment, 'sq.km'); inp("Dicken's constant C", p.dickenC, '', 'CDO guidelines');
+      R.Q = row("Q = C x A^0.75 (Dicken's formula)", p.dickenC * p.catchment ** 0.75, 'cumecs');
+    }
+    const Q = R.Q;
+
+    // ---- 3. ventway & waterway
+    sec('3. VENTWAY AND WATERWAY');
+    inp('Assumed velocity in the barrel', p.vBarrel, 'm/s');
+    R.Areq = row('Area required = Q / V', Q / p.vBarrel, 'sqm');
+    inp('Vent size (width x height)', `${fmt(p.ventW, 2)} x ${fmt(p.ventH, 2)}`, 'm');
+    R.ventsReq = row('Number of vents required', R.Areq / (p.ventW * p.ventH), 'Nos');
+    R.nV = Math.max(1, Math.round(p.nVents));
+    inp('Number of vents provided', R.nV, 'Nos');
+    chk('Vents provided >= required', R.nV >= Math.ceil(R.ventsReq - 1e-9), `${R.nV} >= ${Math.ceil(R.ventsReq - 1e-9)}`);
+    R.Abarrel = R.nV * p.ventW * p.ventH;
+    R.vBarrelAct = row('Velocity in the barrel', Q / R.Abarrel, 'm/s');
+    R.lacey = row('Lacey waterway P = 4.8 Q^1/2', 4.8 * Math.sqrt(Q), 'm', 'IS 7784 (Pt 1) cl.8.1.2');
+    inp('Fluming', p.fluming, '%');
+    R.Wclear = R.nV * p.ventW + (R.nV - 1) * p.tMid;
+    R.Bf = row('Width of waterway (drain / tail channel bed)', Math.max(ceilTo((p.fluming / 100) * R.lacey, 0.1), R.Wclear), 'm', 'rounded up to 0.1 m; not less than the barrel');
+    R.Wout = R.Wclear + 2 * p.tWall;
+    R.usLen = row(`U/S transition length (splay ${p.usSplay} : 1)`, (Math.max(R.Bf - R.Wclear, 0) / 2) * p.usSplay, 'm');
+    R.dsLen = row(`D/S transition length (splay ${p.dsSplay} : 1)`, (Math.max(R.Bf - R.Wclear, 0) / 2) * p.dsSplay, 'm');
+
+    // ---- 4. levels
+    sec('4. LEVELS OF THE BARREL');
+    R.boxTop = row('Top of box = CBL - cushion', p.cbl - p.cushion, 'm', `cushion ${fmt(p.cushion, 2)} m below canal bed`);
+    R.soffit = row('Soffit of top slab', R.boxTop - p.tTop, 'm');
+    R.floorTop = row('Top of bottom slab', R.soffit - p.ventH - p.wcBox, 'm');
+    R.sill = row('Sill level (top of wearing coat)', R.floorTop + p.wcBox, 'm');
+    R.boxBot = row('Bottom of box', R.floorTop - p.tBot, 'm');
+    R.dropH = row('Height of drop = drain bed - sill', p.drainBed - R.sill, 'm');
+    chk('Drain bed above sill (drop possible)', R.dropH > 0, fmt(R.dropH, 3));
+    R.canalTopW = p.bedWidth + 2 * p.sideSlope * (p.fsd + p.freeBoard);
+    R.Lb = row('Length of barrel = canal top width at TBL + banks + 2 x head wall top', R.canalTopW + p.bankWidthL + p.bankWidthR + 2 * p.hwTopW, 'm');
+    R.fill = row('Earth fill over box under the banks = TBL - top of box', R.tbl - R.boxTop, 'm');
+
+    // ---- 5. hydraulic calculations
+    sec('5. FLOW CONDITIONS AND TOTAL ENERGY LINES');
+    const S1 = 1 / p.tailFall;
+    const dn = normalDepth(Q, R.Bf, p.drainSideSlope, p.drainN, S1);
+    sub('Section 1-1: tail channel (normal flow)');
+    row('Normal depth (Manning)', dn, 'm', `B ${fmt(R.Bf, 2)}, side slope ${p.drainSideSlope}:1, n ${p.drainN}, S 1 in ${p.tailFall}`);
+    R.dTail = ceilTo(dn, 0.05);
+    const s1 = section('1-1', Q, R.Bf, p.drainSideSlope, p.drainN, R.sill, R.dTail);
+    row('Depth adopted (rounded up)', s1.d, 'm'); row('Velocity', s1.v, 'm/s'); row('MFL / TEL', `${fmt(s1.mfl)} / ${fmt(s1.tel)}`, 'm');
+    const s2 = upstream('2-2', Q, R.Bf, 0, p.nConc, R.sill, s1, p.kTail, 0);
+    const s3 = upstream('3-3', Q, R.nV * p.ventW, 0, p.nConc, R.sill, s2, p.kExit, R.dsLen);
+    // barrel (Unwin)
+    const bP = R.nV * 2 * (p.ventW + p.ventH), bR = R.Abarrel / bP, bV = Q / R.Abarrel, bHv = (bV * bV) / (2 * G);
+    const f2 = p.unwinA * (1 + p.unwinB / bR);
+    R.hBarrel = (1 + p.barrelF1 + (f2 * R.Lb) / bR) * bHv;
+    const tel4 = s3.tel + R.hBarrel;
+    const r4 = depthForE(Q, R.nV * p.ventW, 0, tel4 - R.sill);
+    const s4 = section('4-4', Q, R.nV * p.ventW, 0, p.nConc, R.sill, r4.d); s4.choked = r4.choked;
+    const s5 = upstream('5-5', Q, R.Bf, 0, p.nConc, R.sill, s4, p.kEntry, R.usLen);
+    for (const [s, lbl] of [[s2, 'Section 2-2: end of d/s transition (rectangular)'], [s3, 'Section 3-3: barrel exit'], [s4, 'Section 4-4: barrel entry'], [s5, 'Section 5-5: start of u/s transition (cistern)']]) {
+      sub(lbl);
+      if (s === s4) {
+        row('Barrel: A / P / R', `${fmt(R.Abarrel)} / ${fmt(bP)} / ${fmt(bR)}`, '', 'full section');
+        row('f1 (entry) / f2 = a (1 + b / R)', `${fmt(p.barrelF1)} / ${fmt(f2, 5)}`, '', `Unwin: a ${p.unwinA}, b ${p.unwinB} (plastered)`);
+        row('Loss in barrel h = (1 + f1 + f2 L / R) V^2 / 2g', R.hBarrel, 'm', `L ${fmt(R.Lb, 2)} m, V ${fmt(bV)} m/s`);
+      } else row(`Eddy loss (k ${s.k}) + friction (L ${fmt(s.L, 2)} m)`, `${fmt(s.eddy)} + ${fmt(s.fric)}`, 'm');
+      row('Depth / velocity', `${fmt(s.d)} / ${fmt(s.v)}`, 'm, m/s');
+      row('MFL / TEL', `${fmt(s.mfl)} / ${fmt(s.tel)}`, 'm');
+    }
+    chk('Flow in the barrel stays free (depth at entry <= vent height)', s4.d <= p.ventH, `${fmt(s4.d)} <= ${fmt(p.ventH, 2)}`);
+    if ([s2, s3, s4, s5].some((s) => s.choked)) warnings.push('Critical flow reached in a transition / barrel section: increase vent width or number of vents.');
+    // drop crest
+    sub('Section 6-6: drop crest');
+    R.crest = p.drainBed;
+    const free = s5.mfl < R.crest;
+    let d6, Bc = 0.6;
+    const sarda = (H) => 1.835 * R.Bf * H ** 1.5 * (H / Bc) ** (1 / 6);
+    const solveH = (fn) => { let lo = 1e-4, hi = 10; for (let i = 0; i < 100; i++) { const h = (lo + hi) / 2; if (fn(h) > Q) hi = h; else lo = h; } return (lo + hi) / 2; };
+    for (let it = 0; it < 5; it++) {
+      if (p.crestDepth > 0) d6 = p.crestDepth;
+      else if (free) d6 = solveH(sarda);
+      else { const H2 = s5.mfl - R.crest; d6 = solveH((h) => (h <= H2 ? 0 : sarda(h) * (1 - (H2 / h) ** 1.5) ** 0.385)); }
+      Bc = Math.max(0.5, ceilTo(d6 / Math.sqrt(p.rhoConc), 0.1));
+    }
+    const s6 = section('6-6', Q, R.Bf, 0, p.drainN, R.crest, d6);
+    row('Flow over the drop', free ? 'Free fall' : 'Drowned', '', free ? `d/s level ${fmt(s5.mfl)} below crest ${fmt(R.crest)}` : 'Villemonte submergence');
+    row(p.crestDepth > 0 ? 'Depth over crest (given)' : 'Depth over crest: Q = 1.835 L H^1.5 (H / B)^1/6', d6, 'm', p.crestDepth > 0 ? 'e.g. from Malikpur curves' : `Sarda-type crest, L ${fmt(R.Bf, 2)}, B ${fmt(Bc, 2)} m`);
+    row('MFL / TEL', `${fmt(s6.mfl)} / ${fmt(s6.tel)}`, 'm');
+    const s7 = upstream('7-7', Q, R.Bf, p.drainSideSlope, p.drainN, R.crest, s6, p.kApproach, 0);
+    sub('Section 7-7: approach channel');
+    row('Depth / velocity', `${fmt(s7.d)} / ${fmt(s7.v)}`, 'm, m/s');
+    R.mflUs = row('U/S MFL / TEL', s7.mfl, 'm', `TEL ${fmt(s7.tel)}`);
+    chk('U/S MFL below canal top of bank', s7.mfl <= R.tbl, `${fmt(s7.mfl)} <= ${fmt(R.tbl)}`);
+    R.secs = [s1, s2, s3, s4, s5, s6, s7];
+    R.free = free;
+
+    // ---- 6. drop wall & cistern
+    sec('6. DROP WALL AND CISTERN');
+    const rho = p.rhoConc, h = R.dropH, dc = d6;
+    row('Max depth of flow over drop d', dc, 'm'); row('Height of drop H', h, 'm');
+    R.dropTopReq = row('Top width = d / rho^0.5', dc / Math.sqrt(rho), 'm');
+    R.dropTop = row('Top width provided', Math.max(0.5, ceilTo(R.dropTopReq, 0.1)), 'm');
+    R.dropBaseReq = row('Base width = (H + d + x + w.c) / rho^0.5', (h + dc + p.floorWc) / Math.sqrt(rho), 'm', `cistern depth x = 0, w.c ${p.floorWc} m`);
+    R.dropBase = row('Base width provided', Math.max(R.dropTop, ceilTo(R.dropBaseReq, 0.1)), 'm');
+    R.cisternReq = row('Length of floor L1 = 2 d + 2 (d H)^1/2', 2 * dc + 2 * Math.sqrt(dc * h), 'm');
+    R.cistern = row('Length of floor provided', ceilTo(Math.max(R.cisternReq, p.cistern || 0), 0.1), 'm');
+    R.apronReq = row('Floor thickness t = 0.55 (d + H)^1/2', 0.55 * Math.sqrt(dc + h), 'm', 'including 0.15 m wearing coat');
+    R.apronT = row('Floor thickness provided', ceilTo(R.apronReq, 0.1), 'm');
+    R.usFloor = row('Length of u/s floor (cistern) = max(transition, L1)', Math.max(R.usLen, R.cistern), 'm', R.usLen >= R.cistern - 1e-6 ? 'cistern within the u/s transition' : 'straight cistern added ahead of the transition');
+
+    // ---- 7. scour
+    sec('7. SCOUR DEPTH AND CUT-OFFS');
+    inp('Silt factor f', p.siltFactor);
+    R.q = row('q = Q / waterway width', Q / R.Bf, 'cumecs/m');
+    R.dScour = row('Normal scour depth d = 1.35 (q^2 / f)^1/3', 1.35 * ((R.q * R.q) / p.siltFactor) ** (1 / 3), 'm');
+    R.scourUs = row('U/S max scour level = U/S MFL - 1.5 d', s7.mfl - 1.5 * R.dScour, 'm');
+    R.scourDs = row('D/S max scour level = tail MFL - 2.0 d', s1.mfl - 2 * R.dScour, 'm');
+    R.cutUs = row('U/S cut-off wall bottom (u/s end of approach floor)', Math.min(floorTo(R.scourUs, 0.05), p.drainBed - p.dsFloorT - 0.3), 'm', 'at or below the scour level');
+    R.cutDs = row('D/S cut-off wall bottom (d/s end of transition floor)', Math.min(floorTo(R.scourDs, 0.05), R.sill - p.dsFloorT - 0.3), 'm', 'at or below the scour level');
+
+    // ---- 8. live load
+    sec('8. LIVE LOAD ON THE BOX UNDER THE BANKS');
+    const hF = R.fill, kd = p.llDisp;
+    R.ll = 0;
+    if (p.llBank === 'none') row('Live load on the bank', 'None', '', 'no road on the bank');
+    else {
+      const cands = [];
+      if (p.llBank === 'A' || p.llBank === 'both') {
+        const a = 0.25 + 1.2 + 2 * kd * hF, b = 0.5 + 1.8 + 2 * kd * hF;
+        cands.push(['IRC Class A (2 axles 11.4 t @ 1.2 m, wheels @ 1.8 m)', 22.8, a, b]);
+      }
+      if (p.llBank === '70R' || p.llBank === 'both') {
+        const a = 4.57 + 2 * kd * hF, b = 2.06 + 0.84 + 2 * kd * hF;
+        cands.push(['IRC Class 70R tracked (70 t, 4.57 x 0.84 m tracks @ 2.06 m)', 70, a, b]);
+      }
+      for (const [n, W, a, b] of cands) {
+        sub(n);
+        row('Dispersion length x width at top of box', `${fmt(a, 2)} x ${fmt(b, 2)}`, 'm', `through ${fmt(hF, 2)} m fill at ${kd} : 1`);
+        const w = row('Intensity = W (1 + impact) / area', (W * (1 + p.llImpact)) / (a * b), 't/sqm', `impact ${p.llImpact}`);
+        R.ll = Math.max(R.ll, w);
+      }
+      row('Live load intensity adopted', R.ll, 't/sqm');
+      row('Live load surcharge on walls (equivalent fill)', p.surcharge, 'm', 'IRC 6 cl.214.1.1.3');
+    }
+
+    // ---- 9. box analysis
+    sec('9. STRUCTURAL ANALYSIS OF THE BOX (per metre length)');
+    const Ka = p.kMode === 'rest' ? 1 - Math.sin((p.phi * Math.PI) / 180) : (1 - Math.sin((p.phi * Math.PI) / 180)) / (1 + Math.sin((p.phi * Math.PI) / 180));
+    R.K = row(p.kMode === 'rest' ? 'Earth pressure coefficient K0 = 1 - sin phi' : 'Earth pressure coefficient Ka (Rankine)', Ka, '', `phi ${p.phi} deg`);
+    const hC = p.ventH + p.wcBox + (p.tTop + p.tBot) / 2; // centre-line height
+    // wall centre lines
+    const xs = [];
+    { let x = 0; xs.push(0); for (let i = 1; i <= R.nV; i++) { const tl = i === 1 ? p.tWall : p.tMid, tr = i === R.nV ? p.tWall : p.tMid; x += tl / 2 + p.ventW + tr / 2; xs.push(x); } }
+    R.hC = row('Centre-line height of frame', hC, 'm'); R.LcTot = row('Centre-line width of frame', xs[xs.length - 1], 'm');
+    const yTopNode = R.boxTop - p.tTop / 2, yBotNode = R.boxBot + p.tBot / 2;
+    const cases = [];
+    const mk = (name, o) => cases.push(Object.assign({ name }, o));
+    mk('Under canal: box empty, canal empty', { zone: 'canal', boxFull: false, canalFull: false });
+    mk('Under canal: box full, canal empty', { zone: 'canal', boxFull: true, canalFull: false });
+    mk('Under canal: box empty, canal full', { zone: 'canal', boxFull: false, canalFull: true });
+    mk('Under canal: box full, canal full', { zone: 'canal', boxFull: true, canalFull: true });
+    mk('Under bank: box empty', { zone: 'bank', boxFull: false });
+    mk('Under bank: box full', { zone: 'bank', boxFull: true });
+    const gw = 1.0;
+    for (const c of cases) {
+      const nodes = [], members = [], nl = [];
+      const nn = xs.length;
+      for (const x of xs) nodes.push({ x, y: 0 });
+      for (const x of xs) nodes.push({ x, y: hC });
+      const top = (i) => nn + i;
+      const Itop = p.tTop ** 3, Ibot = p.tBot ** 3;
+      // vertical loads (t/sqm, downward +)
+      let qTop = p.gammaRcc * p.tTop, surf, gSoil;
+      if (c.zone === 'canal') {
+        qTop += p.gammaConc * p.sealing;
+        if (c.canalFull) qTop += gw * (R.fsl - R.boxTop);
+        surf = p.cbl; gSoil = c.canalFull ? p.gammaSub : p.gammaSoil;
+      } else {
+        qTop += p.gammaSoil * R.fill + R.ll;
+        surf = R.tbl; gSoil = p.gammaSoil;
+      }
+      c.qTop = qTop;
+      const G0 = c.boxFull ? gw * p.surchargeHead : 0; // pressure at soffit when surcharged
+      c.G = G0;
+      // top slab members (local +y = up for left->right members): load down => negative; internal upward pressure G
+      for (let i = 0; i < nn - 1; i++) members.push({ i: top(i), j: top(i + 1), I: Itop, w1: -qTop + G0, w2: -qTop + G0, kind: 'top', inside: [0, -1] });
+      // bottom slab members, soil reaction set later; internal water down
+      const Dw = c.boxFull ? gw * (p.ventH + p.surchargeHead) : 0;
+      c.D = Dw;
+      for (let i = 0; i < nn - 1; i++) members.push({ i, j: i + 1, I: Ibot, w1: -Dw, w2: -Dw, kind: 'bottom', inside: [0, 1] });
+      // walls: members bottom -> top; local +y = (-1, 0) (points left)
+      const ext = (y) => { // outside lateral pressure at node height y (centre-line frame coord)
+        const lvl = yBotNode + y;
+        let pr = Ka * gSoil * Math.max(surf - lvl, 0);
+        if (c.zone === 'canal' && c.canalFull) pr += gw * Math.max(R.fsl - lvl, 0);
+        if (c.zone === 'bank' && R.ll > 0 && yes(p.wallSurcharge)) pr += Ka * p.gammaSoil * p.surcharge;
+        return pr;
+      };
+      const inn = (y) => (c.boxFull ? gw * Math.max(p.surchargeHead + (hC - y), 0) : 0);
+      c.E = [ext(hC), ext(0)]; c.C = [inn(hC), inn(0)];
+      for (let i = 0; i < nn; i++) {
+        const tw = i === 0 || i === nn - 1 ? p.tWall : p.tMid;
+        const Iw = tw ** 3;
+        let w1 = 0, w2 = 0;
+        if (i === 0) { w1 = ext(0) - inn(0); w2 = ext(hC) - inn(hC); w1 = -w1; w2 = -w2; } // outside pushes +x = local -y
+        else if (i === nn - 1) { w1 = ext(0) - inn(0); w2 = ext(hC) - inn(hC); } // outside pushes -x = local +y
+        members.push({ i, j: top(i), I: Iw, w1, w2, kind: i === 0 || i === nn - 1 ? 'wall' : 'mid', inside: i === 0 ? [1, 0] : i === nn - 1 ? [-1, 0] : [1, 0] });
+        // wall self weight as nodal loads
+        const Ww = p.gammaRcc * tw * (p.ventH + p.wcBox);
+        nl.push([i, [0, -Ww / 2, 0]]); nl.push([top(i), [0, -Ww / 2, 0]]);
+      }
+      // top load on half-wall overhangs
+      nl.push([top(0), [0, -qTop * p.tWall / 2, 0]]); nl.push([top(nn - 1), [0, -qTop * p.tWall / 2, 0]]);
+      // soil reaction balancing all vertical loads except bottom slab weight & w.c. (they bear directly)
+      let down = qTop * R.Wout;
+      for (let i = 0; i < nn; i++) down += p.gammaRcc * (i === 0 || i === nn - 1 ? p.tWall : p.tMid) * (p.ventH + p.wcBox);
+      const water = c.boxFull ? gw * p.ventH * R.Wclear : 0;
+      down += water;
+      const qb = down / R.Wout;
+      c.B = qb; c.water = water;
+      // net on bottom members: +qb (up) - Dw ; uniform internal pressure G on top & bottom cancels in total
+      for (const m of members) if (m.kind === 'bottom') { m.w1 += qb; m.w2 += qb; }
+      // internal pressure G on the top slab is balanced by G on the bottom (in Dw);
+      // make vertical equilibrium exact with the residual on the bottom members
+      let sumFy = 0;
+      for (const m of members) { const L = Math.hypot(nodes[m.j].x - nodes[m.i].x, nodes[m.j].y - nodes[m.i].y); const fy = ((m.w1 + m.w2) / 2) * L; if (m.kind === 'top' || m.kind === 'bottom') sumFy += fy; }
+      for (const [, f] of nl) sumFy += f[1];
+      sumFy += qb * p.tWall; // outer overhang reactions (applied as nodal below)
+      nl.push([0, [0, qb * p.tWall / 2, 0]]); nl.push([nn - 1, [0, qb * p.tWall / 2, 0]]);
+      if (Math.abs(sumFy) > 1e-9) { const corr = -sumFy / xs[nn - 1]; for (const m of members) if (m.kind === 'bottom') { m.w1 += corr; m.w2 += corr; } c.B += corr; }
+      solveFrame(nodes, members, nl, [0, 1, (nn - 1) * 3 + 1]);
+      c.members = members;
+      c.basePressure = (down + p.gammaRcc * p.tBot * R.Wout + p.gammaConc * p.wcBox * R.Wclear) / R.Wout;
+    }
+    for (const c of cases) {
+      sub(c.name);
+      row('Load on top slab A', c.qTop, 't/sqm');
+      row('Net upward soil reaction B', c.B, 't/sqm');
+      if (c.D) row('Water load on bottom slab D / upward thrust on top slab G', `${fmt(c.D)} / ${fmt(c.G)}`, 't/sqm');
+      row('Outside pressure on walls at top / bottom node', `${fmt(c.E[0])} / ${fmt(c.E[1])}`, 't/sqm');
+      if (c.boxFull) row('Inside water pressure at top / bottom node', `${fmt(c.C[0])} / ${fmt(c.C[1])}`, 't/sqm');
+    }
+    R.cases = cases;
+
+    // ---- envelopes per member group and face
+    const groups = { top: 'Top slab', bottom: 'Bottom slab', wall: 'End walls', mid: 'Middle walls' };
+    const thickOf = (k) => ({ top: p.tTop, bottom: p.tBot, wall: p.tWall, mid: p.tMid })[k];
+    const env = {};
+    for (const zone of ['canal', 'bank']) {
+      for (const k of Object.keys(groups)) {
+        const e = { inner: { M: 0, N: 0 }, outer: { M: 0, N: 0 }, V: 0, Nmax: 0 };
+        for (const c of cases.filter((x) => x.zone === zone)) {
+          for (const m of c.members.filter((x) => x.kind === k)) {
+            for (let s = 0; s <= 20; s++) {
+              const x = (m.L * s) / 20, M = m.M(x);
+              // tension on local -y if M > 0; local y = (-s, c)
+              const ly = [-m.s, m.c];
+              const tens = M >= 0 ? [-ly[0], -ly[1]] : ly;
+              const face = k === 'mid' ? 'inner' : tens[0] * m.inside[0] + tens[1] * m.inside[1] > 0 ? 'inner' : 'outer';
+              if (Math.abs(M) > e[face].M) { e[face].M = Math.abs(M); e[face].N = Math.max(m.N, 0); }
+            }
+            // shear at the critical section: effective depth beyond the face of the support
+            const tS = k === 'top' || k === 'bottom' ? p.tWall : Math.max(p.tTop, p.tBot);
+            const xc = Math.min(m.L / 2, tS / 2 + thickOf(k) - p.cover - 0.008);
+            e.V = Math.max(e.V, Math.abs(m.V(xc)), Math.abs(m.V(m.L - xc)));
+            e.Nmax = Math.max(e.Nmax, m.N);
+          }
+        }
+        env[zone + ':' + k] = e;
+      }
+    }
+    R.env = env;
+    sec('10. DESIGN OF BOX MEMBERS (WSM, IRC 21)');
+    const kk = (p.modRatio * p.scbc) / (p.modRatio * p.scbc + p.sst), jj = 1 - kk / 3;
+    row('Concrete / steel', `M${p.fck} / Fe${p.fy}`, '', `scbc ${p.scbc}, sst ${p.sst} N/sqmm, m ${p.modRatio}`);
+    row('k / j / Q', `${fmt(kk)} / ${fmt(jj)} / ${fmt(0.5 * p.scbc * kk * jj, 4)}`, '', 'Q in N/sqmm');
+    inp('Clear cover', p.cover * 1000, 'mm');
+    const kinds = R.nV > 1 ? ['top', 'bottom', 'wall', 'mid'] : ['top', 'bottom', 'wall'];
+    const thick = { top: p.tTop, bottom: p.tBot, wall: p.tWall, mid: p.tMid };
+    R.members = {};
+    let allMem = true;
+    for (const k of kinds) {
+      const faces = k === 'mid' ? ['inner'] : ['outer', 'inner'];
+      const res = {};
+      for (const f of faces) {
+        const zc = env['canal:' + k][f], zb = env['bank:' + k][f];
+        const gz = zb.M >= zc.M ? zb : zc;
+        const V = Math.max(env['canal:' + k].V, env['bank:' + k].V);
+        const faceName = k === 'mid' ? 'both faces' : f === 'outer' ? (k === 'top' ? 'top face (outer, at supports)' : k === 'bottom' ? 'bottom face (outer, at supports)' : 'outer face') : (k === 'top' ? 'bottom face (inner, mid-span)' : k === 'bottom' ? 'top face (inner, mid-span)' : 'inner face');
+        const d = memberDesign(p, gz.M, gz.N, V, thick[k], `${groups[k]} - ${faceName}`);
+        d.Mcanal = zc.M; d.Mbank = zb.M;
+        res[f] = d;
+        sub(`${groups[k]} (${fmt(thick[k] * 1000, 0)} thick) - ${faceName}`);
+        row('Max moment under canal / under bank', `${fmt(zc.M)} / ${fmt(zb.M)}`, 't-m');
+        row('Design moment incl. axial N (d - D/2)', d.Ms, 't-m', `N = ${fmt(gz.N)} t`);
+        chk('Effective depth required <= provided', d.okD, `${fmt(d.dReq, 0)} <= ${fmt(d.d, 0)} mm`);
+        row('Ast = Ms / (sst j d) - N / sst (min 0.12 %)', d.AstReq, 'sqmm/m');
+        chk(`Provide ${d.dia} dia @ ${d.sp} c/c`, d.okAst, `${fmt(d.prov, 0)} sqmm/m`);
+        chk('Shear tv <= tc', d.okShear, `${fmt(d.tv)} <= ${fmt(d.tc)} N/sqmm`, `V = ${fmt(V)} t at d from the face of support`);
+        allMem = allMem && d.ok;
+      }
+      R.members[k] = res;
+    }
+    R.distAst = 0.0012 * 1000 * Math.max(p.tTop, p.tBot, p.tWall) * 1000;
+    R.distSp = Math.min(300, Math.floor((1000 * Math.PI * 25) / R.distAst / 10) * 10);
+    row('Distribution steel each face (0.12 %)', `10 dia @ ${R.distSp} c/c`, '', `${fmt(R.distAst, 0)} sqmm/m`);
+    row('Haunch bars', `${R.members.top.outer.dia >= 12 ? 12 : 10} dia @ ${R.members.top.outer.sp} c/c`, '', `${fmt(p.haunch * 1000, 0)} x ${fmt(p.haunch * 1000, 0)} haunches`);
+    R.okMembers = allMem;
+    sub('Base pressure');
+    R.basePress = Math.max(...cases.map((c) => c.basePressure));
+    chk('Max base pressure <= SBC', R.basePress <= p.sbc, `${fmt(R.basePress, 2)} <= ${fmt(p.sbc, 1)} t/sqm`);
+
+    // ---- 11. head wall
+    sec('11. HEAD WALLS (on the box, retaining the bank)');
+    const hwH = R.fill;
+    const allow = p.subAllow;
+    const hwO = { H: hwH, a: p.hwTopW, fb: p.hwFrontBatter, rb: p.hwRearBatter, toe: 0, heel: 0, tf: 0, K: Ka, gs: p.gammaSoil, gc: p.gammaConc, hs: p.llBank === 'none' || !yes(p.wallSurcharge) ? 0 : p.surcharge, mu: 0.6, sbc: allow, allow };
+    let hw = gravityWall(hwO);
+    if (yes(p.wallAuto)) {
+      for (let rb = 0.3; rb <= 8; rb = +(rb + 0.1).toFixed(2)) {
+        const w = gravityWall(Object.assign({}, hwO, { rb }));
+        if (w.stem.ok && w.stem.MR / w.stem.MO >= 2 && (0.6 * w.stem.V) / w.stem.H >= 1.5) { hw = w; break; }
+      }
+    }
+    R.hw = hw; R.hwRearBatter = hw.rb;
+    row('Height (TBL - top of box)', hwH, 'm'); row('Top / base width', `${fmt(p.hwTopW, 2)} / ${fmt(hw.b, 2)}`, 'm', `front batter ${p.hwFrontBatter}, rear batter ${fmt(hw.rb, 2)}${yes(p.wallAuto) ? ' (auto)' : ''}`);
+    row('Sum V / Sum H', `${fmt(hw.stem.V)} / ${fmt(hw.stem.H)}`, 't');
+    chk('Eccentricity <= b/6 (no tension)', hw.stem.e <= hw.stem.lim + 1e-9, `${fmt(hw.stem.e)} <= ${fmt(hw.stem.lim)} m`);
+    chk('Max stress on box top <= allowable', hw.stem.smax <= allow, `${fmt(hw.stem.smax, 2)} t/sqm`);
+    R.okHw = hw.stem.e <= hw.stem.lim + 1e-9 && hw.stem.smax <= allow;
+    const hwFosO = hw.stem.MR / hw.stem.MO, hwFosS = (0.6 * hw.stem.V) / hw.stem.H;
+    chk('FOS overturning >= 2.0', hwFosO >= 2, fmt(hwFosO, 2));
+    chk('FOS sliding (mu 0.6 on concrete) >= 1.5', hwFosS >= 1.5, fmt(hwFosS, 2));
+    R.okHw = R.okHw && hwFosO >= 2 && hwFosS >= 1.5;
+
+    // ---- 12. wing & return walls
+    sec('12. WING AND RETURN WALLS');
+    R.wallTopUs = Math.max(R.tbl, s7.mfl + p.drainFB);
+    R.wallTopDs = Math.max(R.tbl, s1.mfl + p.drainFB);
+    R.wFdnUs = p.wFdnUs > 0 ? p.wFdnUs : floorTo(Math.min(R.sill - R.apronT, R.scourUs), 0.05);
+    R.wFdnDs = p.wFdnDs > 0 ? p.wFdnDs : floorTo(Math.min(R.sill - p.dsFloorT, R.scourDs), 0.05);
+    const walls = [['U/S wing & return walls', R.wallTopUs, R.wFdnUs], ['D/S wing & return walls', R.wallTopDs, R.wFdnDs]];
+    R.walls = [];
+    let okW = true;
+    for (const [name, topL, fdn] of walls) {
+      sub(name);
+      const Hs = topL - fdn - p.wFootT;
+      const wo = { H: Hs, a: p.wTopW, fb: p.wFrontBatter, rb: p.wRearBatter, toe: p.wToe, heel: p.wHeel, tf: p.wFootT, K: Ka, gs: p.gammaSoil, gc: p.gammaConc, hs: p.llBank === 'none' || !yes(p.wallSurcharge) ? 0 : p.surcharge, mu: p.mu, sbc: p.sbc, allow };
+      const w = (yes(p.wallAuto) && sizeWall(wo)) || gravityWall(wo);
+      w.name = name; w.top = topL; w.fdn = fdn;
+      R.walls.push(w);
+      row('Top of wall / bottom of foundation', `${fmt(topL)} / ${fmt(fdn)}`, 'm', 'top: TBL or MFL + free board; foundation: floor / scour');
+      row('Stem height / top / base width', `${fmt(Hs)} / ${fmt(p.wTopW, 2)} / ${fmt(w.b, 2)}`, 'm', `rear batter ${fmt(w.rb, 2)}${yes(p.wallAuto) ? ' (auto: least section)' : ''}`);
+      row('Footing width x thickness', `${fmt(w.B, 2)} x ${fmt(p.wFootT, 2)}`, 'm', `toe ${fmt(w.toe, 2)}, heel ${fmt(w.heel, 2)}`);
+      chk('Stem: eccentricity <= b/6 (no tension in concrete)', w.stem.e <= w.stem.lim + 1e-9, `${fmt(w.stem.e)} <= ${fmt(w.stem.lim)} m`, `stress ${fmt(w.stem.smax, 2)} / ${fmt(w.stem.smin, 2)} t/sqm`);
+      chk('Stem: max compressive stress <= allowable', w.stem.smax <= allow, `${fmt(w.stem.smax, 2)} t/sqm`);
+      chk('Base: max pressure <= SBC', w.base.smax <= p.sbc, `${fmt(w.base.smax, 2)} t/sqm`);
+      chk('Base: min pressure >= 0', w.base.smin >= -1e-9, `${fmt(w.base.smin, 2)} t/sqm`);
+      chk('FOS overturning >= 2.0', w.base.fosO >= 2, fmt(w.base.fosO, 2));
+      chk('FOS sliding >= 1.5', w.base.fosS >= 1.5, fmt(w.base.fosS, 2));
+      okW = okW && w.ok;
+    }
+    R.okWalls = okW;
+
+    // ---- 13. summary
+    sec('13. SUMMARY');
+    row('Barrel', `${R.nV} vent${R.nV > 1 ? 's' : ''} ${fmt(p.ventW, 2)} x ${fmt(p.ventH, 2)} m, length ${fmt(R.Lb, 2)} m`);
+    row('Box members', `top ${fmt(p.tTop * 1000, 0)}, bottom ${fmt(p.tBot * 1000, 0)}, walls ${fmt(p.tWall * 1000, 0)}${R.nV > 1 ? `, middle ${fmt(p.tMid * 1000, 0)}` : ''} mm, M${p.fck} / Fe${p.fy}`);
+    for (const k of kinds) for (const f of Object.keys(R.members[k])) row(`  ${R.members[k][f].label}`, `${R.members[k][f].dia} dia @ ${R.members[k][f].sp}`);
+    row('Levels', `top of box +${fmt(R.boxTop)}, sill +${fmt(R.sill)}, drop crest +${fmt(R.crest)}`);
+    row('Drop wall', `top ${fmt(R.dropTop, 2)} / base ${fmt(R.dropBase, 2)} m; cistern ${fmt(R.cistern, 2)} m x ${fmt(R.apronT, 2)} m thick`);
+    row('Cut-offs', `u/s +${fmt(R.cutUs)}, d/s +${fmt(R.cutDs)}`);
+    row('Water levels', `u/s MFL +${fmt(s7.mfl)}, tail MFL +${fmt(s1.mfl)}`);
+
+    R.allOk = sections.every((s) => s.rows.every((r) => !r.check || r.ok));
+    if (!R.okMembers) warnings.push('Box members fail: increase member thickness (Auto design sizes them).');
+    if (!R.okWalls || !R.okHw) warnings.push('Gravity walls fail: increase the rear batter / base width (Auto design sizes them).');
+    if (R.mflUs > R.tbl) warnings.push('The drain flood heads up above the canal bank: widen the waterway (less fluming), add vents, or raise the banks near the crossing.');
+    if (R.walls.some((w) => w.Ht > 6)) warnings.push('Wing / return walls exceed 6 m in height: plain concrete gravity walls become uneconomical - consider RCC cantilever / counterfort walls (design separately).');
+    if (R.vBarrelAct > 3.0 + 1e-6) warnings.push('Barrel velocity exceeds 3 m/s: add vents or enlarge the vent.');
+    if (R.vBarrelAct < 0.6) warnings.push('Barrel velocity below 0.6 m/s: silting likely, consider a smaller vent.');
+    R.scope = `Construction of ${R.nV} vent U.T. of ${fmt(p.ventW, 2)} x ${fmt(p.ventH, 2)} m, barrel length ${fmt(R.Lb, 2)} m, across ${p.canalName} at Km ${p.chainage}`;
+    return { p, R, sections, warnings };
+  }
+
+  // ------------------------------------------------------------ auto design
+  function autoDesign(input) {
+    const p = Object.assign({}, UT_DEFAULTS, input, { boxAuto: 'yes', wallAuto: 'yes' });
+    const log = [];
+    let r = design(p);
+    let n = Math.max(1, Math.ceil(r.R.ventsReq - 1e-9));
+    p.nVents = n; r = design(p);
+    // barrel must flow free: raise the vent (to 3 m) and then add vents
+    for (let it = 0; it < 40 && r.R.secs[3].d > p.ventH; it++) {
+      if (p.ventH < 3 - 1e-9) p.ventH = +(p.ventH + 0.25).toFixed(2); else p.nVents = ++n;
+      r = design(p);
+      const need = Math.max(1, Math.ceil(r.R.ventsReq - 1e-9));
+      if (need > n) { p.nVents = n = need; r = design(p); }
+    }
+    // flood must stay below the canal bank: widen the waterway (less fluming)
+    for (let it = 0; it < 12 && r.R.mflUs > r.R.tbl && p.fluming < 100; it++) { p.fluming = Math.min(100, p.fluming + 10); r = design(p); }
+    if (p.fluming !== (input.fluming ?? UT_DEFAULTS.fluming)) log.push(`fluming ${p.fluming} %`);
+    log.push(`${n} vent${n > 1 ? 's' : ''} ${fmt(p.ventW, 2)} x ${fmt(p.ventH, 2)} m`);
+    Object.assign(p, { tTop: r.p.tTop, tBot: r.p.tBot, tWall: r.p.tWall, tMid: r.p.tMid });
+    log.push(`box top / bottom / walls ${Math.round(p.tTop * 1000)} / ${Math.round(p.tBot * 1000)} / ${Math.round(p.tWall * 1000)} mm`);
+    p.hwRearBatter = r.R.hwRearBatter;
+    const w = r.R.walls.reduce((a, b) => (b.B > a.B ? b : a));
+    Object.assign(p, { wRearBatter: w.rb, wToe: w.toe, wHeel: w.heel });
+    log.push(`head wall rear batter ${fmt(p.hwRearBatter, 2)} m`, `wing walls base ${fmt(w.b, 2)} m on ${fmt(w.B, 2)} m footing`);
+    return { input: p, result: design(p), log };
+  }
+
+  Object.assign(BD, { UT_DEFAULTS, utDesign: design, utCore: core, utSizeWall: sizeWall, utAutoDesign: autoDesign, utGravityWall: gravityWall, solveFrame });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * U.T. estimate: detailed measurements, bar bending schedule of the RCC
+ * box, abstract, seigniorage and general abstract (shared pricing).
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const r2 = (x) => Math.round(x * 100) / 100, r3 = (x) => Math.round(x * 1000) / 1000;
+
+  const WORK = 'excavation for the barrel, transitions, cistern, drop wall, cut-off walls and wing / return walls of the U.T.';
+  const ITEMS = [
+    { code: 'IRR-CCDW-1-2', unit: 'Cum', key: 'exc',
+      short: 'Earth work in excavation in all kinds of soils for foundations of structures as per drawing and technical specification, including setting out, shoring and bracing, dewatering, dressing of sides and bottom and backfilling with approved material.',
+      long: 'Earth work in excavation in all kinds of soils for ' + WORK + ' as per drawing and technical specification, including setting out, construction of shoring and bracing, dewatering, removal of stumps and other deleterious matter, dressing of sides and bottom and backfilling with approved material.' },
+    { code: 'IRR-CCDW-2-3', unit: 'Cum', key: 'pcc', seig: [0.9, 0.2, 0.2], theo: [0.9, 0.4], theoName: 'M-15 Grade (levelling course & footings)', seigName: 'M-15 (40 mm) foundation',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 40 mm down size graded aggregates for levelling course under the box and footings of walls, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-15 (28 days cube compressive strength not less than 15 N / sq mm) grade cement concrete using 40 mm down size approved, clean, hard, graded aggregates for levelling course under the RCC box and footings of wing / return walls including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc. complete with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-9', unit: 'Cum', key: 'lining', seig: [0.9, 0.2, 0.2], theo: [0.9, 0.4], theoName: 'M-15 Grade (floors, cut-offs)', seigName: 'M-15 (20 mm) floors & cut-offs',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 20 mm down size graded aggregates for cistern, approach and transition floors, cut-off walls and sealing coat, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-15 (28 days cube compressive strength not less than 15 N / sq mm) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for cistern floor, approach and transition floors, cut-off walls and sealing coat over the box including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-22', unit: 'Cum', key: 'plum', seig: [0.765, 0.17, 0.17], theo: [1.015, 0.34], theoName: 'M-15 Grade (with plums)', seigName: 'M-15 (40 mm) with plums',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 40 mm down size graded aggregates with placing and sinking plums upto 15 percent for head walls, drop wall, wing & return walls, complete.',
+      long: 'Providing and laying insitu vibrated M-15 (28 days cube compressive strength not less than 15 N / sq mm) grade cement concrete using 40 mm down size approved, clean, hard, graded aggregates with placing and sinking plums of size 150 to 80 mm upto 15 percent for gravity head walls, drop wall, wing and return walls, including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-1', unit: 'kg', key: 'steel',
+      short: 'Providing, fabricating and placing in position reinforcement steel bars for RCC works including cleaning, straightening, cutting, bending, lapping, tying etc., complete (as per BBS).',
+      long: 'Providing, fabricating and placing in position reinforcement steel bars for RCC works including cleaning, straightening, cutting, bending, hooking, lapping, welding wherever required, tying with 1.25 mm dia soft annealed steel wire, including cost of all materials, machinery, labour etc., complete with initial lead upto 50 and all lifts.' },
+    { code: 'RCC-M30', unit: 'Cum', key: 'rcc', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-30 Grade (RCC box)', seigName: 'M-30 (20 mm) RCC box', rateNote: 'Enter SSR rate for RCC M30 (excluding steel)',
+      short: 'Providing and laying insitu vibrated RCC M-30 grade concrete using 20 mm down size graded aggregates for the RCC box (top & bottom slabs, walls and haunches) excluding steel, complete.',
+      long: 'Providing and laying insitu vibrated M-30 (28 days cube compressive strength not less than 30 N / sq mm) grade design-mix cement concrete using 20 mm down size approved, clean, hard, graded aggregates for the RCC box of the U.T. (top and bottom slabs, end and middle walls, haunches) including cost of all materials, machinery, labour, formwork, staging, cleaning, batching, mixing, placing in position, vibrating, finishing, curing etc., complete, excluding the cost of reinforcement, with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-29', unit: 'Cum', key: 'wc', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (wearing coat)', seigName: 'M-20 (20 mm) wearing coat',
+      short: 'Providing and laying VCC M-20 grade wearing coat 75 mm thick over the bottom slab of the barrel, complete.',
+      long: 'Providing and laying insitu M-20 (28 days cube compressive strength not less than 20 N/sq mm) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for wearing coat over the bottom slab of the barrel of the {TYP} including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position in alternate panels, levelling, compacting, finishing, curing etc., complete with initial lead up to 50 m and all lifts.' },
+  ];
+
+  function geom(d) {
+    const { p, R } = d;
+    const Hout = p.ventH + p.wcBox + p.tTop + p.tBot;
+    const splayUs = Math.max(R.Bf - R.Wclear, 0) / 2;
+    const wingUs = Math.hypot(R.usLen, splayUs) + Math.max(R.usFloor - R.usLen, 0);
+    const wingDs = Math.hypot(R.dsLen, splayUs);
+    return { Hout, wingUs, wingDs, approachLen: 3.0 };
+  }
+
+  function bbs(d) {
+    const { p, R } = d;
+    const { unitWt, nBars } = BD;
+    const c = p.cover, Lb = R.Lb, W = R.Wout, gm = geom(d), Hout = gm.Hout;
+    const rows = [];
+    const add = (member, desc, dia, sp, shape, len, nb, nm) => {
+      const tl = len * nb * nm, w = unitWt(dia);
+      rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w, kg: r2(tl * w) });
+    };
+    const lap = (len, dia) => len + Math.floor(len / 12) * 0.05 * dia; // 50 dia lap per 12 m bar
+    const anc = (dia) => (45 * dia) / 1000;
+    const M = R.members;
+    const top = `Top slab  ${W.toFixed(2)} x ${Lb.toFixed(2)} x ${p.tTop.toFixed(3)} m`;
+    add(top, '(i) Outer face (top) main bars, bent into walls', M.top.outer.dia, M.top.outer.sp / 1000, `${W.toFixed(2)} - 2x${c} + 2 x 45 dia`, W - 2 * c + 2 * anc(M.top.outer.dia), nBars(Lb, M.top.outer.sp / 1000), 1);
+    add(top, '(ii) Inner face (bottom) main bars', M.top.inner.dia, M.top.inner.sp / 1000, `${W.toFixed(2)} - 2x${c}`, W - 2 * c, nBars(Lb, M.top.inner.sp / 1000), 1);
+    const bot = `Bottom slab  ${W.toFixed(2)} x ${Lb.toFixed(2)} x ${p.tBot.toFixed(3)} m`;
+    add(bot, '(i) Outer face (bottom) main bars, bent into walls', M.bottom.outer.dia, M.bottom.outer.sp / 1000, `${W.toFixed(2)} - 2x${c} + 2 x 45 dia`, W - 2 * c + 2 * anc(M.bottom.outer.dia), nBars(Lb, M.bottom.outer.sp / 1000), 1);
+    add(bot, '(ii) Inner face (top) main bars', M.bottom.inner.dia, M.bottom.inner.sp / 1000, `${W.toFixed(2)} - 2x${c}`, W - 2 * c, nBars(Lb, M.bottom.inner.sp / 1000), 1);
+    const wl = `End walls (2 Nos.)  ${Hout.toFixed(3)} high x ${p.tWall.toFixed(3)} m`;
+    add(wl, '(i) Outer face vertical bars', M.wall.outer.dia, M.wall.outer.sp / 1000, `${Hout.toFixed(3)} - 2x${c} + 2 x 45 dia`, Hout - 2 * c + 2 * anc(M.wall.outer.dia), nBars(Lb, M.wall.outer.sp / 1000), 2);
+    add(wl, '(ii) Inner face vertical bars', M.wall.inner.dia, M.wall.inner.sp / 1000, `${Hout.toFixed(3)} - 2x${c}`, Hout - 2 * c, nBars(Lb, M.wall.inner.sp / 1000), 2);
+    if (R.nV > 1) {
+      const mw = `Middle walls (${R.nV - 1} Nos.)  ${Hout.toFixed(3)} high x ${p.tMid.toFixed(3)} m`;
+      add(mw, '(i) Vertical bars, both faces', M.mid.inner.dia, M.mid.inner.sp / 1000, `${Hout.toFixed(3)} - 2x${c}`, Hout - 2 * c, 2 * nBars(Lb, M.mid.inner.sp / 1000), R.nV - 1);
+    }
+    const hd = Math.min(M.top.outer.dia, 12), hs = M.top.outer.sp;
+    add(`Haunches (${4 * R.nV} Nos.)  ${Math.round(p.haunch * 1000)} x ${Math.round(p.haunch * 1000)}`, '(i) Haunch bars', hd, hs / 1000, `${(p.haunch * Math.SQRT2).toFixed(3)} + 2 x 45 dia`, p.haunch * Math.SQRT2 * 2 + 2 * anc(hd), nBars(Lb, hs / 1000), 4 * R.nV);
+    const ds = R.distSp / 1000, dl = lap(Lb - 2 * c, 10);
+    const dist = `Distribution bars along the barrel (10 dia @ ${R.distSp})`;
+    add(dist, '(i) Top slab, both faces', 10, ds, `${Lb.toFixed(2)} - 2x${c} + laps`, dl, 2 * nBars(W, ds), 1);
+    add(dist, '(ii) Bottom slab, both faces', 10, ds, `${Lb.toFixed(2)} - 2x${c} + laps`, dl, 2 * nBars(W, ds), 1);
+    add(dist, '(iii) End walls, both faces', 10, ds, `${Lb.toFixed(2)} - 2x${c} + laps`, dl, 2 * nBars(Hout, ds), 2);
+    if (R.nV > 1) add(dist, '(iv) Middle walls, both faces', 10, ds, `${Lb.toFixed(2)} - 2x${c} + laps`, dl, 2 * nBars(Hout, ds), R.nV - 1);
+    const total = r2(rows.reduce((s, x) => s + x.kg, 0));
+    const byDia = {};
+    for (const x of rows) byDia[x.dia] = r2((byDia[x.dia] || 0) + x.kg);
+    return { rows, total, byDia };
+  }
+
+  function utEstimate(d, opts) {
+    const { p, R } = d;
+    const gm = geom(d), Lb = R.Lb, W = R.Wout, Bf = R.Bf, s = p.sideSlope;
+    // excavation under the barrel: bank / canal profile down to the bottom of the levelling course
+    const z = R.boxBot - p.pcc;
+    const cw = s * (p.fsd + p.freeBoard);
+    const aLong = (p.bankWidthL + p.bankWidthR + 2 * p.hwTopW) * (R.tbl - z) + p.bedWidth * (p.cbl - z) + 2 * cw * ((R.tbl + p.cbl) / 2 - z);
+    const usBot = R.sill - R.apronT, dsBot = R.sill - p.dsFloorT;
+    const [wu, wd] = R.walls;
+    const wallRows = (w, name, len) => [`${name} (${fmt2(w.b)} base, ${fmt2(w.H)} high)`, 1, 2, len, r3(((p.wTopW + w.b) / 2)), r3(w.H)];
+    const hwA = ((p.hwTopW + R.hw.b) / 2) * R.hw.H;
+    const M = {
+      exc: [
+        [`for barrel (longitudinal section ${aLong.toFixed(3)} sqm over ${Lb.toFixed(2)} m)`, 1, 1, Lb, W + 1.0, r3(aLong / Lb)],
+        ['for cistern & drop wall (u/s)', 1, 1, R.usFloor + R.dropBase, Bf + 1.0, r3(p.drainBed - usBot)],
+        ['for approach floor', 1, 1, gm.approachLen, Bf + 1.0, p.dsFloorT],
+        ['for d/s transition floor', 1, 1, R.dsLen, Bf + 1.0, r3(Math.max(p.drainBed - dsBot, p.dsFloorT))],
+        ['for u/s cut-off wall', 1, 1, Bf + 1.0, 0.6, r3(p.drainBed - p.dsFloorT - R.cutUs)],
+        ['for d/s cut-off wall', 1, 1, Bf + 1.0, 0.6, r3(dsBot - R.cutDs)],
+        ['for u/s wing walls', 1, 2, gm.wingUs, wu.B + 0.6, r3(Math.max(p.drainBed - wu.fdn, 0.3))],
+        ['for d/s wing walls', 1, 2, gm.wingDs, wd.B + 0.6, r3(Math.max(p.drainBed - wd.fdn, 0.3))],
+        ['for u/s return walls', 1, 2, p.returnLen, wu.B + 0.6, r3(Math.max(p.drainBed - wu.fdn, 0.3))],
+        ['for d/s return walls', 1, 2, p.returnLen, wd.B + 0.6, r3(Math.max(p.drainBed - wd.fdn, 0.3))],
+      ],
+      pcc: [
+        ['levelling course under the box', 1, 1, Lb, W + 0.3, p.pcc],
+        ['footings of u/s wing walls', 1, 2, gm.wingUs, wu.B, p.wFootT],
+        ['footings of d/s wing walls', 1, 2, gm.wingDs, wd.B, p.wFootT],
+        ['footings of u/s return walls', 1, 2, p.returnLen, wu.B, p.wFootT],
+        ['footings of d/s return walls', 1, 2, p.returnLen, wd.B, p.wFootT],
+      ],
+      lining: [
+        [`cistern floor (${Math.round(R.apronT * 1000)} thk)`, 1, 1, R.usFloor, Bf, R.apronT],
+        [`approach floor (${Math.round(p.dsFloorT * 1000)} thk)`, 1, 1, gm.approachLen, Bf, p.dsFloorT],
+        [`d/s transition floor (${Math.round(p.dsFloorT * 1000)} thk)`, 1, 1, R.dsLen, Bf, p.dsFloorT],
+        ['u/s cut-off wall (300 thk)', 1, 1, Bf, 0.3, r3(p.drainBed - p.dsFloorT - R.cutUs)],
+        ['d/s cut-off wall (300 thk)', 1, 1, Bf, 0.3, r3(dsBot - R.cutDs)],
+        [`sealing coat over the box in the canal (${Math.round(p.sealing * 1000)} thk)`, 1, 1, R.canalTopW, W, p.sealing],
+      ],
+      plum: [
+        [`head walls (${fmt2(p.hwTopW)} top / ${fmt2(R.hw.b)} base, ${fmt2(R.hw.H)} high)`, 1, 2, W, r3(hwA / R.hw.H), r3(R.hw.H)],
+        [`drop wall (${fmt2(R.dropTop)} top / ${fmt2(R.dropBase)} base)`, 1, 1, Bf, r3((R.dropTop + R.dropBase) / 2), r3(R.dropH)],
+        wallRows(wu, 'u/s wing walls', gm.wingUs), wallRows(wd, 'd/s wing walls', gm.wingDs),
+        wallRows(wu, 'u/s return walls', p.returnLen), wallRows(wd, 'd/s return walls', p.returnLen),
+      ],
+      rcc: [
+        ['top slab', 1, 1, Lb, W, p.tTop],
+        ['bottom slab', 1, 1, Lb, W, p.tBot],
+        ['end walls', 1, 2, Lb, p.tWall, r3(p.ventH + p.wcBox)],
+        ...(R.nV > 1 ? [['middle walls', 1, R.nV - 1, Lb, p.tMid, r3(p.ventH + p.wcBox)]] : []),
+        [`haunches ${Math.round(p.haunch * 1000)} x ${Math.round(p.haunch * 1000)}`, 1, 4 * R.nV, Lb, p.haunch, p.haunch / 2],
+      ],
+      wc: [['over the bottom slab of the barrel', 1, R.nV, Lb, p.ventW, p.wcBox]],
+    };
+    const b = bbs(d);
+    return BD.priceEstimate(ITEMS, M, b, { typ: R.typ, where: `${R.typ} @ Km ${p.chainage}`, nameOfWork: R.nameOfWork }, opts);
+  }
+  const fmt2 = (v) => v.toFixed(2);
+
+  Object.assign(BD, { utEstimate, utBbs: bbs, UT_ITEMS: ITEMS, utGeom: geom });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * U.T. drawing sheets (A2 landscape):
+ *   Sheet 1 - longitudinal section along the drain, plan, hydraulic
+ *             particulars of canal and drain, flow table, notes.
+ *   Sheet 2 - cross-section of the RCC box with reinforcement, head wall,
+ *             wing / return wall and drop wall sections, reinforcement
+ *             schedule and design summary.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const W = 594, H = 420;
+  const mm = (v) => String(Math.round(v * 1000));
+  const lv = (v) => (v >= 0 ? '+' : '') + v.toFixed(3);
+
+  // x stations along the drain (flow in +x), from the u/s end of the approach floor
+  function stations(d) {
+    const { p, R } = d;
+    const La = 3.0;
+    const xa = La, xt = xa + R.dropBase, xe = xt + R.usFloor, xx = xe + R.Lb, xd = xx + R.dsLen;
+    return { La, xa, xt, xe, xx, xd };
+  }
+
+  function sheet1(d) {
+    const { p, R } = d;
+    const dw = new BD.Dwg(W, H);
+    const st = stations(d);
+    const { xa, xt, xe, xx, xd } = st;
+    const Ltot = xd + 3;
+    const top = Math.max(R.tbl, R.walls[0].top) + 0.6, bot = Math.min(R.cutDs, R.cutUs, R.boxBot - p.pcc) - 0.4;
+    const sc = BD.pickScale(Ltot + 3, top - bot, 360, 105);
+    const v = BD.view(dw, 20 + 1000 * 1.5 / sc, Math.max(282, 372 - ((top - bot) * 1000) / sc), sc);
+    const y = (l) => l - bot;
+    dw.title(200, 402, 'LONGITUDINAL SECTION ALONG THE DRAIN');
+    // approach floor + u/s cut-off
+    v.solid([[0, y(p.drainBed - p.dsFloorT)], [xa, y(p.drainBed - p.dsFloorT)], [xa, y(p.drainBed)], [0, y(p.drainBed)]], 'OUTLINE', { density: 0.12 });
+    v.solid([[0, y(R.cutUs)], [0.3, y(R.cutUs)], [0.3, y(p.drainBed - p.dsFloorT)], [0, y(p.drainBed - p.dsFloorT)]], 'OUTLINE', { density: 0.12 });
+    v.line(-2, y(p.drainBed), 0, y(p.drainBed), 'OUTLINE');
+    // drop wall and cistern floor
+    v.solid([[xa, y(R.sill)], [xt, y(R.sill)], [xa + R.dropTop, y(R.crest)], [xa, y(R.crest)]], 'OUTLINE', { density: 0.12 });
+    v.solid([[xa, y(R.sill - R.apronT)], [xe, y(R.sill - R.apronT)], [xe, y(R.sill)], [xa, y(R.sill)]], 'OUTLINE', { density: 0.1 });
+    // box
+    const bx = [[xe, y(R.boxBot)], [xx, y(R.boxBot)], [xx, y(R.boxTop)], [xe, y(R.boxTop)]];
+    v.poly(bx, true, 'OUTLINE', { w: 0.35 });
+    v.rect(xe, y(R.floorTop), R.Lb, R.soffit - R.floorTop, 'THIN');
+    v.line(xe, y(R.sill), xx, y(R.sill), 'THIN', { w: 0.15 });
+    v.rect(xe - 0.15, y(R.boxBot - p.pcc), R.Lb + 0.3, p.pcc, 'THIN');
+    v.stipple([[xe, y(R.soffit)], [xx, y(R.soffit)], [xx, y(R.boxTop)], [xe, y(R.boxTop)]], 0.1);
+    v.stipple([[xe, y(R.boxBot)], [xx, y(R.boxBot)], [xx, y(R.floorTop)], [xe, y(R.floorTop)]], 0.1);
+    // head walls (front face vertical at barrel ends, rear batter into the bank)
+    for (const [x0, sg] of [[xe, 1], [xx, -1]]) {
+      v.solid([[x0, y(R.boxTop)], [x0 + sg * R.hw.b, y(R.boxTop)], [x0 + sg * p.hwTopW, y(R.tbl)], [x0, y(R.tbl)]], 'OUTLINE', { density: 0.12 });
+    }
+    // canal & banks over the barrel
+    const c0 = xe + p.hwTopW + p.bankWidthL, cw = p.sideSlope * (p.fsd + p.freeBoard);
+    const prof = [[xe + p.hwTopW, y(R.tbl)], [c0, y(R.tbl)], [c0 + cw, y(p.cbl)], [c0 + cw + p.bedWidth, y(p.cbl)], [c0 + 2 * cw + p.bedWidth, y(R.tbl)], [xx - p.hwTopW, y(R.tbl)]];
+    v.poly(prof, false, 'OUTLINE', { w: 0.3 });
+    const wsl = p.sideSlope * p.fsd;
+    v.poly([[c0 + cw - wsl, y(R.fsl)], [c0 + cw + p.bedWidth + wsl, y(R.fsl)], [c0 + cw + p.bedWidth, y(p.cbl)], [c0 + cw, y(p.cbl)]], true, 'WATER', { w: 0.2 });
+    v.text(c0 + cw + p.bedWidth / 2, y(R.fsl) + 0.15, `CANAL  FSL ${lv(R.fsl)}`, 1.6, 'LABEL', { anchor: 'middle' });
+    v.text(c0 + cw + p.bedWidth / 2, y(p.cbl) + 0.15, `CBL ${lv(p.cbl)}`, 1.5, 'TEXT', { anchor: 'middle' });
+    v.level(xe + p.hwTopW + p.bankWidthL / 2, y(R.tbl), `TBL ${lv(R.tbl)}`);
+    // d/s transition floor, cut-off, tail channel
+    v.solid([[xx, y(R.sill - p.dsFloorT)], [xd, y(R.sill - p.dsFloorT)], [xd, y(R.sill)], [xx, y(R.sill)]], 'OUTLINE', { density: 0.12 });
+    v.solid([[xd - 0.3, y(R.cutDs)], [xd, y(R.cutDs)], [xd, y(R.sill - p.dsFloorT)], [xd - 0.3, y(R.sill - p.dsFloorT)]], 'OUTLINE', { density: 0.12 });
+    v.line(xd, y(R.sill), xd + 3, y(R.sill), 'OUTLINE');
+    // water surface
+    const s = R.secs;
+    const wl = [[-2, y(s[6].mfl)], [xa, y(s[6].mfl)], [xt + 0.3, y(s[4].mfl)], [xe, y(s[3].mfl)], [xx, y(s[2].mfl)], [xd, y(s[1].mfl)], [xd + 3, y(s[0].mfl)]];
+    v.poly(wl, false, 'WATER', { w: 0.3 });
+    v.text(-1.8, y(s[6].mfl) + 0.12, `U/S MFL ${lv(s[6].mfl)}`, 1.5, 'LABEL');
+    v.text(xd + 2.9, y(s[0].mfl) + 0.12, `TAIL MFL ${lv(s[0].mfl)}`, 1.5, 'LABEL', { anchor: 'end' });
+    // levels & dimensions
+    v.text(xa - 0.1, y(R.crest) + 0.1, `CREST ${lv(R.crest)}`, 1.5, 'TEXT', { anchor: 'end' });
+    v.text(xe + 0.2, y(R.boxTop) + 0.1, lv(R.boxTop), 1.4, 'TEXT');
+    v.text(xe + 1.0, y(R.sill) + 0.12, `SILL ${lv(R.sill)}`, 1.4, 'TEXT');
+    v.text(xe + 1.0, y(R.boxBot) - 0.35, lv(R.boxBot), 1.4, 'TEXT');
+    v.text(0.35, y(R.cutUs) + 0.05, lv(R.cutUs), 1.4, 'TEXT');
+    v.text(xd - 0.35, y(R.cutDs) + 0.05, lv(R.cutDs), 1.4, 'TEXT', { anchor: 'end' });
+    v.text(xe + R.Lb / 2, y(R.floorTop) + 0.45, `RCC BOX ${R.nV} x ${mm(p.ventW)} x ${mm(p.ventH)}`, 1.7, 'LABEL', { anchor: 'middle' });
+    const dy = y(bot) - 0.1;
+    const dims = [[0, xa, 'APPROACH'], [xa, xt, 'DROP'], [xt, xe, 'CISTERN'], [xe, xx, 'BARREL'], [xx, xd, 'D/S TRANSITION']];
+    for (const [a, b] of dims) v.dimH(a, b, dy + 0.2, mm(b - a), -6, { h: 1.5 });
+    for (const [a, b, t] of dims) v.text((a + b) / 2, dy + 0.2, t, 1.3, 'TEXT', { anchor: 'middle' });
+    v.dimV(y(R.sill), y(R.crest), xa, mm(R.dropH), -4, { h: 1.5 });
+    v.dimV(y(R.sill - R.apronT), y(R.sill), xe - 0.6, mm(R.apronT), 0, { h: 1.3 });
+
+    // ---------------- plan
+    const halfB = R.Bf / 2 + p.returnLen + 1.2;
+    const scp = BD.pickScale(Ltot + 3, 2 * halfB, 360, 118);
+    const vp = BD.view(dw, 20 + 1000 * 1.5 / scp, 196, scp);
+    dw.title(200, 196 + (halfB * 1000) / scp + 6, 'PLAN');
+    const Wo = R.Wout / 2, Wc = R.Wclear / 2, Bf = R.Bf / 2;
+    vp.rect(xe, -Wo, R.Lb, R.Wout, 'OUTLINE', { w: 0.35 });
+    // vents (hidden)
+    let yy = -Wc;
+    for (let i = 0; i < R.nV; i++) { vp.rect(xe, yy, R.Lb, p.ventW, 'HIDDEN'); yy += p.ventW + p.tMid; }
+    // head walls
+    for (const [x0, sg] of [[xe, 1], [xx, -1]]) {
+      vp.rect(Math.min(x0, x0 + sg * p.hwTopW), -Wo, p.hwTopW, R.Wout, 'OUTLINE');
+      vp.line(x0 + sg * R.hw.b, -Wo, x0 + sg * R.hw.b, Wo, 'HIDDEN');
+    }
+    for (const sg of [-1, 1]) {
+      // u/s: straight cistern part then splay to the barrel
+      const xs = xe - R.usLen;
+      vp.poly([[xt, sg * Bf], [xs, sg * Bf], [xe, sg * Wo]], false, 'OUTLINE', { w: 0.35 });
+      vp.poly([[xt, sg * (Bf + p.wTopW)], [xs, sg * (Bf + p.wTopW)], [xe, sg * (Wo + p.wTopW)]], false, 'OUTLINE');
+      // u/s returns at the drop wall
+      vp.poly([[xa, sg * Bf], [xa, sg * (Bf + p.returnLen)], [xt, sg * (Bf + p.returnLen)], [xt, sg * Bf]], false, 'OUTLINE');
+      // d/s splay and return
+      vp.poly([[xx, sg * Wo], [xd, sg * Bf]], false, 'OUTLINE', { w: 0.35 });
+      vp.poly([[xx, sg * (Wo + p.wTopW)], [xd, sg * (Bf + p.wTopW)]], false, 'OUTLINE');
+      vp.poly([[xd, sg * Bf], [xd, sg * (Bf + p.returnLen)], [xd + p.wTopW, sg * (Bf + p.returnLen)], [xd + p.wTopW, sg * Bf]], false, 'OUTLINE');
+      // approach / tail channel edges
+      vp.line(0, sg * Bf, xa, sg * Bf, 'THIN'); vp.line(xd + p.wTopW, sg * Bf, xd + 3, sg * Bf, 'THIN');
+    }
+    vp.rect(xa, -Bf, R.dropTop, R.Bf, 'OUTLINE');
+    vp.line(xt, -Bf, xt, Bf, 'HIDDEN');
+    vp.line(0, -Bf, 0, Bf, 'OUTLINE'); vp.line(0.3, -Bf, 0.3, Bf, 'HIDDEN');
+    vp.line(xd - 0.3, -Bf, xd - 0.3, Bf, 'HIDDEN');
+    // canal lines across
+    const cl = [c0, c0 + cw, c0 + cw + p.bedWidth, c0 + 2 * cw + p.bedWidth];
+    for (const x of cl) vp.line(x, -halfB, x, halfB, 'THIN', { w: 0.15 });
+    for (const x of [c0 + cw - wsl, c0 + cw + p.bedWidth + wsl]) vp.line(x, -halfB, x, halfB, 'WATER', { w: 0.2 });
+    vp.line(c0 + cw + p.bedWidth / 2, -halfB, c0 + cw + p.bedWidth / 2, halfB, 'CENTER');
+    vp.text(c0 + cw + p.bedWidth / 2 + 0.3, halfB - 0.8, `${String(p.canalName).toUpperCase()}`, 1.6, 'LABEL', { rot: -90 });
+    vp.line(-1.8, 0, xd + 3, 0, 'CENTER');
+    dw.leader(vp.X(-1.2), vp.Y(0.35), vp.X(-1.2) + 0.1, vp.Y(0.35) + 4, 'DRAIN FLOW', { h: 1.5 });
+    dw.poly([[vp.X(xd + 2.8), vp.Y(0)], [vp.X(xd + 1.8), vp.Y(0) + 1.2], [vp.X(xd + 1.8), vp.Y(0) - 1.2]], true, 'WATER', { fill: true });
+    vp.dimH(xe, xx, -Wo, mm(R.Lb), -8, { h: 1.5 });
+    vp.dimV(-Bf, Bf, xd + 3.2, mm(R.Bf), 0, { h: 1.5 });
+    vp.dimV(-Wo, Wo, xe + R.Lb / 2, mm(R.Wout), 0, { h: 1.5 });
+    vp.text(xt + 0.2, -Bf + 0.3, 'CISTERN', 1.4, 'TEXT');
+    vp.text(xa + R.dropTop / 2, Bf + p.returnLen + 0.4, 'RETURN', 1.3, 'TEXT', { anchor: 'middle' });
+    vp.text(xd, Bf + p.returnLen + 0.4, 'RETURN', 1.3, 'TEXT', { anchor: 'middle' });
+
+    // ---------------- flow table
+    const ft = [['SECTION', 'LOCATION', 'BED LEVEL', 'DEPTH', 'MFL', 'VELOCITY', 'TEL']];
+    const names = ['TAIL CHANNEL', 'END OF D/S TRANSITION', 'BARREL EXIT', 'BARREL ENTRY', 'CISTERN (U/S TRANSITION)', 'DROP CREST', 'APPROACH CHANNEL'];
+    R.secs.forEach((x, i) => ft.push([x.name, names[i], lv(x.bl), x.d.toFixed(3), lv(x.mfl), x.v.toFixed(3), lv(x.tel)]));
+    dw.title(200, 84, 'FLOW CONDITIONS (TOTAL ENERGY LINES)', 2.4);
+    dw.table(40, 80, [20, 60, 30, 22, 30, 24, 30], ft, { rh: 5, h: 1.45, center: [0, 2, 3, 4, 5, 6] });
+
+    // ---------------- notes & tables (right)
+    const notes = [
+      'ALL DIMENSIONS ARE IN MILLIMETRES AND LEVELS IN METRES.',
+      'WRITTEN DIMENSIONS ONLY SHALL BE FOLLOWED.',
+      `MAXIMUM FLOOD DISCHARGE OF THE DRAIN ${R.Q.toFixed(3)} CUMECS ${p.floodMode === 'given' ? '(GIVEN)' : `BY DICKEN'S FORMULA, C = ${p.dickenC}`}.`,
+      `THE BOX IS DESIGNED FOR THE CANAL FULL / EMPTY AND BOX FULL / EMPTY CONDITIONS AND FOR ${p.llBank === 'none' ? 'NO LIVE LOAD' : p.llBank === 'both' ? 'IRC CLASS A AND 70R' : p.llBank === '70R' ? 'IRC CLASS 70R' : 'IRC CLASS A'} LOADING ON THE BANKS (IRC 6-2017).`,
+      `EARTH PRESSURE BY RANKINE THEORY, PHI = ${p.phi} DEG, WEIGHT OF EARTH ${Math.round(p.gammaSoil * 1000)} KG/CUM, CONCRETE ${Math.round(p.gammaConc * 1000)} KG/CUM.`,
+      `CONCRETE: RCC M${p.fck} FOR THE BOX; CC M${p.subFck} WITH 15% PLUMS FOR HEAD, DROP, WING AND RETURN WALLS; PCC M15 (40 MM) FOR LEVELLING COURSE AND FOOTINGS; CC M15 (20 MM) FOR FLOORS AND CUT-OFFS.`,
+      `STEEL: HYSD BARS Fe ${p.fy} (IS 1786). CLEAR COVER ${mm(p.cover)} MM.`,
+      'EXPANSION / CONSTRUCTION JOINTS IN THE BARREL WITH PVC WATER STOPS AT NOT MORE THAN 10 M INTERVALS.',
+      'THE BOX SHALL BE BACKFILLED IN LAYERS SIMULTANEOUSLY ON BOTH SIDES; THE CANAL SHALL BE RESTORED WITH SELECTED EARTH, WELL COMPACTED.',
+      `SBC ASSUMED ${p.sbc} T/SQM AND SILT FACTOR ${p.siltFactor} - TO BE CONFIRMED BY SOIL INVESTIGATION.`,
+      'CODES: IS 7784 (PT 1 & 2), IRC 6-2017, IRC 21-2000, IRC 78, IRC SP:13, IS 456; CDO GUIDELINES.',
+    ];
+    dw.text(392, 402, 'NOTES:', 2.4, 'TITLE');
+    let ny = 396, k = 0;
+    for (const n of notes) {
+      BD.wrapText(n, 100).forEach((ln, i) => { dw.text(i ? 396 : 392, ny, (i ? '' : `${++k}) `) + ln, 1.25, 'TEXT'); ny -= 2.6; });
+    }
+    let hy = ny - 5;
+    dw.title(486, hy, `HYDRAULIC PARTICULARS OF THE CANAL @ KM ${p.chainage}`, 2.2);
+    hy = dw.table(416, hy - 4, [12, 76, 52], [
+      ['S.No.', 'DESCRIPTION', 'PARTICULARS'],
+      ['1.', 'DISCHARGE', `${p.Qc.toFixed(3)} Cumecs`], ['2.', 'BED WIDTH', `${p.bedWidth.toFixed(3)} m`], ['3.', 'FSD', `${p.fsd.toFixed(3)} m`],
+      ['4.', 'VELOCITY', `${R.vCanal.toFixed(3)} m/sec`], ['5.', 'BED FALL', `1 IN ${p.bedFall}`], ['6.', 'SIDE SLOPES / FREE BOARD', `${p.sideSlope} : 1 / ${p.freeBoard.toFixed(2)} m`],
+      ['7.', 'TOP WIDTH OF BANKS (L/R)', `${p.bankWidthL.toFixed(2)} / ${p.bankWidthR.toFixed(2)} m`], ['8.', 'CBL / FSL / TBL', `${lv(p.cbl)} / ${lv(R.fsl)} / ${lv(R.tbl)}`],
+    ], { rh: 4.2, h: 1.35 });
+    dw.title(486, hy - 6, 'PARTICULARS OF THE DRAIN', 2.2);
+    dw.table(416, hy - 10, [12, 76, 52], [
+      ['S.No.', 'DESCRIPTION', 'PARTICULARS'],
+      ['1.', 'CATCHMENT AREA', p.floodMode === 'given' ? '-' : `${p.catchment} sq.km`], ['2.', 'MAXIMUM FLOOD DISCHARGE', `${R.Q.toFixed(3)} Cumecs`],
+      ['3.', 'DEEP BED LEVEL OF DRAIN', lv(p.drainBed)], ['4.', 'LACEY WATERWAY / FLUMING', `${R.lacey.toFixed(2)} m / ${p.fluming} %`],
+      ['5.', 'WATERWAY PROVIDED', `${R.Bf.toFixed(2)} m`], ['6.', 'VENTS', `${R.nV} x ${p.ventW.toFixed(2)} x ${p.ventH.toFixed(2)} m`],
+      ['7.', 'VELOCITY IN BARREL', `${R.vBarrelAct.toFixed(3)} m/sec`], ['8.', 'U/S MFL / TAIL MFL', `${lv(R.secs[6].mfl)} / ${lv(R.secs[0].mfl)}`],
+      ['9.', 'SCOUR LEVELS U/S / D/S', `${lv(R.scourUs)} / ${lv(R.scourDs)}`],
+    ], { rh: 4.2, h: 1.35 });
+    BD.sheetFrame(dw, d, 1, `PLAN AND L-SECTION OF U.T. @ km ${p.chainage}`, `1:${sc} / 1:${scp}`);
+    return dw;
+  }
+
+  function sheet2(d) {
+    const { p, R } = d;
+    const dw = new BD.Dwg(W, H);
+    const c = p.cover, M = R.members;
+    const Hout = p.ventH + p.wcBox + p.tTop + p.tBot;
+    // ---------------- box cross-section
+    const sc = BD.pickScale(R.Wout + 1.4, Hout + 1.0, 170, 150);
+    const v = BD.view(dw, 75, 240, sc);
+    dw.title(75 + (R.Wout * 1000) / sc / 2, 240 + (Hout * 1000) / sc + 22, 'CROSS SECTION OF BARREL (UNDER THE BANK)');
+    const Wt = R.Wout;
+    v.poly([[0, 0], [Wt, 0], [Wt, Hout], [0, Hout]], true, 'OUTLINE', { w: 0.4 });
+    const h = p.haunch;
+    let x0 = p.tWall;
+    const cells = [];
+    for (let i = 0; i < R.nV; i++) {
+      const a = x0, b = x0 + p.ventW, y0 = p.tBot, y1 = Hout - p.tTop;
+      cells.push([a, b]);
+      v.poly([[a + h, y0], [b - h, y0], [b, y0 + h], [b, y1 - h], [b - h, y1], [a + h, y1], [a, y1 - h], [a, y0 + h]], true, 'OUTLINE', { w: 0.35 });
+      v.line(a, y0 + p.wcBox, b, y0 + p.wcBox, 'THIN', { w: 0.15 });
+      x0 = b + p.tMid;
+    }
+    // concrete stipple in members
+    v.stipple([[0, 0], [Wt, 0], [Wt, p.tBot], [0, p.tBot]], 0.12);
+    v.stipple([[0, Hout - p.tTop], [Wt, Hout - p.tTop], [Wt, Hout], [0, Hout]], 0.12);
+    // reinforcement: outer loop, inner per cell
+    const oc = c + 0.006;
+    v.poly([[oc, oc], [Wt - oc, oc], [Wt - oc, Hout - oc], [oc, Hout - oc]], true, 'REBAR', { w: 0.45 });
+    for (const [a, b] of cells) {
+      const y0 = p.tBot - oc, y1 = Hout - p.tTop + oc;
+      v.poly([[a - oc, y0], [b + oc, y0], [b + oc, y1], [a - oc, y1]], true, 'REBAR', { w: 0.45 });
+      // haunch bars
+      v.line(a - oc + 0.05, y1 - h - 0.1, a + h + 0.1, y1 + 0.02 - 0.0, 'REBAR', { w: 0.35 });
+      v.line(b + oc - 0.05, y1 - h - 0.1, b - h - 0.1, y1, 'REBAR', { w: 0.35 });
+      v.line(a - oc + 0.05, y0 + h + 0.1, a + h + 0.1, y0, 'REBAR', { w: 0.35 });
+      v.line(b + oc - 0.05, y0 + h + 0.1, b - h - 0.1, y0, 'REBAR', { w: 0.35 });
+    }
+    // distribution bars (dots)
+    const ds = R.distSp / 1000, dot = (x, yv) => v.circle(x, yv, 0.45, 'REBAR', { fill: true });
+    for (let x = oc + 0.05; x < Wt - oc; x += ds) { dot(x, oc + 0.016); dot(x, Hout - oc - 0.016); }
+    for (let yv = oc + 0.1; yv < Hout - oc; yv += ds) { dot(oc + 0.016, yv); dot(Wt - oc - 0.016, yv); }
+    // labels
+    const lab = (x, yv, dx, dy, t) => v.leader(x, yv, dx, dy, t, { h: 1.6 });
+    lab(Wt * 0.2, Hout - oc, -4, 18, `T1 - ${M.top.outer.dia}φ @ ${M.top.outer.sp} (TOP)`);
+    lab(Wt * 0.55, Hout - p.tTop + oc, 10, -10, `T2 - ${M.top.inner.dia}φ @ ${M.top.inner.sp} (BOTTOM OF TOP SLAB)`);
+    lab(Wt * 0.8, oc, 22, -26, `B1 - ${M.bottom.outer.dia}φ @ ${M.bottom.outer.sp} (BOTTOM)`);
+    lab(Wt * 0.6, p.tBot - oc, 12, 8, `B2 - ${M.bottom.inner.dia}φ @ ${M.bottom.inner.sp} (TOP OF BOTTOM SLAB)`);
+    lab(oc, Hout / 2, -6, 14, `W1 - ${M.wall.outer.dia}φ @ ${M.wall.outer.sp} (OUTER)`);
+    lab(p.tWall - oc, Hout * 0.4, 14, -4, `W2 - ${M.wall.inner.dia}φ @ ${M.wall.inner.sp} (INNER)`);
+    if (R.nV > 1) lab(p.tWall + p.ventW + p.tMid / 2, Hout * 0.6, 8, 5, `M1 - ${M.mid.inner.dia}φ @ ${M.mid.inner.sp} (BOTH FACES)`);
+    dw.text(v.X(0), v.Y(-0.25) - 12, `DISTRIBUTION: 10φ @ ${R.distSp} ALL FACES.  HAUNCH BARS: ${Math.min(M.top.outer.dia, 12)}φ @ ${M.top.outer.sp}.  CLEAR COVER ${mm(c)} MM.`, 1.5, 'TEXT');
+    // dimensions
+    v.dimH(0, Wt, 0, mm(Wt), -18, { h: 1.6 });
+    let xp = 0;
+    const segs = [[p.tWall]];
+    for (let i = 0; i < R.nV; i++) { segs.push([p.ventW]); if (i < R.nV - 1) segs.push([p.tMid]); }
+    segs.push([p.tWall]);
+    for (const [wv] of segs) { v.dimH(xp, xp + wv, 0, mm(wv), -9, { h: 1.3 }); xp += wv; }
+    v.dimV(0, Hout, Wt, mm(Hout), 10, { h: 1.6 });
+    v.dimV(0, p.tBot, Wt, mm(p.tBot), 4, { h: 1.3 });
+    v.dimV(p.tBot, Hout - p.tTop, Wt, mm(Hout - p.tTop - p.tBot), 4, { h: 1.3 });
+    v.dimV(Hout - p.tTop, Hout, Wt, mm(p.tTop), 4, { h: 1.3 });
+    v.text(-0.05, Hout, lv(R.boxTop), 1.5, 'TEXT', { anchor: 'end' });
+    v.text(-0.05, p.tBot + p.wcBox, lv(R.sill), 1.5, 'TEXT', { anchor: 'end' });
+    v.text(-0.05, 0, lv(R.boxBot), 1.5, 'TEXT', { anchor: 'end' });
+    v.text(Wt / 2, Hout + 0.12, `EARTH FILL ${mm(R.fill)} (TBL ${lv(R.tbl)})`, 1.5, 'TEXT', { anchor: 'middle' });
+    v.rect(-0.15, -p.pcc, Wt + 0.3, p.pcc, 'THIN');
+    v.text(Wt / 2, -p.pcc + 0.02, `PCC M15 ${mm(p.pcc)} THK`, 1.3, 'TEXT', { anchor: 'middle' });
+
+    // ---------------- head wall
+    const hw = R.hw;
+    const sh = BD.pickScale(hw.b + 1, hw.H + 0.8, 60, 60);
+    const vh = BD.view(dw, 255, 300, sh);
+    vh.solid([[0, 0], [hw.b, 0], [p.hwTopW + p.hwFrontBatter, hw.H], [p.hwFrontBatter, hw.H]], 'OUTLINE', { density: 0.14 });
+    vh.line(-0.4, 0, hw.b + 0.6, 0, 'THIN');
+    vh.dimH(0, hw.b, 0, mm(hw.b), -5, { h: 1.4 });
+    vh.dimH(p.hwFrontBatter, p.hwFrontBatter + p.hwTopW, hw.H, mm(p.hwTopW), 3, { h: 1.4 });
+    vh.dimV(0, hw.H, 0, mm(hw.H), -4, { h: 1.4 });
+    vh.text(hw.b + 0.1, hw.H, `TBL ${lv(R.tbl)}`, 1.4, 'TEXT');
+    vh.text(hw.b + 0.1, 0.05, `TOP OF BOX ${lv(R.boxTop)}`, 1.4, 'TEXT');
+    vh.text(hw.b * 0.35, hw.H * 0.35, `CC M${p.subFck}`, 1.3, 'TEXT', { anchor: 'middle' });
+    dw.title(vh.X(hw.b / 2), 300 + (hw.H * 1000) / sh + 9, 'SECTION OF HEAD WALL', 2.4);
+
+    // ---------------- wing / return wall (taller of u/s and d/s)
+    const w = R.walls.reduce((a, b) => (b.Ht > a.Ht ? b : a));
+    const sw = BD.pickScale(w.B + 1.2, w.Ht + 0.8, 80, 120);
+    const vw = BD.view(dw, 250, 140, sw);
+    vw.solid([[0, 0], [w.B, 0], [w.B, p.wFootT], [0, p.wFootT]], 'OUTLINE', { density: 0.12 });
+    const t0 = w.toe;
+    vw.solid([[t0, p.wFootT], [t0 + w.b, p.wFootT], [t0 + p.wFrontBatter + p.wTopW, p.wFootT + w.H], [t0 + p.wFrontBatter, p.wFootT + w.H]], 'OUTLINE', { density: 0.12 });
+    vw.dimH(0, w.B, 0, mm(w.B), -5, { h: 1.4 });
+    vw.dimH(t0, t0 + w.b, p.wFootT, mm(w.b), 2, { h: 1.3 });
+    vw.dimH(t0 + p.wFrontBatter, t0 + p.wFrontBatter + p.wTopW, p.wFootT + w.H, mm(p.wTopW), 3, { h: 1.4 });
+    vw.dimV(p.wFootT, p.wFootT + w.H, w.B, mm(w.H), 5, { h: 1.4 });
+    vw.dimV(0, p.wFootT, w.B, mm(p.wFootT), 5, { h: 1.3 });
+    vw.text(-0.1, p.wFootT + w.H, lv(w.top), 1.4, 'TEXT', { anchor: 'end' });
+    vw.text(-0.1, 0, lv(w.fdn), 1.4, 'TEXT', { anchor: 'end' });
+    vw.text(t0 + w.b * 0.3, p.wFootT + w.H * 0.3, `CC M${p.subFck} + 15% PLUMS`, 1.3, 'TEXT', { anchor: 'middle', rot: 90 });
+    dw.title(vw.X(w.B / 2), 140 + (w.Ht * 1000) / sw + 8, `SECTION OF ${w.name.toUpperCase()}`, 2.2);
+    dw.text(vw.X(w.B / 2), 134, `TOE ${mm(w.toe)}, HEEL ${mm(w.heel)}; HEIGHT REDUCES TOWARDS THE ENDS`, 1.3, 'TEXT', { anchor: 'middle' });
+
+    // ---------------- drop wall & cistern
+    const sd = BD.pickScale(R.dropBase + R.usFloor + 1, R.dropH + R.apronT + 1, 110, 60);
+    const vd = BD.view(dw, 30, 40, sd);
+    vd.solid([[0, R.apronT], [R.dropBase, R.apronT], [R.dropTop, R.apronT + R.dropH], [0, R.apronT + R.dropH]], 'OUTLINE', { density: 0.12 });
+    vd.solid([[0, 0], [R.dropBase + R.usFloor, 0], [R.dropBase + R.usFloor, R.apronT], [0, R.apronT]], 'OUTLINE', { density: 0.1 });
+    vd.line(-1, R.apronT + R.dropH, 0, R.apronT + R.dropH, 'OUTLINE');
+    const s = R.secs;
+    vd.line(-1, R.apronT + R.dropH + s[5].d, 0.3, R.apronT + R.dropH + s[5].d, 'WATER', { w: 0.3 });
+    vd.line(R.dropBase * 0.8, R.apronT + s[4].d, R.dropBase + R.usFloor, R.apronT + s[4].d, 'WATER', { w: 0.3 });
+    vd.dimH(0, R.dropTop, R.apronT + R.dropH, mm(R.dropTop), 3, { h: 1.3 });
+    vd.dimH(0, R.dropBase, R.apronT, mm(R.dropBase), 2, { h: 1.3 });
+    vd.dimH(R.dropBase, R.dropBase + R.usFloor, 0, mm(R.usFloor), -4, { h: 1.3 });
+    vd.dimV(R.apronT, R.apronT + R.dropH, R.dropBase + R.usFloor, mm(R.dropH), 4, { h: 1.3 });
+    vd.dimV(0, R.apronT, R.dropBase + R.usFloor, mm(R.apronT), 4, { h: 1.3 });
+    vd.text(-1, R.apronT + R.dropH + 0.05, `CREST ${lv(R.crest)}`, 1.3, 'TEXT');
+    vd.text(R.dropBase + 0.2, R.apronT + 0.05, `FLOOR ${lv(R.sill)}`, 1.3, 'TEXT');
+    dw.title(vd.X((R.dropBase + R.usFloor) / 2), 40 + ((R.dropH + R.apronT) * 1000) / sd + 10, 'SECTION OF DROP WALL AND CISTERN', 2.2);
+
+    // ---------------- reinforcement schedule & design summary
+    const e = BD.utBbs(d);
+    const rows = [['MEMBER / BAR', 'DIA', 'SPACING', 'LENGTH (m)', 'NOS', 'WEIGHT (kg)']];
+    for (const r of e.rows) rows.push([`${r.member.split('  ')[0]}: ${r.desc.replace(/^\(\w+\)\s*/, '')}`.slice(0, 64), `${r.dia}`, `${typeof r.sp === 'number' ? Math.round(r.sp * 1000) : r.sp}`, r.len.toFixed(3), `${r.nb * r.nm}`, r.kg.toFixed(1)]);
+    rows.push(['TOTAL', '', '', '', '', e.total.toFixed(1)]);
+    dw.title(486, 402, 'REINFORCEMENT SCHEDULE (PER BARREL)', 2.2);
+    let ty = dw.table(392, 398, [96, 12, 18, 20, 16, 26], rows, { rh: 4.2, h: 1.3, center: [1, 2, 3, 4, 5] });
+    const ds2 = [['MEMBER', 'D (mm)', 'M (t-m)', 'Ast REQ', 'PROVIDED']];
+    for (const f of Object.values(M)) for (const x of Object.values(f)) ds2.push([x.label.slice(0, 52), mm(x.D / 1000), x.Ms.toFixed(2), x.AstReq.toFixed(0), `${x.dia}φ @ ${x.sp}`]);
+    dw.title(486, ty - 7, 'DESIGN SUMMARY - RCC BOX', 2.2);
+    dw.table(392, ty - 11, [86, 18, 20, 22, 42], ds2, { rh: 4.2, h: 1.3, center: [1, 2, 3, 4] });
+    BD.sheetFrame(dw, d, 2, `BARREL, WALL SECTIONS AND REINFORCEMENT OF U.T. @ km ${p.chainage}`, 'AS SHOWN');
+    return dw;
+  }
+
+  async function dxfZip(d, base) {
+    const zip = new g.JSZip();
+    zip.file(`${base}_Sheet1.dxf`, BD.toDXF(sheet1(d)));
+    zip.file(`${base}_Sheet2.dxf`, BD.toDXF(sheet2(d)));
+    return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+  }
+
+  Object.assign(BD, { utSheet1: sheet1, utSheet2: sheet2, utDxfZip: dxfZip });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* U.T. input form definition, hints, status tiles and live section for the app. */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const YN = [['yes', 'Yes'], ['no', 'No']];
+  const fmt = (v, n = 3) => (typeof v === 'number' && isFinite(v) ? v.toFixed(n) : String(v));
+
+  const GROUPS = [
+    ['Canal hydraulic particulars', true, { step: 1, note: 'HPs of the canal at the crossing (from the approved HP statement / L-section).' }, [
+      ['Qc', 'Canal discharge', 'cumecs', 0.001], ['bedWidth', 'Bed width', 'm', 0.001], ['fsd', 'Full supply depth', 'm', 0.001],
+      ['sideSlope', 'Side slope (H:1)', '', 0.25], ['freeBoard', 'Free board', 'm', 0.01], ['bedFall', 'Bed fall 1 in', '', 100],
+      ['manningN', "Manning's n", '', 0.001], ['cbl', 'Canal bed level (CBL)', 'm', 0.001],
+      ['bankWidthL', 'Bank top width L', 'm', 0.1], ['bankWidthR', 'Bank top width R', 'm', 0.1],
+    ]],
+    ['Drain & soil', true, { step: 2, note: 'Drain data from the catchment map and the drain L-section; soil from trial pits.' }, [
+      ['floodMode', 'Maximum flood discharge', '', [['dicken', "Dicken's formula from catchment"], ['given', 'Enter the discharge']]],
+      ['catchment', 'Catchment area', 'sq.km', 0.001], ['dickenC', "Dicken's constant C", '', 0.5], ['mfdGiven', 'Maximum flood discharge', 'cumecs', 0.001],
+      ['drainBed', 'Deep bed level of drain at crossing', 'm', 0.001], ['drainSideSlope', 'Drain side slope (H:1)', '', 0.25],
+      ['drainN', "Drain Manning's n", '', 0.001], ['tailFall', 'Tail channel bed fall 1 in', '', 100], ['fluming', 'Fluming of Lacey waterway', '%', 5],
+      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.0', 'Coarse sand / gravel f = 2.0'], ['2.5', 'Gravelly sand (2 mm) f = 2.5'], ['4.75', 'Boulders / hard strata f = 4.75']]],
+      ['siltFactor', 'Silt factor f', '', 0.05], ['sbc', 'Safe bearing capacity', 't/sqm', 0.5],
+      ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1], ['mu', 'Friction (concrete/soil)', '', 0.05],
+    ]],
+    ['Barrel, loading & materials', true, { step: 3, note: 'Vent size and design choices. Auto design sets the number of vents and all member sizes.' }, [
+      ['vBarrel', 'Assumed velocity in barrel', 'm/s', 0.1], ['nVents', 'Number of vents', 'Nos', 1],
+      ['ventW', 'Vent width', 'm', 0.25], ['ventH', 'Vent height', 'm', 0.25], ['cushion', 'Top of box below canal bed', 'm', 0.05],
+      ['llBank', 'Live load on the banks', '', [['A', 'IRC Class A'], ['70R', 'IRC Class 70R tracked'], ['both', 'Class A and 70R'], ['none', 'None (no road on bank)']]],
+      ['wallSurcharge', 'LL surcharge on walls (1.2 m fill)', '', YN],
+      ['fck', 'Box concrete', '', [[25, 'M25'], [30, 'M30'], [35, 'M35'], [40, 'M40']]],
+      ['fy', 'Reinforcement', '', [[415, 'Fe415'], [500, 'Fe500']]],
+      ['exposure', 'Exposure (sets cover)', '', [['moderate', 'Moderate - 40 mm'], ['severe', 'Severe - 45 mm'], ['very severe', 'Very severe - 50 mm'], ['extreme', 'Extreme - 75 mm']]],
+      ['subFck', 'Plain concrete walls', '', [[15, 'CC M15'], [20, 'CC M20'], [25, 'CC M25']]],
+      ['kMode', 'Earth pressure on box walls', '', [['active', 'Active (Rankine), as in type designs'], ['rest', 'At rest (1 - sin φ), rigid box']]],
+    ]],
+    ['Project details', false, { step: 4, note: 'Printed on the drawings, report and estimate.' }, [
+      ['chainage', 'Chainage (Km)', '', 'text'], ['canalName', 'Canal', '', 'text'],
+      ['location', 'Place / village', '', 'text'], ['district', 'District', '', 'text'],
+      ['project', 'Project', '', 'text'], ['state', 'Government', '', 'text'], ['department', 'Department', '', 'text'],
+      ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'],
+    ]],
+    ['RCC box', false, { adv: true }, [
+      ['boxAuto', 'Member thickness', '', [['yes', 'Auto - least passing (recommended)'], ['no', 'Enter my own']]],
+      ['minT', 'Minimum member thickness', 'm', 0.025], ['tTop', 'Top slab', 'm', 0.025], ['tBot', 'Bottom slab', 'm', 0.025],
+      ['tWall', 'End walls', 'm', 0.025], ['tMid', 'Middle walls', 'm', 0.025], ['haunch', 'Haunch', 'm', 0.025],
+      ['wcBox', 'Wearing coat in barrel', 'm', 0.005], ['sealing', 'Sealing coat over box', 'm', 0.01], ['pcc', 'Levelling course', 'm', 0.025],
+      ['cover', 'Clear cover', 'm', 0.005], ['scbc', 'σcbc (WSM)', 'N/mm²', 0.5], ['sst', 'σst (WSM)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
+      ['surchargeHead', 'Surcharge head in barrel (box full)', 'm', 0.1], ['llDisp', 'LL dispersion through fill (H per V)', '', 0.1],
+      ['llImpact', 'Impact on LL through fill', '', 0.05], ['surcharge', 'LL surcharge height', 'm', 0.1],
+      ['gammaRcc', 'Unit wt of RCC', 't/cum', 0.05], ['gammaSub', 'Submerged soil unit wt', 't/cum', 0.1],
+    ]],
+    ['Hydraulics, drop & floors', false, { adv: true }, [
+      ['usSplay', 'U/S splay (1 in)', '', 0.5], ['dsSplay', 'D/S splay (1 in)', '', 0.5], ['nConc', "n for concrete surfaces", '', 0.001],
+      ['kTail', 'Loss coeff. transition to tail channel', '', 0.05], ['kExit', 'Loss coeff. barrel exit (expansion)', '', 0.05],
+      ['kEntry', 'Loss coeff. barrel entry (contraction)', '', 0.05], ['kApproach', 'Loss coeff. approach to crest', '', 0.05],
+      ['barrelF1', 'Entry loss coeff. f1 (Unwin)', '', 0.005], ['unwinA', 'Unwin a', '', 0.0001], ['unwinB', 'Unwin b', '', 0.005],
+      ['crestDepth', 'Depth over crest (0 = formula)', 'm', 0.001], ['drainFB', 'Free board over drain MFL', 'm', 0.05],
+      ['rhoConc', 'Specific gravity of drop wall', '', 0.1], ['floorWc', 'Wearing coat on cistern floor', 'm', 0.05],
+      ['cistern', 'Min cistern length (0 = formula)', 'm', 0.1], ['dsFloorT', 'Approach / d/s floor thickness', 'm', 0.05],
+    ]],
+    ['Head, wing & return walls', false, { adv: true }, [
+      ['wallAuto', 'Wall sections', '', [['yes', 'Auto - least passing section (recommended)'], ['no', 'Enter my own']]],
+      ['hwTopW', 'Head wall top width', 'm', 0.05], ['hwFrontBatter', 'Head wall front batter', 'm', 0.05], ['hwRearBatter', 'Head wall rear batter', 'm', 0.05],
+      ['wTopW', 'Wing wall top width', 'm', 0.05], ['wFrontBatter', 'Wing wall front batter', 'm', 0.05], ['wRearBatter', 'Wing wall rear batter', 'm', 0.05],
+      ['wToe', 'Wing footing toe', 'm', 0.05], ['wHeel', 'Wing footing heel', 'm', 0.05], ['wFootT', 'Wing footing thickness', 'm', 0.05],
+      ['wFdnUs', 'U/S wall foundation level (0 = auto)', 'm', 0.05], ['wFdnDs', 'D/S wall foundation level (0 = auto)', 'm', 0.05],
+      ['returnLen', 'Return wall length', 'm', 0.5], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
+    ]],
+  ];
+  const SHOW_IF = {
+    catchment: (s) => s.floodMode !== 'given', dickenC: (s) => s.floodMode !== 'given', mfdGiven: (s) => s.floodMode === 'given',
+    tMid: (s) => s.nVents > 1, minT: (s) => s.boxAuto !== 'no', wallSurcharge: (s) => s.llBank !== 'none',
+  };
+  const AUTO_FIELDS = {
+    tTop: (s) => s.boxAuto !== 'no', tBot: (s) => s.boxAuto !== 'no', tWall: (s) => s.boxAuto !== 'no', tMid: (s) => s.boxAuto !== 'no',
+    hwRearBatter: (s) => s.wallAuto !== 'no', wRearBatter: (s) => s.wallAuto !== 'no', wToe: (s) => s.wallAuto !== 'no', wHeel: (s) => s.wallAuto !== 'no',
+  };
+  const STD_NOTE = {
+    dickenC: 'CDO guidelines: 11.4 - 22 by region; 19.5 used in the reference', vBarrel: 'Up to 3 m/s for a concrete barrel (sizing only)',
+    fluming: 'Waterway as % of Lacey P = 4.8 Q^1/2 (IS 7784)', cushion: 'Box top kept below the canal bed; 0.1 m in the reference',
+    tailFall: 'Bed fall of the tail channel from the barrel to the drain', wcBox: '75 mm wearing coat on the barrel floor',
+    haunch: '150 x 150 standard', surchargeHead: 'Head over the soffit when the barrel runs full (0.5 m in the reference)',
+    llDisp: '1 : 1 through fill as in the reference (IRC 6 / IRC 112 permit 45°)', llImpact: 'Reference takes no impact under 2 m of fill',
+    usSplay: '2 : 1 (IS 7784 Pt 2)', dsSplay: '3 : 1 (IS 7784 Pt 2)', kExit: '0.3 for expansion', kEntry: '0.2 for contraction',
+    barrelF1: 'Entry loss 0.505 (Unwin)', unwinA: '0.00316 for plastered surfaces', crestDepth: 'Enter a value from Malikpur curves to override',
+    drainFB: 'Top of u/s walls = MFL + free board (or TBL)', rhoConc: 'Plain concrete 2.4', returnLen: 'Returns into the banks',
+    sealing: '40 mm sealing coat on the box under the canal', pcc: 'PCC M15 levelling course', kMode: '',
+    gammaSub: 'Submerged soil under the full canal', wallSurcharge: 'IRC 6 cl.214.1.1.3 where vehicles can come near the wall',
+  };
+
+  function onChoice(state, key) {
+    if (key === 'fck') state.scbc = BD.scbcFor(Number(state.fck));
+    if (key === 'fy') state.sst = BD.sstFor(Number(state.fy));
+    if (key === 'exposure') state.cover = BD.COVER[state.exposure] || state.cover;
+    if (key === 'subFck') state.subAllow = BD.subAllowFor(Number(state.subFck));
+    if (key === 'soilType' && state.soilType) state.siltFactor = Number(state.soilType);
+    return ['fck', 'fy', 'exposure', 'subFck', 'soilType'].includes(key);
+  }
+
+  // Keep the auto-sized values visible in the form.
+  function syncAuto(state, cur) {
+    const ch = [];
+    if (state.boxAuto !== 'no') for (const k of ['tTop', 'tBot', 'tWall', 'tMid']) if (state[k] !== cur.p[k]) { state[k] = cur.p[k]; ch.push(k); }
+    if (state.wallAuto !== 'no') {
+      const w = cur.R.walls.reduce((a, b) => (b.B > a.B ? b : a));
+      const vals = { hwRearBatter: cur.R.hw.rb, wRearBatter: w.rb, wToe: w.toe, wHeel: w.heel };
+      for (const [k, v] of Object.entries(vals)) if (state[k] !== v) { state[k] = v; ch.push(k); }
+    }
+    return ch;
+  }
+
+  function hints(cur, state, set) {
+    const R = cur.R;
+    const need = Math.max(1, Math.ceil(R.ventsReq - 1e-9));
+    set('nVents', need > state.nVents ? `${need} vents needed at ${state.vBarrel} m/s <button data-use="nVents" data-val="${need}">use</button>` : `Barrel velocity ${fmt(R.vBarrelAct, 2)} m/s`);
+    set('floodMode', `Q = ${fmt(R.Q, 3)} cumecs`);
+    set('ventH', R.secs[3].d > state.ventH ? `Entry depth ${fmt(R.secs[3].d)} m exceeds the vent: raise the vent or add vents` : `Depth at entry ${fmt(R.secs[3].d)} m (free flow)`);
+    set('drainBed', `Drop ${fmt(R.dropH, 3)} m to sill +${fmt(R.sill)}; u/s MFL +${fmt(R.mflUs)}`);
+    set('fluming', `Waterway ${fmt(R.Bf, 2)} m (Lacey ${fmt(R.lacey, 2)} m)`);
+    set('siltFactor', `Scour: u/s +${fmt(R.scourUs)}, d/s +${fmt(R.scourDs)}`);
+    set('llBank', R.ll ? `${fmt(R.ll, 3)} t/sqm on the box under ${fmt(R.fill, 2)} m fill` : '');
+    if (state.boxAuto !== 'no') set('tTop', 'Auto: least thickness passing depth, steel and shear');
+    if (state.wallAuto !== 'no') set('wRearBatter', 'Auto: least section with no tension, FOS 2 / 1.5 and SBC');
+    set('exposure', 'Water-retaining box: moderate (40 mm) as in the reference; severe for aggressive water / soil');
+  }
+
+  function status(cur, est, state) {
+    const R = cur.R, p = cur.p;
+    const thick = `${Math.round(p.tTop * 1000)} / ${Math.round(p.tBot * 1000)} / ${Math.round(p.tWall * 1000)}`;
+    return {
+      title: `U.T. · Km ${state.chainage}`,
+      kpis: `
+        <div><span>Barrel</span><b>${R.nV}<i>× ${fmt(p.ventW, 2)} × ${fmt(p.ventH, 2)} m</i></b><small>V ${fmt(R.vBarrelAct, 2)} m/s · Q ${fmt(R.Q, 2)}</small></div>
+        <div><span>Box members</span><b>${Math.round(p.tTop * 1000)}<i>mm top</i></b><small>top / bottom / walls ${thick}</small></div>
+        <div><span>U/S MFL</span><b>${fmt(R.mflUs, 2)}<i>m</i></b><small>drop ${fmt(R.dropH, 2)} m · TBL ${fmt(R.tbl, 2)}</small></div>
+        <div><span>Estimate</span><b>${est.lakhs.toFixed(2)}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`,
+      gov: `<span>Flow</span><b>${R.free ? 'Free fall at drop' : 'Drowned drop'} · barrel ${R.secs[3].d <= p.ventH ? 'free flow' : 'SURCHARGED'}</b>`,
+    };
+  }
+
+  // Blueprint longitudinal section along the drain (vertical scale exaggerated).
+  function sectionSVG(cur) {
+    const { p, R } = cur;
+    const La = 3, xa = La, xt = xa + R.dropBase, xe = xt + R.usFloor, xx = xe + R.Lb, xd = xx + R.dsLen, x1 = xd + 3;
+    const top = Math.max(R.tbl, R.mflUs) + 0.9, bot = Math.min(R.boxBot, R.sill - R.apronT) - 0.5;
+    const W = 720, padL = 10, padR = 150;
+    const kx = (W - padL - padR) / (x1 + 1.5), ky = Math.min(kx * 4, 330 / (top - bot));
+    const Hh = Math.ceil((top - bot) * ky + 16);
+    const X = (x) => padL + (x + 1.5) * kx, Y = (l) => 8 + (top - l) * ky;
+    const pts = (a) => a.map(([x, l]) => `${X(x).toFixed(1)},${Y(l).toFixed(1)}`).join(' ');
+    const cw = p.sideSlope * (p.fsd + p.freeBoard), c0 = xe + p.hwTopW + p.bankWidthL;
+    let g2 = `<defs><linearGradient id="bpWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8" stop-opacity=".75"/><stop offset="1" stop-color="#0e7490" stop-opacity=".35"/></linearGradient>
+      <filter id="bpGlow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+    // ground / banks / canal
+    g2 += `<polygon class="bp-soil" points="${pts([[-1.5, p.drainBed], [xa, p.drainBed], [xa, R.sill - R.apronT], [xe, R.sill - R.apronT], [xe, R.boxBot], [xx, R.boxBot], [xx, R.sill - p.dsFloorT], [xd, R.sill - p.dsFloorT], [xd, R.sill], [x1, R.sill], [x1, bot], [-1.5, bot]])}"/>`;
+    g2 += `<polygon class="bp-soil" points="${pts([[xe, R.boxTop], [xe, R.tbl], [c0, R.tbl], [c0 + cw, p.cbl], [c0 + cw + p.bedWidth, p.cbl], [c0 + 2 * cw + p.bedWidth, R.tbl], [xx, R.tbl], [xx, R.boxTop]])}"/>`;
+    const wsl = p.sideSlope * p.fsd;
+    g2 += `<polygon class="bp-water" points="${pts([[c0 + cw - wsl, R.fsl], [c0 + cw + p.bedWidth + wsl, R.fsl], [c0 + cw + p.bedWidth, p.cbl], [c0 + cw, p.cbl]])}"/>`;
+    // drain water
+    const s = R.secs;
+    g2 += `<polygon class="bp-water" points="${pts([[-1.5, s[6].mfl], [xa, s[6].mfl], [xt + 0.3, s[4].mfl], [xe, s[3].mfl], [xx, s[2].mfl], [xd, s[1].mfl], [x1, s[0].mfl], [x1, R.sill], [xd, R.sill], [xe, R.sill], [xt, R.sill], [xa, R.sill], [xa, R.crest], [-1.5, R.crest]])}" opacity=".85"/>`;
+    // concrete: drop wall, floors, box, head walls
+    g2 += `<polygon class="bp-conc" points="${pts([[xa, R.sill - R.apronT], [xe, R.sill - R.apronT], [xe, R.sill], [xt, R.sill], [xa + R.dropTop, R.crest], [xa, R.crest]])}"/>`;
+    g2 += `<polygon class="bp-conc" points="${pts([[xx, R.sill - p.dsFloorT], [xd, R.sill - p.dsFloorT], [xd, R.sill], [xx, R.sill]])}"/>`;
+    g2 += `<polygon class="bp-conc" points="${pts([[xe, R.boxTop], [xe + R.hw.b, R.boxTop], [xe + p.hwTopW, R.tbl], [xe, R.tbl]])}"/>`;
+    g2 += `<polygon class="bp-conc" points="${pts([[xx, R.boxTop], [xx - R.hw.b, R.boxTop], [xx - p.hwTopW, R.tbl], [xx, R.tbl]])}"/>`;
+    g2 += `<path class="bp-deck" filter="url(#bpGlow)" fill-rule="evenodd" d="M${pts([[xe, R.boxBot], [xx, R.boxBot], [xx, R.boxTop], [xe, R.boxTop]]).replace(/ /g, ' L')} Z M${pts([[xe, R.floorTop], [xx, R.floorTop], [xx, R.soffit], [xe, R.soffit]]).replace(/ /g, ' L')} Z"/>`;
+    // ripple on the canal
+    const x0 = X(c0 + cw - wsl), xr = X(c0 + cw + p.bedWidth + wsl), yw = Y(R.fsl);
+    let d = `M${x0.toFixed(1)},${yw.toFixed(1)}`;
+    for (let x = x0; x < xr; x += 12) d += ' q3,-2.4 6,0 t6,0';
+    g2 += `<path class="bp-ripple" d="${d}"/>`;
+    // level ladder
+    const lv = [['TBL', R.tbl], ['FSL', R.fsl], ['U/S MFL', R.mflUs], ['CREST', R.crest], ['CBL', p.cbl], ['BOX TOP', R.boxTop], ['SILL', R.sill], ['TAIL MFL', s[0].mfl]].sort((a, b) => b[1] - a[1]);
+    let lastY = -99;
+    const xl = X(x1) + 8;
+    for (const [n, l] of lv) {
+      const y = Y(l), yt = Math.max(y, lastY + 15);
+      lastY = yt;
+      const cls = /FSL|MFL|CBL/.test(n) ? 'bp-lv w' : 'bp-lv';
+      g2 += `<line class="bp-tick" x1="${X(-1.5)}" y1="${y}" x2="${xl}" y2="${y}"/><path class="bp-tri" d="M${xl + 2},${yt - 3} l6,0 l-3,4 z"/>`;
+      g2 += `<text class="${cls}" x="${xl + 12}" y="${yt + 4}"><tspan class="n">${n}</tspan> +${l.toFixed(3)}</text>`;
+    }
+    g2 += `<text class="bp-cap" x="${X(c0 + cw + p.bedWidth / 2)}" y="${Y(R.fsl) - 6}" text-anchor="middle">CANAL · Q ${fmt(p.Qc, 2)} cumecs</text>`;
+    g2 += `<text class="bp-dimt" x="${X(xe + R.Lb / 2)}" y="${Y(R.boxBot) + 14}" text-anchor="middle">${R.nV} × ${Math.round(p.ventW * 1000)} × ${Math.round(p.ventH * 1000)} BOX · ${R.Lb.toFixed(2)} m</text>`;
+    g2 += `<text class="bp-cap" x="${X(-1.2)}" y="${Y(s[6].mfl) - 6}">DRAIN ${fmt(R.Q, 2)} cumecs →</text>`;
+    return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Longitudinal section of the under tunnel along the drain with levels">${g2}</svg>`;
+  }
+
+  BD.UTUI = {
+    GROUPS, SHOW_IF, AUTO_FIELDS, STD_NOTE, onChoice, syncAuto, hints, status, sectionSVG,
+    sheets: (cur) => [BD.utSheet1(cur), BD.utSheet2(cur)],
+    dwgHint: 'Sheet 1: longitudinal section along the drain, plan and flow table. Sheet 2: barrel cross-section with reinforcement, head / wing wall and drop wall sections, schedule. Use + and − to zoom.',
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 /* UI: input form, live design, report / drawings / estimate views, exports. */
 (function () {
   'use strict';
   const BD = window.BD;
   const $ = (s, r = document) => r.querySelector(s);
   const fmt = BD.fmt;
-  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1';
+  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1';
 
   // [key, label, unit, step]; step = 'text' for text, or an array of
   // [value, label] pairs for a drop-down.
@@ -3079,7 +4529,23 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
   };
 
-  let state = Object.assign({}, BD.DEFAULTS, load(STORE) || {});
+  // Structure kinds: road bridges (SLRB / DLRB) and U.T. share the form, tabs and exports.
+  const UT = BD.UTUI;
+  const BRIDGE = { GROUPS, SHOW_IF, AUTO_FIELDS, STD_NOTE, onChoice: (st, k) => onChoice(k) };
+  let mode = load('bd-mode') === 'ut' ? 'ut' : 'bridge';
+  const K = () => (mode === 'ut' ? UT : BRIDGE);
+  const states = { bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}), ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {}) };
+  let state = states[mode];
+  function setMode(m) {
+    states[mode] = state;
+    mode = m; state = states[m];
+    save('bd-mode', m);
+    lastDeckKey = '';
+    buildForm();
+    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : DWG_HINT;
+    $('#bp-foot').textContent = mode === 'ut' ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres' : 'Drawn to scale from your inputs · levels in metres';
+  }
+  const DWG_HINT = 'Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.';
   let rates = load(RSTORE) || {};
   let cur = null, est = null;
 
@@ -3091,7 +4557,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     const form = $('#form');
     form.innerHTML = '';
     let advBox = null;
-    for (const [title, open, meta, fields] of GROUPS) {
+    for (const [title, open, meta, fields] of K().GROUPS) {
       const det = document.createElement('details');
       det.open = open;
       det.className = meta.adv ? 'group adv' : 'group step';
@@ -3119,6 +4585,10 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         advBox.appendChild(det);
       } else form.appendChild(det);
     }
+  }
+
+  function wireForm() {
+    const form = $('#form');
     form.addEventListener('input', (e) => {
       const t = e.target;
       if (!t.name) return;
@@ -3131,7 +4601,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       const t = e.target;
       if (t.tagName !== 'SELECT' || !t.name) return;
       state[t.name] = t.dataset.num ? Number(t.value) : t.value;
-      if (onChoice(t.name)) fillForm(); else applyVisibility();
+      if (K().onChoice(state, t.name)) fillForm(); else applyVisibility();
       run();
     });
     form.addEventListener('click', (e) => {
@@ -3144,11 +4614,11 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   }
 
   function applyVisibility() {
-    for (const [k, f] of Object.entries(SHOW_IF)) {
+    for (const [k, f] of Object.entries(K().SHOW_IF)) {
       const el = document.querySelector(`[data-field="${k}"]`);
       if (el) el.hidden = !f(state);
     }
-    for (const [k, f] of Object.entries(AUTO_FIELDS)) {
+    for (const [k, f] of Object.entries(K().AUTO_FIELDS)) {
       const el = document.getElementById('in-' + k);
       if (!el) continue;
       const on = f(state);
@@ -3160,7 +4630,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   function fillForm() {
     for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
     applyVisibility();
-    document.querySelectorAll('.type-switch button').forEach((b) => b.classList.toggle('active', b.dataset.type === state.bridgeType));
+    const ty = mode === 'ut' ? 'UT' : state.bridgeType;
+    document.querySelectorAll('.type-switch button').forEach((b) => { b.classList.toggle('active', b.dataset.type === ty); b.setAttribute('aria-checked', String(b.dataset.type === ty)); });
   }
 
   let timer = null;
@@ -3169,6 +4640,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   // ---------------------------------------------------------------- render
   let lastDeckKey = '';
   function run() {
+    if (mode === 'ut') return runUT();
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
@@ -3191,6 +4663,20 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   }
   let drawingsStale = true;
 
+  function runUT() {
+    try {
+      cur = BD.utDesign(state);
+      est = BD.utEstimate(cur, { rates });
+      for (const k of UT.syncAuto(state, cur)) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; }
+    } catch (err) {
+      $('#status').innerHTML = `<div class="fixbox">Could not compute: ${esc(err.message)}</div>`;
+      return;
+    }
+    save(USTORE, state);
+    renderStatus(); renderHints(); renderReport(); renderEstimate();
+    if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
+  }
+
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const val = (v) => (typeof v === 'number' ? (Number.isInteger(v) ? String(v) : Math.abs(v) >= 1000 ? v.toFixed(2) : v.toFixed(3)) : esc(v));
 
@@ -3199,10 +4685,21 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
     const R = cur.R;
     const nChecks = cur.sections.reduce((n, s) => n + s.rows.filter((r) => r.check).length, 0);
-    $('#xsec').innerHTML = sectionSVG();
-    $('#xsec-title').textContent = `${R.typ} · Km ${state.chainage}`;
     $('#badge').className = 'badge ' + (fails.length ? 'bad' : 'ok');
     $('#badge').textContent = fails.length ? `${fails.length} of ${nChecks} checks need revision` : `All ${nChecks} design checks OK`;
+    const fixTxt = mode === 'ut' ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.' : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
+    if (mode === 'ut') {
+      const u = UT.status(cur, est, state);
+      $('#xsec').innerHTML = UT.sectionSVG(cur);
+      $('#xsec-title').textContent = u.title;
+      $('#kpis').innerHTML = u.kpis;
+      $('#status').innerHTML = `<div class="gov">${u.gov}</div>` +
+        (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
+        (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+      return;
+    }
+    $('#xsec').innerHTML = sectionSVG();
+    $('#xsec-title').textContent = `${R.typ} · Km ${state.chainage}`;
     $('#kpis').innerHTML = `
         <div><span>Clear span</span><b>${fmt(state.span, 2)}<i>m</i></b><small>${fmt(R.B, 2)} m wide deck</small></div>
         <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)}<i>mm</i></b><small>${state.mainDia} dia @ ${state.mainSpacing} c/c</small></div>
@@ -3210,7 +4707,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         <div><span>Estimate</span><b>${est.lakhs.toFixed(2)}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`;
     $('#status').innerHTML =
       `<div class="gov"><span>Governing live load</span><b>${esc(R.govM.veh.name)}</b></div>` +
-      (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
+      (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
       (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
   }
 
@@ -3279,6 +4776,11 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     const R = cur.R;
     const set = (k, html) => { const el = document.querySelector(`[data-hint="${k}"]`); if (el) el.innerHTML = html; };
     document.querySelectorAll('[data-hint]').forEach((el) => (el.innerHTML = ''));
+    if (mode === 'ut') {
+      UT.hints(cur, state, set);
+      for (const [k, t] of Object.entries(UT.STD_NOTE)) if (t && !document.querySelector(`[data-hint="${k}"]`)?.innerHTML) set(k, t);
+      return;
+    }
     if (Math.abs(state.span - R.spanSuggested) > 1e-6) set('span', `Suggested ${fmt(R.spanSuggested, 2)} m (canal top width at FSL ${fmt(R.topFSL, 3)}) <button data-use="span" data-val="${R.spanSuggested}">use</button>`);
     else set('span', `= suggested from top width at FSL ${fmt(R.topFSL, 3)} m`);
     set('foundationLevel', `Must be at or below +${fmt(R.flSuggested)} (IRC 78 scour${state.apron !== 'no' ? ' / IRC SP:13 apron' : ''})${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use</button>`}`);
@@ -3360,14 +4862,14 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
   let zoom = load('bd-zoom') || 1;
   function renderDrawings() {
-    const s1 = BD.toSVG(BD.sheet1(cur), { fluid: true });
-    const s2 = BD.toSVG(BD.sheet2(cur), { fluid: true });
+    const [s1, s2] = sheets().map((dw) => BD.toSVG(dw, { fluid: true }));
     $('#drawings').innerHTML =
       `<div class="zoom"><button type="button" data-z="-1">−</button><span>${Math.round(zoom * 100)} %</span><button type="button" data-z="1">+</button></div>` +
       `<div class="sheets" style="--z:${zoom}"><figure class="sheet">${s1}<figcaption>Sheet 1 of 2</figcaption></figure><figure class="sheet">${s2}<figcaption>Sheet 2 of 2</figcaption></figure></div>`;
     drawingsStale = false;
   }
 
+  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
   // ---------------------------------------------------------------- downloads
   const fileBase = () => `${cur.R.typ.replace(/\./g, '')}_Km${String(state.chainage).replace('.', '')}`;
   // Runs an export; libraries load deferred, so wait for them briefly.
@@ -3388,11 +4890,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
   // ---------------------------------------------------------------- wiring
   function init() {
-    buildForm(); fillForm();
+    wireForm(); setMode(mode); fillForm();
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
-      if (state.bridgeType === b.dataset.type) return;
-      state.bridgeType = b.dataset.type;
-      state.carriageway = BD.CARRIAGEWAY[state.bridgeType];
+      if (b.dataset.type === 'UT') { if (mode === 'ut') return; setMode('ut'); fillForm(); run(); return; }
+      if (mode === 'ut') setMode('bridge');
+      else if (state.bridgeType === b.dataset.type) return;
+      if (state.bridgeType !== b.dataset.type) { state.bridgeType = b.dataset.type; state.carriageway = BD.CARRIAGEWAY[state.bridgeType]; }
       fillForm(); run();
     }));
     document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
@@ -3408,6 +4911,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
       renderDrawings();
     });
     $('#btn-auto').addEventListener('click', () => {
+      if (mode === 'ut') {
+        const a = BD.utAutoDesign(state);
+        state = a.input; fillForm(); run();
+        flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
+        return;
+      }
       const a = BD.autoDesign(state);
       state = a.input; fillForm(); run();
       const msg = a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above (e.g. raise FRL or improve SBC).';
@@ -3415,15 +4924,21 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     });
     $('#sel-example').addEventListener('change', (e) => {
       const f = EXAMPLES[e.target.value];
-      if (f) { state = f(); fillForm(); run(); }
+      if (e.target.value === 'ut25615') { setMode('ut'); state = Object.assign({}, BD.UT_DEFAULTS); fillForm(); run(); }
+      else if (f) { if (mode === 'ut') setMode('bridge'); state = f(); fillForm(); run(); }
       e.target.value = '';
     });
-    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, BD.DEFAULTS); fillForm(); run(); });
+    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS); fillForm(); run(); });
     $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
     $('#file-open').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
-      try { state = Object.assign({}, BD.DEFAULTS, JSON.parse(await f.text())); fillForm(); run(); }
+      try {
+        const js = JSON.parse(await f.text());
+        const m = js.structure === 'UT' ? 'ut' : 'bridge';
+        if (m !== mode) setMode(m);
+        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
+      }
       catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
       e.target.value = '';
     });
@@ -3435,8 +4950,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     $('#btn-rates-reset').addEventListener('click', () => { rates = {}; save(RSTORE, rates); run(); });
     $('#btn-pdf-report').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.reportPDF(cur), `${fileBase()}_Design.pdf`), 'Design report PDF'));
     $('#btn-pdf-est').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.estimatePDF(cur, est), `${fileBase()}_Estimate.pdf`), 'Estimate PDF'));
-    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF([BD.sheet1(cur), BD.sheet2(cur)]), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
-    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await BD.dxfZip(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
+    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF(sheets()), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
+    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await (mode === 'ut' ? BD.utDxfZip : BD.dxfZip)(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
     $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
     $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));
     run();

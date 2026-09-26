@@ -1,9 +1,10 @@
-# SLRB / DLRB Design Generator
+# SLRB / DLRB / UT Design Generator
 
 A browser app that takes the **Hydraulic Particulars (HPs)** of a canal and
 produces the complete design of a **Single Lane (S.L.R.B.)** or **Double Lane
-(D.L.R.B.) Road Bridge** across it, in the format of the I&CAD department
-reference package (SLRB @ Km 0.450 / Km 1.580, L-1 Minor of Perur Major):
+(D.L.R.B.) Road Bridge** across it, or of an **Under Tunnel (U.T.)** taking a
+drain beneath it, in the format of the I&CAD department reference packages
+(SLRB @ Km 0.450 / Km 1.580, L-1 Minor of Perur Major; UT @ Km 25.615):
 
 | Output | Contents | Formats |
 |---|---|---|
@@ -32,6 +33,28 @@ server needed; the Excel / PDF / zip libraries are bundled in `vendor/`.
    (thickness, bar dia & spacing), abutment and wing walls to pass all checks.
 4. Download PDF (report, estimate, 2 × A2 drawings), Excel, or DXF (zip).
    Inputs can be saved to / opened from a `.json` file.
+
+## Under Tunnel (U.T.)
+
+Choose **U.T.** at the top. Inputs: canal HPs, drain catchment (Dicken's
+formula) or flood discharge, drain deep bed level, tail channel fall, silt
+factor, SBC, vent size, live load on the banks, materials.
+
+| Step | Method |
+|---|---|
+| Ventway | vents from an assumed barrel velocity; Lacey waterway P = 4.8 Q^1/2 (IS 7784 Pt 1) with fluming; splays 2:1 u/s, 3:1 d/s |
+| Water levels | tail channel by Manning; section-by-section energy balance upstream with eddy losses, barrel loss by Unwin's formula, Sarda-type drop crest (free or drowned), approach channel; checks free flow in the barrel and u/s MFL below the canal bank |
+| Drop & cistern | drop wall top d/rho^0.5, base (H + d + wc)/rho^0.5, cistern 2d + 2(dH)^0.5, floor 0.55(d + H)^0.5 (CDO rules as in the workbook) |
+| Scour | Lacey, 1.5 d u/s, 2.0 d d/s; cut-off levels |
+| RCC box | closed frame solved by the stiffness method, 4 cases under the canal and 2 under the banks (fill + Class A / 70R dispersed through fill); WSM design with axial force, shear at d from the face, base pressure; least thicknesses chosen automatically |
+| Walls | gravity head walls on the box, wing / return walls: no tension (e <= b/6), base pressure, FOS 2.0 / 1.5; least section chosen automatically |
+
+`node tests/verify-ut.js` reproduces the UT @ Km 25.615 workbook: discharge,
+waterway, levels, all seven flow sections (MFL / TEL within 2 mm), barrel loss,
+drop wall and cistern, scour, live load and box loads. Where the workbook is
+not code-compliant the tool deliberately differs: wing / return walls are sized
+for no tension in the concrete (the workbook's 1.7 m base on a 4.6 m wall is
+in tension), and LL surcharge on the walls is included when there is a bank road.
 
 ## Design basis
 
@@ -70,6 +93,7 @@ node tests/verify-design.js    # engine vs reference DESIGN sheets (Km 0.450 & 1
 node tests/verify-estimate.js  # quantities vs reference estimate (Km 0.450)
 node tests/scenarios.js        # 14 site scenarios: LSM, Class B, footpaths, seismic,
                                # multi-vent, skew, poor soil, no apron
+node tests/verify-ut.js        # U.T. engine vs UT @ Km 25.615 workbook
 ```
 
 All levels, deck moment, steel, abutment and wing-wall results match the
@@ -104,6 +128,10 @@ js/cad.js             drafting model -> SVG and DXF (R12) writers
 js/sheets.js          drawing sheets 1 & 2
 js/export-xlsx.js     Excel export (ExcelJS)
 js/pdf.js             PDF export (jsPDF) and file saving
+js/ut.js              U.T. engine (hydraulics, frame analysis, box & walls)
+js/ut-estimate.js     U.T. quantities and bar bending schedule
+js/ut-sheets.js       U.T. drawing sheets 1 & 2
+js/ut-ui.js           U.T. inputs, hints and live section
 js/app.js             user interface
 vendor/               ExcelJS 4.4.0, jsPDF 2.5.2, jsPDF-AutoTable 3.8.4, JSZip 3.10.1 (MIT)
 tools/build-artifact.js  single-file build for hosting
