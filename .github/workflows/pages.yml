@@ -30,6 +30,7 @@ jobs:
           node bridge-design/tests/verify-design.js
           node bridge-design/tests/verify-estimate.js
           node bridge-design/tests/scenarios.js
+          node bridge-design/tests/verify-ut.js
       - name: Prepare site
         run: |
           mkdir -p _site

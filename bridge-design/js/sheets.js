@@ -570,5 +570,5 @@
     return dw;
   }
 
-  Object.assign(BD, { sheet1, sheet2 });
+  Object.assign(BD, { sheet1, sheet2, sheetFrame: frame, wrapText, pickScale: pick });
 })(typeof window !== 'undefined' ? window : globalThis);

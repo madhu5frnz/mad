@@ -21,6 +21,7 @@
     'IRR-CCDW-2-29': 6729.7,
     'IRR-CCDW-5-5': 1740.9,
     'MORTH-2700': 9500,
+    'RCC-M30': 9200,
   };
   const SEIG_RATES = { metal: 117, nsand: 40, msand: 117 };
   const GA = { labourCess: 0.01, nac: 0.001, smet: 0.02, dmf: 0.3, permit: 0.8, gst: 0.18, roundExtra: 2000 };
@@ -99,10 +100,6 @@
   }
 
   function estimate(d, opts) {
-    const o = Object.assign({ rates: {}, seigRates: {}, ga: {} }, opts || {});
-    const rates = Object.assign({}, RATES, o.rates);
-    const sr = Object.assign({}, SEIG_RATES, o.seigRates);
-    const ga = Object.assign({}, GA, o.ga);
     const { p, R } = d;
     const B = R.B, L = R.deckL, typ = R.typ;
     const where = `${typ} @ Km ${p.chainage}`;
@@ -162,7 +159,19 @@
       rail: railing ? [['on both sides of deck', 1, 2, R.totalLength, 1, 1]] : [],
       crash: railing ? [] : [['on both sides of deck and approach slabs', 1, 2, R.totalLength + 2 * p.approachLen, 1, 1]],
     };
-    const items = ITEMS.filter((it) => it.key === 'steel' || (M[it.key] || []).length).map((it, i) => {
+    return price(ITEMS, M, b, { typ, where, nameOfWork: R.nameOfWork }, opts);
+  }
+
+  // Priced estimate from measurement rows M[key] = [[desc, n1, n2, L, W, D]...]
+  // and a bar bending schedule: abstract, seigniorage, theoretical
+  // requirement and general abstract (shared by every structure type).
+  function price(itemDefs, M, b, meta, opts) {
+    const o = Object.assign({ rates: {}, seigRates: {}, ga: {} }, opts || {});
+    const rates = Object.assign({}, RATES, o.rates);
+    const sr = Object.assign({}, SEIG_RATES, o.seigRates);
+    const ga = Object.assign({}, GA, o.ga);
+    const { typ, where } = meta;
+    const items = itemDefs.filter((it) => it.key === 'steel' || (M[it.key] || []).length).map((it, i) => {
       const rows = (M[it.key] || []).map(([desc, n1, n2, l, w, dd]) => {
         const l3 = r3(l), w3 = r3(w), d3 = r3(dd);
         return { desc, n1, n2, l: l3, w: w3, d: d3, qty: r3(n1 * n2 * l3 * w3 * d3) };
@@ -205,10 +214,10 @@
       ['Rounding off and unforseen expenditure', rounding],
     ];
     return {
-      nameOfWork: `Name of work:- ${R.nameOfWork}`, items, ecv, bbs: b, seig, seigTot: tot, seigAmt: amt, seigRates: sr, seigTotal, dmf, smet, permit,
+      nameOfWork: `Name of work:- ${meta.nameOfWork}`, items, ecv, bbs: b, seig, seigTot: tot, seigAmt: amt, seigRates: sr, seigTotal, dmf, smet, permit,
       theo, genAbst, lc, nac, partB, gst, rounding, total, lakhs: total / 100000, rates, ga,
     };
   }
 
-  Object.assign(BD, { estimate, bbs, RATES, SEIG_RATES, GA, EST_ITEMS: ITEMS });
+  Object.assign(BD, { estimate, priceEstimate: price, unitWt, nBars, bbs, RATES, SEIG_RATES, GA, EST_ITEMS: ITEMS });
 })(typeof window !== 'undefined' ? window : globalThis);

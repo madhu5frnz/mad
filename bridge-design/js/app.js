@@ -4,7 +4,7 @@
   const BD = window.BD;
   const $ = (s, r = document) => r.querySelector(s);
   const fmt = BD.fmt;
-  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1';
+  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1';
 
   // [key, label, unit, step]; step = 'text' for text, or an array of
   // [value, label] pairs for a drop-down.
@@ -126,7 +126,23 @@
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
   };
 
-  let state = Object.assign({}, BD.DEFAULTS, load(STORE) || {});
+  // Structure kinds: road bridges (SLRB / DLRB) and U.T. share the form, tabs and exports.
+  const UT = BD.UTUI;
+  const BRIDGE = { GROUPS, SHOW_IF, AUTO_FIELDS, STD_NOTE, onChoice: (st, k) => onChoice(k) };
+  let mode = load('bd-mode') === 'ut' ? 'ut' : 'bridge';
+  const K = () => (mode === 'ut' ? UT : BRIDGE);
+  const states = { bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}), ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {}) };
+  let state = states[mode];
+  function setMode(m) {
+    states[mode] = state;
+    mode = m; state = states[m];
+    save('bd-mode', m);
+    lastDeckKey = '';
+    buildForm();
+    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : DWG_HINT;
+    $('#bp-foot').textContent = mode === 'ut' ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres' : 'Drawn to scale from your inputs · levels in metres';
+  }
+  const DWG_HINT = 'Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.';
   let rates = load(RSTORE) || {};
   let cur = null, est = null;
 
@@ -138,7 +154,7 @@
     const form = $('#form');
     form.innerHTML = '';
     let advBox = null;
-    for (const [title, open, meta, fields] of GROUPS) {
+    for (const [title, open, meta, fields] of K().GROUPS) {
       const det = document.createElement('details');
       det.open = open;
       det.className = meta.adv ? 'group adv' : 'group step';
@@ -166,6 +182,10 @@
         advBox.appendChild(det);
       } else form.appendChild(det);
     }
+  }
+
+  function wireForm() {
+    const form = $('#form');
     form.addEventListener('input', (e) => {
       const t = e.target;
       if (!t.name) return;
@@ -178,7 +198,7 @@
       const t = e.target;
       if (t.tagName !== 'SELECT' || !t.name) return;
       state[t.name] = t.dataset.num ? Number(t.value) : t.value;
-      if (onChoice(t.name)) fillForm(); else applyVisibility();
+      if (K().onChoice(state, t.name)) fillForm(); else applyVisibility();
       run();
     });
     form.addEventListener('click', (e) => {
@@ -191,11 +211,11 @@
   }
 
   function applyVisibility() {
-    for (const [k, f] of Object.entries(SHOW_IF)) {
+    for (const [k, f] of Object.entries(K().SHOW_IF)) {
       const el = document.querySelector(`[data-field="${k}"]`);
       if (el) el.hidden = !f(state);
     }
-    for (const [k, f] of Object.entries(AUTO_FIELDS)) {
+    for (const [k, f] of Object.entries(K().AUTO_FIELDS)) {
       const el = document.getElementById('in-' + k);
       if (!el) continue;
       const on = f(state);
@@ -207,7 +227,8 @@
   function fillForm() {
     for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
     applyVisibility();
-    document.querySelectorAll('.type-switch button').forEach((b) => b.classList.toggle('active', b.dataset.type === state.bridgeType));
+    const ty = mode === 'ut' ? 'UT' : state.bridgeType;
+    document.querySelectorAll('.type-switch button').forEach((b) => { b.classList.toggle('active', b.dataset.type === ty); b.setAttribute('aria-checked', String(b.dataset.type === ty)); });
   }
 
   let timer = null;
@@ -216,6 +237,7 @@
   // ---------------------------------------------------------------- render
   let lastDeckKey = '';
   function run() {
+    if (mode === 'ut') return runUT();
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
@@ -238,6 +260,20 @@
   }
   let drawingsStale = true;
 
+  function runUT() {
+    try {
+      cur = BD.utDesign(state);
+      est = BD.utEstimate(cur, { rates });
+      for (const k of UT.syncAuto(state, cur)) { const el = document.getElementById('in-' + k); if (el) el.value = state[k]; }
+    } catch (err) {
+      $('#status').innerHTML = `<div class="fixbox">Could not compute: ${esc(err.message)}</div>`;
+      return;
+    }
+    save(USTORE, state);
+    renderStatus(); renderHints(); renderReport(); renderEstimate();
+    if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
+  }
+
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const val = (v) => (typeof v === 'number' ? (Number.isInteger(v) ? String(v) : Math.abs(v) >= 1000 ? v.toFixed(2) : v.toFixed(3)) : esc(v));
 
@@ -246,10 +282,21 @@
     for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
     const R = cur.R;
     const nChecks = cur.sections.reduce((n, s) => n + s.rows.filter((r) => r.check).length, 0);
-    $('#xsec').innerHTML = sectionSVG();
-    $('#xsec-title').textContent = `${R.typ} · Km ${state.chainage}`;
     $('#badge').className = 'badge ' + (fails.length ? 'bad' : 'ok');
     $('#badge').textContent = fails.length ? `${fails.length} of ${nChecks} checks need revision` : `All ${nChecks} design checks OK`;
+    const fixTxt = mode === 'ut' ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.' : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
+    if (mode === 'ut') {
+      const u = UT.status(cur, est, state);
+      $('#xsec').innerHTML = UT.sectionSVG(cur);
+      $('#xsec-title').textContent = u.title;
+      $('#kpis').innerHTML = u.kpis;
+      $('#status').innerHTML = `<div class="gov">${u.gov}</div>` +
+        (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
+        (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+      return;
+    }
+    $('#xsec').innerHTML = sectionSVG();
+    $('#xsec-title').textContent = `${R.typ} · Km ${state.chainage}`;
     $('#kpis').innerHTML = `
         <div><span>Clear span</span><b>${fmt(state.span, 2)}<i>m</i></b><small>${fmt(R.B, 2)} m wide deck</small></div>
         <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)}<i>mm</i></b><small>${state.mainDia} dia @ ${state.mainSpacing} c/c</small></div>
@@ -257,7 +304,7 @@
         <div><span>Estimate</span><b>${est.lakhs.toFixed(2)}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`;
     $('#status').innerHTML =
       `<div class="gov"><span>Governing live load</span><b>${esc(R.govM.veh.name)}</b></div>` +
-      (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.</p></div>` : '') +
+      (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
       (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
   }
 
@@ -326,6 +373,11 @@
     const R = cur.R;
     const set = (k, html) => { const el = document.querySelector(`[data-hint="${k}"]`); if (el) el.innerHTML = html; };
     document.querySelectorAll('[data-hint]').forEach((el) => (el.innerHTML = ''));
+    if (mode === 'ut') {
+      UT.hints(cur, state, set);
+      for (const [k, t] of Object.entries(UT.STD_NOTE)) if (t && !document.querySelector(`[data-hint="${k}"]`)?.innerHTML) set(k, t);
+      return;
+    }
     if (Math.abs(state.span - R.spanSuggested) > 1e-6) set('span', `Suggested ${fmt(R.spanSuggested, 2)} m (canal top width at FSL ${fmt(R.topFSL, 3)}) <button data-use="span" data-val="${R.spanSuggested}">use</button>`);
     else set('span', `= suggested from top width at FSL ${fmt(R.topFSL, 3)} m`);
     set('foundationLevel', `Must be at or below +${fmt(R.flSuggested)} (IRC 78 scour${state.apron !== 'no' ? ' / IRC SP:13 apron' : ''})${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use</button>`}`);
@@ -407,14 +459,14 @@
 
   let zoom = load('bd-zoom') || 1;
   function renderDrawings() {
-    const s1 = BD.toSVG(BD.sheet1(cur), { fluid: true });
-    const s2 = BD.toSVG(BD.sheet2(cur), { fluid: true });
+    const [s1, s2] = sheets().map((dw) => BD.toSVG(dw, { fluid: true }));
     $('#drawings').innerHTML =
       `<div class="zoom"><button type="button" data-z="-1">−</button><span>${Math.round(zoom * 100)} %</span><button type="button" data-z="1">+</button></div>` +
       `<div class="sheets" style="--z:${zoom}"><figure class="sheet">${s1}<figcaption>Sheet 1 of 2</figcaption></figure><figure class="sheet">${s2}<figcaption>Sheet 2 of 2</figcaption></figure></div>`;
     drawingsStale = false;
   }
 
+  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
   // ---------------------------------------------------------------- downloads
   const fileBase = () => `${cur.R.typ.replace(/\./g, '')}_Km${String(state.chainage).replace('.', '')}`;
   // Runs an export; libraries load deferred, so wait for them briefly.
@@ -435,11 +487,12 @@
 
   // ---------------------------------------------------------------- wiring
   function init() {
-    buildForm(); fillForm();
+    wireForm(); setMode(mode); fillForm();
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
-      if (state.bridgeType === b.dataset.type) return;
-      state.bridgeType = b.dataset.type;
-      state.carriageway = BD.CARRIAGEWAY[state.bridgeType];
+      if (b.dataset.type === 'UT') { if (mode === 'ut') return; setMode('ut'); fillForm(); run(); return; }
+      if (mode === 'ut') setMode('bridge');
+      else if (state.bridgeType === b.dataset.type) return;
+      if (state.bridgeType !== b.dataset.type) { state.bridgeType = b.dataset.type; state.carriageway = BD.CARRIAGEWAY[state.bridgeType]; }
       fillForm(); run();
     }));
     document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
@@ -455,6 +508,12 @@
       renderDrawings();
     });
     $('#btn-auto').addEventListener('click', () => {
+      if (mode === 'ut') {
+        const a = BD.utAutoDesign(state);
+        state = a.input; fillForm(); run();
+        flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
+        return;
+      }
       const a = BD.autoDesign(state);
       state = a.input; fillForm(); run();
       const msg = a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above (e.g. raise FRL or improve SBC).';
@@ -462,15 +521,21 @@
     });
     $('#sel-example').addEventListener('change', (e) => {
       const f = EXAMPLES[e.target.value];
-      if (f) { state = f(); fillForm(); run(); }
+      if (e.target.value === 'ut25615') { setMode('ut'); state = Object.assign({}, BD.UT_DEFAULTS); fillForm(); run(); }
+      else if (f) { if (mode === 'ut') setMode('bridge'); state = f(); fillForm(); run(); }
       e.target.value = '';
     });
-    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, BD.DEFAULTS); fillForm(); run(); });
+    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS); fillForm(); run(); });
     $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
     $('#file-open').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
-      try { state = Object.assign({}, BD.DEFAULTS, JSON.parse(await f.text())); fillForm(); run(); }
+      try {
+        const js = JSON.parse(await f.text());
+        const m = js.structure === 'UT' ? 'ut' : 'bridge';
+        if (m !== mode) setMode(m);
+        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
+      }
       catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
       e.target.value = '';
     });
@@ -482,8 +547,8 @@
     $('#btn-rates-reset').addEventListener('click', () => { rates = {}; save(RSTORE, rates); run(); });
     $('#btn-pdf-report').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.reportPDF(cur), `${fileBase()}_Design.pdf`), 'Design report PDF'));
     $('#btn-pdf-est').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.estimatePDF(cur, est), `${fileBase()}_Estimate.pdf`), 'Estimate PDF'));
-    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF([BD.sheet1(cur), BD.sheet2(cur)]), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
-    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await BD.dxfZip(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
+    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF(sheets()), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
+    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await (mode === 'ut' ? BD.utDxfZip : BD.dxfZip)(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
     $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
     $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));
     run();
