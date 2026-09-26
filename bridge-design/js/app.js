@@ -18,10 +18,11 @@
     ]],
     ['Road, levels & soil', true, { step: 2, note: 'From the site survey and soil investigation. Levels in metres, without the + sign.' }, [
       ['nVents', 'Number of vents', 'Nos', 1], ['span', 'Clear span of each vent', 'm', 0.25],
+      ['spanBasis', 'Span to cover canal width at', '', [['fsl', 'FSL (abutments at canal banks)'], ['tbl', 'TBL'], ['soffit', 'Soffit level (deep cut, abutments buried)']]], ['bermW', 'Berm width each side (0 = none)', 'm', 0.5],
       ['carriageway', 'Carriageway', 'm', 0.05], ['skew', 'Skew angle', 'deg', 1],
       ['frl', 'Road level (FRL)', 'm', 0.001], ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05],
       ['sbc', 'Safe bearing capacity', 't/sqm', 0.5],
-      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5']]],
+      ['soilType', 'Bed material (sets silt factor)', '', [['', 'Choose…'], ['0.5', 'Very fine silt (0.08 mm) f = 0.5'], ['0.7', 'Silt (0.15 mm) f = 0.7'], ['1.0', 'Fine sand / clayey (0.3 mm) f = 1.0'], ['1.25', 'Medium sand (0.5 mm) f = 1.25'], ['1.75', 'Coarse sand (1 mm) f = 1.75'], ['2.5', 'Gravelly sand (2 mm) f = 2.5'], ['4.75', 'Boulders / hard strata f = 4.75']]],
       ['siltFactor', 'Silt factor f', '', 0.05], ['phi', 'Backfill φ', 'deg', 1], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1],
       ['mu', 'Friction (concrete/soil)', '', 0.05], ['apron', 'Floor protection (apron + lining)', '', YN],
       ['floorDepth', 'Foundation depth below floor protection', 'm', 0.05], ['affluxLimit', 'Permissible afflux', 'm', 0.01],
@@ -64,7 +65,7 @@
       ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
       ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
       ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['surcharge', 'LL surcharge height', 'm', 0.1],
-      ['abKey', 'Shear key under abutment', '', YN], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
+      ['tempFriction', 'Bearing friction (temperature)', '', YN], ['bearingMu', 'Friction coefficient at bearing', '', 0.05], ['abKey', 'Shear key under abutment', '', YN], ['subAllow', 'Allowable compression', 't/sqm', 10], ['gammaConc', 'Unit wt of plain concrete', 't/cum', 0.05],
       ['pierTopW', 'Pier top width', 'm', 0.05], ['pierBatter', 'Pier batter each face', 'm', 0.05], ['pierToe', 'Pier footing projection', 'm', 0.05],
       ['saG', 'Seismic Sa/g', '', 0.1], ['respR', 'Response reduction R', '', 0.5],
     ]],
@@ -85,7 +86,7 @@
     minD: (s) => s.deckAuto !== 'no', fpThk: (s) => s.fpW > 0, fpLoad: (s) => s.fpW > 0,
     scbc: (s) => s.method !== 'LSM', sst: (s) => s.method !== 'LSM',
     pierTopW: (s) => s.nVents > 1, pierBatter: (s) => s.nVents > 1, pierToe: (s) => s.nVents > 1,
-    floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
+    bearingMu: (s) => s.tempFriction !== 'no', floorDepth: (s) => s.apron !== 'no', apronThk: (s) => s.apron !== 'no', liningLen: (s) => s.apron !== 'no', liningThk: (s) => s.apron !== 'no',
   };
   // Fields the tool fills in itself (read-only unless the designer overrides).
   const AUTO_FIELDS = {
@@ -101,7 +102,7 @@
     scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
     cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
     subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
-    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
+    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', bearingMu: 'Slab on bed block with kraft paper: 0.5', bermW: 'Berm at TBL level, as in deep cuttings', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
   };
 
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
@@ -118,8 +119,8 @@
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
-    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no' }),
-    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no' }),
+    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }),
+    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }),
     dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
     general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
