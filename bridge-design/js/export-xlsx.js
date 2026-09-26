@@ -261,17 +261,8 @@
   async function download(wb, filename) {
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    BD.saveBlob(blob, filename);
+    return BD.saveBlob(blob, filename);
   }
-
-  BD.saveBlob = function (blob, filename) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  };
 
   Object.assign(BD, { designWorkbook, estimateWorkbook, downloadWorkbook: download });
 })(typeof window !== 'undefined' ? window : globalThis);

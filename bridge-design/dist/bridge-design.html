@@ -1,0 +1,2575 @@
+<title>SLRB / DLRB Design Generator</title>
+<style>
+:root {
+  --bg: #f3f5f8;
+  --panel: #ffffff;
+  --ink: #17202c;
+  --muted: #5b6676;
+  --line: #dde2ea;
+  --accent: #1d4ed8;
+  --accent-ink: #ffffff;
+  --ok: #0a7a2f;
+  --ok-bg: #e6f5ec;
+  --bad: #c0142b;
+  --bad-bg: #fdecee;
+  --inp: #fff8c5;
+  --warn-bg: #fff4e0;
+  --head: #eef2f8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --panel: #1a2029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2c3542;
+    --accent: #6d9bff; --accent-ink: #0b1220; --ok: #5fd08a; --ok-bg: #16301f; --bad: #ff7b8a; --bad-bg: #3a1a20;
+    --inp: #3b3717; --warn-bg: #3a2e14; --head: #222a36;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+    --bg: #11151b; --panel: #1a2029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2c3542;
+    --accent: #6d9bff; --accent-ink: #0b1220; --ok: #5fd08a; --ok-bg: #16301f; --bad: #ff7b8a; --bad-bg: #3a1a20;
+    --inp: #3b3717; --warn-bg: #3a2e14; --head: #222a36;
+    color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+button, select, input { font: inherit; color: inherit; }
+button, select, .filebtn {
+  border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 12px; cursor: pointer;
+}
+button:hover, .filebtn:hover { border-color: var(--accent); }
+button:disabled { opacity: .6; cursor: progress; }
+button:focus-visible, select:focus-visible, .filebtn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.filebtn { display: inline-block; position: relative; overflow: hidden; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { color: var(--accent); }
+.brand h1 { font-size: 18px; margin: 0; }
+.brand .sub { margin: 0; color: var(--muted); font-size: 12.5px; }
+.type-switch { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.type-switch button { border: 0; border-radius: 0; padding: 6px 18px; display: flex; flex-direction: column; align-items: center; font-weight: 600; }
+.type-switch button small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.type-switch button.active { background: var(--accent); color: var(--accent-ink); }
+.type-switch button.active small { color: inherit; opacity: .85; }
+
+.layout { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 66px); }
+.inputs { background: var(--panel); border-right: 1px solid var(--line); padding: 14px; overflow-y: auto; max-height: calc(100vh - 66px); position: sticky; top: 0; }
+.input-actions { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.input-actions.small button, .input-actions.small .filebtn { padding: 5px 10px; font-size: 13px; }
+.input-actions select { flex: 1; min-width: 0; }
+details { border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; background: var(--panel); }
+summary { padding: 9px 12px; font-weight: 600; cursor: pointer; }
+details[open] summary { border-bottom: 1px solid var(--line); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; padding: 10px 12px; }
+.field { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--muted); }
+.field.wide { grid-column: 1 / -1; }
+.field em { font-style: normal; opacity: .75; }
+.field input { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--inp); color: var(--ink); width: 100%; }
+.field input[type=text] { background: var(--panel); }
+.field input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.hint-inline { color: var(--muted); font-size: 11.5px; }
+.hint-inline:empty { display: none; }
+.hint-inline button { padding: 0 6px; font-size: 11.5px; border-radius: 5px; margin-left: 4px; }
+
+.output { padding: 16px 20px 40px; min-width: 0; }
+.status { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.badge { display: inline-block; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.kpis div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.kpis b { display: block; font-size: 17px; }
+.kpis span { color: var(--muted); font-size: 12px; }
+.fails, .warns { margin: 10px 0 0; padding-left: 20px; }
+.fails li { color: var(--bad); }
+.warns li { background: var(--warn-bg); padding: 2px 6px; border-radius: 6px; margin: 2px 0; list-style: none; margin-left: -20px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+
+.tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 8px 14px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+
+.report .doc { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; overflow-x: auto; }
+.doc h2 { font-size: 16px; margin: 0 0 6px; }
+.doc h3 { font-size: 13.5px; margin: 20px 0 6px; color: var(--accent); text-transform: none; }
+.doc .meta { color: var(--muted); font-size: 12.5px; margin: 2px 0; }
+.inp-key { background: var(--inp); padding: 0 6px; border-radius: 4px; color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+table.calc td { border-bottom: 1px solid var(--line); padding: 4px 8px; vertical-align: top; }
+table.calc td:first-child { width: 52%; }
+table.calc .v { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+table.calc .v.inp { background: var(--inp); }
+table.calc .v.ok { color: var(--ok); }
+table.calc .v.bad { color: var(--bad); background: var(--bad-bg); }
+table.calc td.v:not(.ok):not(.bad) { max-width: 420px; white-space: normal; }
+table.calc .u { color: var(--muted); white-space: nowrap; }
+table.calc .r { color: var(--muted); font-size: 12px; }
+tr.sub td { font-weight: 700; font-style: italic; background: var(--head); }
+table.est th, table.est td { border: 1px solid var(--line); padding: 4px 7px; vertical-align: top; }
+table.est th { background: var(--head); text-align: left; }
+table.est .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.est .code { white-space: nowrap; font-size: 12px; }
+table.est tr.tot td { font-weight: 700; }
+input.rate { width: 90px; text-align: right; border: 1px solid var(--line); border-radius: 5px; padding: 2px 5px; background: var(--inp); }
+.signs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 40px; text-align: center; font-weight: 600; font-size: 12.5px; }
+.signs small { font-weight: 400; color: var(--muted); }
+
+.zoom { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.zoom button { width: 34px; padding: 4px 0; }
+.sheets { display: flex; flex-direction: column; gap: 18px; overflow-x: auto; }
+.sheet { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px; width: calc(100% * var(--z, 1)); }
+.sheet svg { display: block; width: 100%; height: auto; }
+.sheet figcaption { color: #5b6676; font-size: 12px; padding: 4px 2px 0; }
+
+.toast { position: fixed; right: 20px; bottom: 20px; max-width: 520px; background: var(--ink); color: var(--panel); padding: 10px 14px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.25); z-index: 10; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .inputs { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .output { padding: 12px 16px 40px; }
+  .topbar { padding: 10px 16px; }
+  table.calc td:first-child { width: auto; }
+  table.calc .r { display: none; }
+}
+@media (max-width: 420px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+</style>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="28" height="28"><path d="M2 14h28v4H2z" fill="currentColor"/><path d="M6 18v10M26 18v10" stroke="currentColor" stroke-width="3"/><path d="M9 28c2-6 12-6 14 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </div>
+    <div>
+      <h1>SLRB / DLRB Design Generator</h1>
+      <p class="sub">Road bridge across canal &middot; from Hydraulic Particulars to design, drawings &amp; estimate</p>
+    </div>
+  </div>
+  <div class="type-switch" role="radiogroup" aria-label="Bridge type">
+    <button type="button" data-type="SLRB" class="active" role="radio">S.L.R.B.<small>Single lane 4.25 m</small></button>
+    <button type="button" data-type="DLRB" role="radio">D.L.R.B.<small>Two lane 7.50 m</small></button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="inputs" id="inputs">
+    <div class="input-actions">
+      <button type="button" id="btn-auto" class="primary">Auto design</button>
+      <select id="sel-example" aria-label="Load example">
+        <option value="">Load example…</option>
+        <option value="km0450">SLRB Km 0.450 (reference)</option>
+        <option value="km1580">SLRB Km 1.580 (reference)</option>
+        <option value="dlrb">DLRB (same canal, 7.5 m)</option>
+      </select>
+    </div>
+    <div class="input-actions small">
+      <button type="button" id="btn-save">Save inputs</button>
+      <label class="filebtn">Open inputs<input type="file" id="file-open" accept=".json,application/json"></label>
+      <button type="button" id="btn-reset">Reset</button>
+    </div>
+    <form id="form" autocomplete="off"></form>
+  </aside>
+
+  <main class="output">
+    <div class="status" id="status"></div>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="report" class="active">Design report</button>
+      <button type="button" role="tab" data-tab="drawings">Drawings</button>
+      <button type="button" role="tab" data-tab="estimate">Estimate</button>
+    </nav>
+
+    <section class="tab" id="tab-report">
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-report">Download PDF</button>
+        <button type="button" id="btn-xlsx-design">Download Excel</button>
+      </div>
+      <div id="report" class="report"></div>
+    </section>
+
+    <section class="tab" id="tab-drawings" hidden>
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-dwg">Download PDF (2 × A2)</button>
+        <button type="button" id="btn-dxf">Download DXF for AutoCAD (zip)</button>
+      </div>
+      <p class="hint">Sheet 1: plan &amp; sectional elevation. Sheet 2: sections &amp; reinforcement details. Use + / − to zoom.</p>
+      <div id="drawings"></div>
+    </section>
+
+    <section class="tab" id="tab-estimate" hidden>
+      <div class="toolbar">
+        <button type="button" id="btn-pdf-est">Download PDF</button>
+        <button type="button" id="btn-xlsx-est">Download Excel (with formulas)</button>
+        <button type="button" id="btn-rates-reset">Reset rates to SSR 2026-27</button>
+      </div>
+      <div id="estimate" class="report"></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+/*
+ * SLRB / DLRB design engine.
+ *
+ * Reproduces the department's Excel design sheet (DESIGN OF S.L.R.B. ... WSM,
+ * IRC 5 / 6 / 21 / 78, IRC SP:13, IS 456) section by section. Units follow the
+ * sheet: metres, tonnes, t/sqm, except where noted (mm, N/sqmm, kN-m).
+ *
+ * SLRB : single lane, carriageway 4.25 m, one lane of IRC Class A.
+ * DLRB : two lane, carriageway 7.50 m (IRC 5 cl.104.3.1), governing of
+ *        two lanes of IRC Class A or one lane of IRC Class 70R
+ *        (tracked / wheeled bogie) as per IRC 6 Table 6A.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+
+  // ---------------------------------------------------------------- inputs
+  // Defaults reproduce SLRB @ Km 0.450 of L-1 Minor, Perur Major (NSLBC).
+  const DEFAULTS = {
+    // project
+    bridgeType: 'SLRB',
+    chainage: '0.450',
+    canalName: 'L-1 Minor of Perur Major (NSLBC)',
+    location: 'Haliya',
+    district: 'Nalgonda',
+    state: 'GOVERNMENT OF TELANGANA',
+    department: 'IRRIGATION & CAD DEPARTMENT',
+    subDivision: 'Irr.Sub-Division No.3,Miryalaguda',
+    division: 'Irr.Division No.3,Miryalaguda',
+    project: 'Nagarjuna Sagar Project',
+    roadType: 'C.T ROAD',
+    frlNote: 'FRL adopted = avg top of existing Culvert-1 (Ch 400).',
+    // 1. canal data (hydraulic particulars)
+    Q: 0.44, bedWidth: 1.676, fsd: 0.549, sideSlope: 1.5, freeBoard: 0.61,
+    bedFall: 2500, cbl: 145.819, cblExisting: 145.968, manningN: 0.025,
+    bankWidthL: 1.5, bankWidthR: 1.5,
+    // 2. general arrangement
+    span: 3.5, carriageway: 4.25, kerbW: 0.225, kerbH: 0.3, railingLoad: 0.1,
+    bearingW: 0.48, frl: 147.945, gl: 147.545, approachLen: 3.5, approachThk: 0.3,
+    // 3. levels
+    foundationLevel: 144.55, wc: 0.075, D: 0.375, bedBlockT: 0.3, footingT: 0.5,
+    frontBatter: 0.6,
+    // 4. scour
+    siltFactor: 1.0, apronThk: 0.15, liningLen: 15, liningThk: 0.1,
+    // 5. deck slab
+    scbc: 7, sst: 200, modRatio: 10, cover: 0.04, mainDia: 16, mainSpacing: 125,
+    distDia: 10, distSpacing: 150, topDia: 10, topSpacing: 200,
+    // 6. abutment
+    abTopW: 1.0, abBackBatter: 0.9, abToe: 0.5, abHeel: 0.5, gammaSoil: 2.0,
+    phi: 28, surcharge: 1.2, mu: 0.5, sbc: 15,
+    // 7. wing walls
+    wFootT: 0.3, keyW: 0.5, keyD: 0.75, wTopW: 0.45, wFrontBatter: 0.8, wBaseW: 2.5,
+    wToe: 0.3, wHeel: 0.3, wingLen: 2.5,
+  };
+
+  const CARRIAGEWAY = { SLRB: 4.25, DLRB: 7.5 };
+
+  // IRC 21 cl.305.16.2 table - alpha for simply supported slabs vs B/L
+  const ALPHA_TABLE = [
+    [0.1, 0.4], [0.2, 0.8], [0.3, 1.16], [0.4, 1.48], [0.5, 1.72], [0.6, 1.96],
+    [0.7, 2.12], [0.8, 2.24], [0.9, 2.36], [1.0, 2.48], [1.1, 2.6], [1.2, 2.64],
+    [1.3, 2.72], [1.4, 2.8], [1.5, 2.84], [1.6, 2.88], [1.7, 2.92], [1.8, 2.96],
+    [1.9, 3.0], [2.0, 3.0], [9.9, 3.0],
+  ];
+
+  // Same as the sheet: MATCH(...,1) then linear step to the next row (/0.1).
+  function alphaFor(bl) {
+    let i = 0;
+    for (let k = 0; k < ALPHA_TABLE.length; k++) if (ALPHA_TABLE[k][0] <= bl + 1e-12) i = k;
+    if (bl < ALPHA_TABLE[0][0]) return ALPHA_TABLE[0][1];
+    if (i >= ALPHA_TABLE.length - 1) return ALPHA_TABLE[i][1];
+    const [x0, y0] = ALPHA_TABLE[i];
+    const y1 = ALPHA_TABLE[i + 1][1];
+    return y0 + ((bl - x0) / 0.1) * (y1 - y0);
+  }
+
+  const rad = (d) => (d * Math.PI) / 180;
+  const fmt = (v, n = 3) => (typeof v === 'number' && isFinite(v) ? v.toFixed(n) : String(v));
+
+  // Effective width of a row of loads across the deck (IRC 21 cl.305.16).
+  // Each load patch disperses over bef centred on it, limited by deck edges.
+  // Where dispersions overlap they act together (union); where they do not,
+  // the most heavily loaded group governs. Returns load intensity per m width
+  // for a total row load P shared equally by the patches.
+  function rowIntensity(P, xs, bef, B) {
+    const iv = xs.map((x) => [Math.max(0, x - bef / 2), Math.min(B, x + bef / 2)]).sort((a, b) => a[0] - b[0]);
+    const groups = [];
+    for (const [a, b] of iv) {
+      const last = groups[groups.length - 1];
+      if (last && a <= last.b + 1e-9) { last.b = Math.max(last.b, b); last.n++; }
+      else groups.push({ a, b, n: 1 });
+    }
+    const per = P / xs.length;
+    let best = { q: 0, width: 0 };
+    for (const gr of groups) {
+      const q = (per * gr.n) / (gr.b - gr.a);
+      if (q > best.q) best = { q, width: ((gr.b - gr.a) * xs.length) / gr.n };
+    }
+    best.groups = groups.length;
+    return best; // width = equivalent width for the whole row
+  }
+
+  // ------------------------------------------------------------ live loads
+  // Returns the list of vehicles to check for the given carriageway.
+  function vehiclesFor(p, B, L) {
+    const WC = p.wc;
+    const v = [];
+    // IRC Class A train: governing 11.4 t axles, 1.2 m apart; wheels 1.8 m c/c,
+    // tyre 0.25 x 0.50; clearance f = 0.15 m from kerb face (IRC 6 Fig.1).
+    const edge = p.kerbW + 0.15 + 0.25; // wheel centre from deck edge
+    const impA = L <= 3 ? 0.5 : 4.5 / (6 + L); // IRC 6 cl.208.2
+    const trainsA = p.carriageway >= 5.3 ? [1, 2] : [1];
+    for (const n of trainsA) {
+      const xs = [];
+      for (let t = 0; t < n; t++) {
+        const x0 = edge + t * (1.8 + 0.25 + 1.2 + 0.25); // min gap between trains 1.2 m
+        xs.push(x0, x0 + 1.8);
+      }
+      v.push({
+        id: n === 1 ? 'A1' : 'A2',
+        name: n === 1 ? 'IRC Class A (one lane)' : 'IRC Class A (two lanes)',
+        axle: 11.4 * n, axleGap: 1.2, nAxles: 2, xs, impact: impA,
+        cAlong: 0.25 + 2 * WC, b1: 0.5 + 2 * WC, shift: 0.3, tracked: false,
+        brakingFrac: n === 1 ? 0.2 : 0.15, // 20 % first train + 10 % second
+      });
+    }
+    if (p.carriageway >= 5.3) {
+      // IRC Class 70R (IRC 6 Fig.1A), 1.2 m clearance to kerb face for 2-lane.
+      const impTr = L <= 5 ? 0.25 : L <= 9 ? 0.25 - ((L - 5) * 0.15) / 4 : 0.1;
+      const x70 = p.kerbW + 1.2 + 0.42;
+      v.push({
+        id: 'R70T', name: 'IRC Class 70R tracked', P: 70, length: 4.57,
+        xs: [x70, x70 + 2.06], impact: impTr, cAlong: 4.57 + 2 * WC, b1: 0.84 + 2 * WC,
+        tracked: true, brakingFrac: 0.2,
+      });
+      const xb = p.kerbW + 1.2 + 0.43;
+      v.push({
+        id: 'R70W', name: 'IRC Class 70R wheeled (bogie 2 x 20 t)',
+        axle: 20, axleGap: 1.22, nAxles: 2, xs: [xb, xb + 1.93], impact: L < 9 ? 0.25 : 0.25,
+        cAlong: 0.36 + 2 * WC, b1: 0.86 + 2 * WC, shift: 0.305, tracked: false, brakingFrac: 0.2,
+      });
+    }
+    return v;
+  }
+
+  // Live-load BM and support shear per m width for one vehicle.
+  function vehicleEffects(veh, alpha, L, B) {
+    const befAt = (a) => alpha * a * (1 - a / L) + veh.b1;
+    const out = { veh };
+    if (veh.tracked) {
+      const P = veh.P * (1 + veh.impact);
+      const c = veh.cAlong;
+      const bef = befAt(L / 2);
+      const r = rowIntensity(P, veh.xs, bef, B);
+      out.bef = bef; out.width = r.width;
+      const q = P / r.width; // t per m width over contact length c
+      out.M = c >= L ? ((q / c) * L * L) / 8 : q * (L / 4 - c / 8);
+      // shear: track starting at support
+      const cOn = Math.min(c, L);
+      const Pon = P * (cOn / c);
+      const befV = befAt(Math.min(cOn / 2, L / 2));
+      const rV = rowIntensity(Pon, veh.xs, befV, B);
+      out.V = (Pon / rV.width) * (L - cOn / 2) / L;
+      out.detail = { P, c, cOn, Pon, befV, widthV: rV.width };
+      return out;
+    }
+    const P = veh.axle * (1 + veh.impact);
+    const a1 = L / 2 - veh.shift;
+    const a2 = L - a1 - veh.axleGap; // from nearer support
+    const bef1 = befAt(a1);
+    const r1 = rowIntensity(P, veh.xs, bef1, B);
+    const p1 = P / r1.width;
+    let bef2 = 0, w2 = 0, p2 = 0;
+    const second = a2 > 0;
+    if (second) {
+      bef2 = befAt(a2);
+      const r2 = rowIntensity(P, veh.xs, bef2, B);
+      w2 = r2.width; p2 = P / w2;
+    }
+    const RA = (p1 * (L - a1) + (second ? p2 * a2 : 0)) / L;
+    out.M = RA * a1 - (p1 * veh.cAlong) / 8;
+    Object.assign(out, { P, a1, a2, bef1, bef2, w1: r1.width, w2, p1, p2, RA, second });
+    // shear: first axle at 0.40 m, second at 0.40 + gap
+    const s1 = 0.4, s2 = 0.4 + veh.axleGap;
+    const bs1 = befAt(s1);
+    const ws1 = rowIntensity(P, veh.xs, bs1, B).width;
+    let V = (P / ws1) * (L - s1) / L;
+    let bs2 = 0, ws2 = 0;
+    if (s2 < L) {
+      bs2 = befAt(s2);
+      ws2 = rowIntensity(P, veh.xs, bs2, B).width;
+      V += (P / ws2) * (L - s2) / L;
+    }
+    out.V = V;
+    out.shear = { s1, s2, bs1, bs2, ws1, ws2 };
+    return out;
+  }
+
+  // Reaction (t, whole deck, no impact - IRC 6 cl.208.4) and braking (t, whole
+  // deck, shared by the 2 abutments) on one abutment, per vehicle.
+  function abutmentLL(veh, Lcb) {
+    if (veh.tracked) {
+      const cOn = Math.min(veh.length, Lcb);
+      const Pon = veh.P * (cOn / veh.length);
+      return { R: Pon * (1 - cOn / 2 / Lcb), Hb: (veh.brakingFrac * Pon) / 2 };
+    }
+    const R = veh.axle + (veh.axleGap < Lcb ? (veh.axle * (Lcb - veh.axleGap)) / Lcb : 0);
+    const onSpan = veh.axle * (veh.axleGap < Lcb ? 2 : 1);
+    let Hb;
+    if (veh.id === 'A2') Hb = ((0.2 * onSpan) / 2 + (0.1 * onSpan) / 2) / 2; // 20 % 1st + 10 % 2nd train
+    else Hb = (veh.brakingFrac * onSpan) / 2;
+    return { R, Hb };
+  }
+
+  // ------------------------------------------------------------ main design
+  function design(input) {
+    const p = Object.assign({}, DEFAULTS, input || {});
+    for (const k of Object.keys(DEFAULTS)) if (typeof DEFAULTS[k] === 'number') p[k] = Number(p[k]);
+    const isD = p.bridgeType === 'DLRB';
+    const R = {}; // results
+    const secs = [];
+    let cur;
+    const sec = (title) => { cur = { title, rows: [] }; secs.push(cur); };
+    const row = (label, value, unit = '', remark = '', opt = {}) => {
+      cur.rows.push(Object.assign({ label, value, unit, remark }, opt));
+      return value;
+    };
+    const inp = (label, key, unit, remark) => row(label, p[key], unit, remark, { input: key });
+    const chk = (label, ok, text, remark) => row(label, text, '', remark || '', { check: true, ok: !!ok });
+    const warnings = [];
+
+    // 1. canal data
+    sec(`1. CANAL DATA AT SITE (Km ${p.chainage})`);
+    inp('Design discharge Q', 'Q', 'cumecs', 'Approved HP statement');
+    inp('Bed width', 'bedWidth', 'm');
+    inp('Full supply depth FSD', 'fsd', 'm');
+    inp('Side slopes (H:V)', 'sideSlope', '');
+    inp('Free board', 'freeBoard', 'm');
+    inp('Bed fall 1 in', 'bedFall', '');
+    inp(`Design CBL at Km ${p.chainage}`, 'cbl', 'm');
+    inp(`Existing CBL at Km ${p.chainage}`, 'cblExisting', 'm');
+    R.fsl = row('FSL = CBL + FSD', p.cbl + p.fsd, 'm');
+    R.tbl = row('TBL = FSL + FB', R.fsl + p.freeBoard, 'm');
+    R.topFSL = row('Top width at FSL', p.bedWidth + 2 * p.sideSlope * p.fsd, 'm');
+    R.topTBL = row('Top width at TBL', p.bedWidth + 2 * p.sideSlope * (p.fsd + p.freeBoard), 'm');
+    R.area = row('Canal waterway area at FSL', (p.bedWidth + p.sideSlope * p.fsd) * p.fsd, 'sqm');
+    R.vel = row('Velocity', p.Q / R.area, 'm/s');
+    R.spanSuggested = Math.max(2, Math.ceil((R.topFSL - 1e-9) / 0.5) * 0.5);
+
+    // 2. general arrangement
+    sec('2. GENERAL ARRANGEMENT');
+    row('Clear span (single vent)', p.span, 'm', `> top width at FSL; no pier in canal (suggested ${fmt(R.spanSuggested, 2)} m)`, { input: 'span' });
+    inp(`Carriageway width (IRC 5 ${isD ? 'two lane' : 'single lane'})`, 'carriageway', 'm', 'IRC 5 cl.104.3.1');
+    inp('Kerb width (each side)', 'kerbW', 'm', 'IRC 5 min 225 mm');
+    inp('Kerb height above deck', 'kerbH', 'm', 'Projects 225 mm above road');
+    inp('Hand railing (MOST SD/202) load per side', 'railingLoad', 't/m', 'RCC posts + GI pipes');
+    R.B = row('Overall deck width B', p.carriageway + 2 * p.kerbW, 'm');
+    inp('Bearing width on each abutment (bed block 500 - 20 joint)', 'bearingW', 'm');
+    R.deckL = row('Overall deck length', p.span + 2 * p.bearingW, 'm');
+    inp('Proposed road level (FRL)', 'frl', 'm', p.frlNote);
+    inp('Ground level at site', 'gl', 'm');
+    inp(`Approach slab ${fmt(p.approachThk * 1000, 0)} thk x ${fmt(p.approachLen, 2)} m each side (M20)`, 'approachLen', 'm', '20 mm expansion joint at deck ends');
+    if (p.span < R.topFSL) warnings.push(`Clear span ${fmt(p.span, 2)} m is less than canal top width at FSL ${fmt(R.topFSL, 3)} m.`);
+    if (p.span > 8) warnings.push('Clear span above 8 m: the solid slab / effective width loading used here is intended for short spans; get the design checked.');
+
+    // 3. levels
+    sec('3. LEVELS');
+    inp('Foundation (base) level adopted', 'foundationLevel', 'm', 'Checked against scour in section 4');
+    inp('Wearing coat thickness (M20)', 'wc', 'm');
+    inp('Deck slab overall thickness D', 'D', 'm');
+    R.deckTop = row('Deck top level', p.frl - p.wc, 'm');
+    R.soffit = row('Soffit / bed block top level', R.deckTop - p.D, 'm');
+    R.okSoffit = R.soffit >= R.tbl;
+    R.frlMin = R.tbl + p.D + p.wc;
+    chk('Check soffit >= TBL', R.okSoffit, R.okSoffit ? `OK - clearance ${fmt(R.soffit - R.tbl)} m above TBL` : `REVISE - raise FRL to at least +${fmt(R.frlMin)}`);
+    R.clearFSL = row('Vertical clearance soffit above FSL', R.soffit - R.fsl, 'm', 'IRC 5 cl.106: > FB for canal');
+    inp('Bed block thickness (RCC M20)', 'bedBlockT', 'm');
+    R.stemTop = row('Bed block bottom / stem top level', R.soffit - p.bedBlockT, 'm');
+    inp('Footing thickness (PCC M15)', 'footingT', 'm');
+    R.ftgTop = row('Footing top / stem bottom level', p.foundationLevel + p.footingT, 'm');
+    R.stemH = row('Height of abutment stem', R.stemTop - R.ftgTop, 'm');
+    R.abTop = row('Abutment top (dirt wall part) = deck top level', R.deckTop, 'm', 'Approach slab butts against it');
+    R.approachBot = row('Approach slab bottom level', R.deckTop - p.approachThk, 'm');
+    R.H = row('Overall height (FRL to foundation base)', p.frl - p.foundationLevel, 'm');
+    inp('Front (water face) batter of abutment', 'frontBatter', 'm');
+    const clearAt = (lvl) => p.span - 2 * p.frontBatter * (1 - (lvl - R.ftgTop) / R.stemH);
+    R.clearCBL = row('Clear width between abutments at CBL', clearAt(p.cbl), 'm');
+    R.clearFSLw = row('Clear width between abutments at FSL', clearAt(R.fsl), 'm', '>= canal top width at FSL');
+
+    // 4. vent way / scour
+    sec('4. VENTWAY, SCOUR AND FOUNDATION LEVEL (IRC 5 / IRC 78)');
+    R.ventArea = row('Vent area at FSL = avg clear width x FSD', ((R.clearCBL + R.clearFSLw) / 2) * p.fsd, 'sqm');
+    R.ratio = row('Ratio canal area / vent area', R.area / R.ventArea, '', R.area / R.ventArea < 1 ? '< 1 : vent wider than canal, no contraction' : 'Contraction - afflux computed');
+    R.afflux = row('Afflux (Molesworth)', Math.max(0, (R.vel ** 2 / 17.88 + 0.01524) * ((R.area / R.ventArea) ** 2 - 1)), 'm');
+    R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
+    inp('Silt factor f', 'siltFactor', '', 'Assumed; confirm by soil test');
+    R.q = row('Discharge per m width q (on width at bed)', R.Qs / R.clearCBL, 'cumec/m');
+    R.dsm = row('Normal scour depth dsm = 1.34 (q^2/f)^(1/3)', 1.34 * Math.cbrt(R.q ** 2 / p.siltFactor), 'm', 'Lacey');
+    R.maxScourD = row('Max scour depth at abutment = 1.27 dsm', 1.27 * R.dsm, 'm', 'IRC 78 cl.703.3.1');
+    R.msl = row('Max scour level = FSL - 1.27 dsm', R.fsl - R.maxScourD, 'm');
+    R.flScour = row('Foundation level required <= MSL - 1.20 m', R.msl - 1.2, 'm', 'IRC 78 cl.705.2.1.1');
+    R.flApron = row(`With rigid CC apron between abutments + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= apron bottom - 1.0 m (IRC SP:13)`, p.cbl - p.apronThk - 1, 'm', 'Floor-protected culvert criterion');
+    const okS = p.foundationLevel <= R.flScour + 0.01, okA = p.foundationLevel <= R.flApron + 0.001;
+    R.okFound = okS || okA;
+    chk('Check foundation level', R.okFound, R.okFound ? 'OK' + (okS ? '' : ' (apron-protected criterion governs)') : 'REVISE');
+    R.flSuggested = Math.floor((Math.max(R.flScour + 0.01, R.flApron) + 1e-9) / 0.05) * 0.05;
+    R.foundDepth = row('Depth of foundation below design CBL', p.cbl - p.foundationLevel, 'm', 'BC soil: kept > 1.0 m');
+    row(`Curtain walls at u/s & d/s ends of apron/lining: CC M15 300 thk x 1000 deep`, 'provided', '', 'IRC SP:13 / IRC 89 floor protection');
+    const totLen = R.deckL;
+    row('Seismic check (IRC 6-2017 cl.219.1)', p.span < 15 && totLen < 60 ? 'Not required' : 'Required', '', 'Seismic Zone II, span < 15 m, total length < 60 m');
+
+    // 5. deck slab
+    sec('5. DESIGN OF DECK SLAB (IRC 21 WSM, effective width method IRC 21 cl.305.16)');
+    inp('Concrete M20: sigma cbc', 'scbc', 'N/sqmm', 'IRC 21 Table 9');
+    inp('Steel Fe415: sigma st', 'sst', 'N/sqmm', 'IRC 21 cl.303.2');
+    inp('Modular ratio m', 'modRatio', '', 'IRC 21');
+    R.k = row('k = m.scbc/(m.scbc+sst)', (p.modRatio * p.scbc) / (p.modRatio * p.scbc + p.sst));
+    R.j = row('j = 1 - k/3', 1 - R.k / 3);
+    R.Qc = row('Q = 0.5 scbc k j', 0.5 * p.scbc * R.k * R.j, 'N/sqmm');
+    inp('Clear cover', 'cover', 'm', 'IRC 21 cl.304.3');
+    inp('Main bar dia', 'mainDia', 'mm');
+    R.d = row('Effective depth d', p.D * 1000 - p.cover * 1000 - p.mainDia / 2, 'mm');
+    const L = (R.Leff = row('Effective span = least of (clear span + d) and c/c bearings', Math.min(p.span + R.d / 1000, p.span + p.bearingW), 'm', 'IRC 21 cl.305.10.1'));
+    const B = R.B;
+    R.BL = row('B / L', B / L);
+    R.alpha = row('alpha (IRC 21 cl.305.16.2 table)', alphaFor(B / L));
+    const vehicles = vehiclesFor(p, B, L);
+    R.vehicles = vehicles.map((v) => vehicleEffects(v, R.alpha, L, B));
+    R.DLw = (p.D * 2.5 + p.wc * 2.2);
+    R.MDL = (R.DLw * L * L) / 8;
+
+    // show the sheet's Class A (one lane) working in full, other vehicles summarised
+    const ea = R.vehicles[0];
+    const va = ea.veh;
+    row('Impact factor Class A = 4.5/(6+L)', va.impact, '', 'IRC 6 cl.208.2');
+    row('Class A heaviest axle', 11.4, 't', 'IRC 6 Fig.1');
+    row('Axle with impact P', ea.P, 't');
+    row('Tyre contact along span', 0.25, 'm');
+    row('Tyre contact across span', 0.5, 'm');
+    row('Loaded length along span = 0.25 + 2 WC', va.cAlong, 'm');
+    row('b1 = 0.50 + 2 WC', va.b1, 'm');
+    row('Clearance wheel to kerb face', 0.15, 'm', 'IRC 6 Fig.1');
+    row('Wheel c/c across', 1.8, 'm');
+    row('Wheel centre to deck edge', va.xs[0], 'm');
+    row('Wheel centre to far edge beyond inner wheel', B - va.xs[1], 'm');
+    row('(a) Maximum bending moment: two 11.4 t axles, 1.2 m apart, placed for max BM', '', '', '', { sub: true });
+    row('Axle 1 distance from support a1 = L/2 - 0.30', ea.a1, 'm');
+    row('Axle 2 distance from nearer support a2', ea.a2, 'm');
+    row('bef1 = alpha.a1(1-a1/L)+b1', ea.bef1, 'm');
+    row('bef2 = alpha.a2(1-a2/L)+b1', ea.bef2, 'm');
+    row('Width for axle 1 (both wheels, overlapping, edge limited)', ea.w1, 'm');
+    row('Width for axle 2', ea.w2, 'm');
+    row('Load per m width, axle 1', ea.p1, 't/m');
+    row('Load per m width, axle 2', ea.p2, 't/m');
+    row('Reaction RA', ea.RA, 't');
+    row('LL moment under axle 1 = RA.a1 - P1.c/8', ea.M, 't-m/m');
+    let gov = ea;
+    if (R.vehicles.length > 1) {
+      row('Other live loads for this carriageway (IRC 6 Table 6A)', '', '', '', { sub: true });
+      for (const e of R.vehicles.slice(1)) {
+        const v = e.veh;
+        if (v.tracked) {
+          row(`${v.name}: impact ${fmt(v.impact * 100, 1)} %, P = ${fmt(e.detail.P, 2)} t over ${fmt(v.cAlong, 2)} m, bef at L/2 = ${fmt(e.bef, 3)} m, width = ${fmt(e.width, 3)} m`, e.M, 't-m/m', 'LL moment');
+        } else {
+          row(`${v.name}: impact ${fmt(v.impact * 100, 1)} %, P = ${fmt(e.P, 2)} t/axle, widths ${fmt(e.w1, 3)} / ${fmt(e.w2, 3)} m`, e.M, 't-m/m', 'LL moment');
+        }
+        if (e.M > gov.M) gov = e;
+      }
+      row('Governing live load for bending', gov.veh.name, '', '');
+    }
+    R.govM = gov;
+    R.MLL = gov.M;
+    row('Dead load: slab + wearing coat', R.DLw, 't/sqm');
+    row('DL moment = w L^2/8', R.MDL, 't-m/m');
+    R.M = row('Total design moment M', R.MLL + R.MDL, 't-m/m');
+    R.MkN = row('M in kN-m', R.M * 9.81, 'kN-m/m');
+    R.dReq = row('d required = sqrt(M/Q.b)', Math.sqrt((R.MkN * 1e6) / (R.Qc * 1000)), 'mm');
+    R.okDepth = R.dReq <= R.d;
+    chk('Check depth', R.okDepth, R.okDepth ? `OK  (${fmt(R.dReq, 0)} < ${fmt(R.d, 0)} mm)` : `REVISE (${fmt(R.dReq, 0)} > ${fmt(R.d, 0)} mm)`);
+    R.AstReq = row('Ast required = M/(sst.j.d)', (R.MkN * 1e6) / (p.sst * R.j * R.d), 'sqmm/m');
+    row('Main bar spacing adopted', p.mainSpacing, 'mm', `${p.mainDia} dia straight, bottom`, { input: 'mainSpacing' });
+    R.AstProv = row('Ast provided', ((Math.PI / 4) * p.mainDia ** 2 * 1000) / p.mainSpacing, 'sqmm/m');
+    R.okAst = R.AstProv >= R.AstReq;
+    chk('Check main steel', R.okAst, R.okAst ? 'OK' : 'REVISE');
+    row('(b) Shear: first axle at 0.40 m from support, second at 1.60 m', '', '', '', { sub: true });
+    if (ea.shear) {
+      row('bef at 0.40 m', ea.shear.bs1, 'm');
+      row(`bef at ${fmt(ea.shear.s2, 2)} m`, ea.shear.bs2, 'm');
+      row('Width axle 1', ea.shear.ws1, 'm', 'wheel dispersions combined only where they overlap');
+      row('Width axle 2', ea.shear.ws2, 'm');
+    }
+    let govV = ea;
+    for (const e of R.vehicles) if (e.V > govV.V) govV = e;
+    if (R.vehicles.length > 1) row('Governing live load for shear', govV.veh.name, '', `LL shear ${fmt(govV.V, 3)} t/m`);
+    R.V = row('Shear at support V = LL + DL', govV.V + (R.DLw * L) / 2, 't/m');
+    R.tv = row('Nominal shear stress tv', (R.V * 9.81 * 1000) / (1000 * R.d), 'N/sqmm');
+    R.pt = row('p = 100 Ast/bd', (100 * R.AstProv) / (1000 * R.d), '%');
+    const pt = R.pt;
+    R.tc = row('Permissible tc (M20, IS 456 Table 23 / IRC 21 Table 12B)', pt <= 0.25 ? 0.18 + (pt - 0.15) * 0.4 : pt <= 0.5 ? 0.22 + (pt - 0.25) * 0.32 : 0.3 + (pt - 0.5) * 0.2, 'N/sqmm');
+    R.okShear = R.tv <= R.tc;
+    chk('Check shear (no shear reinforcement needed)', R.okShear, R.okShear ? 'OK' : 'PROVIDE SHEAR STEEL / INCREASE D');
+    row('(c) Distribution steel', '', '', '', { sub: true });
+    R.Md = row('Md = 0.3 M(LL) + 0.2 M(DL)', 0.3 * R.MLL + 0.2 * R.MDL, 't-m/m', 'IRC 21 cl.305.18');
+    R.AstD = row(`Ast required (d - ${fmt((p.mainDia + p.distDia) / 2, 0)} mm)`, (R.Md * 9.81 * 1e6) / (p.sst * R.j * (R.d - (p.mainDia + p.distDia) / 2)), 'sqmm/m');
+    R.AstMin = row('Minimum 0.12% bD', 0.0012 * 1000 * p.D * 1000, 'sqmm/m');
+    R.AstDProv = row(`Provided ${p.distDia} dia @ ${p.distSpacing} c/c (bottom)`, ((Math.PI / 4) * p.distDia ** 2 * 1000) / p.distSpacing, 'sqmm/m');
+    R.okDist = R.AstDProv >= Math.max(R.AstD, R.AstMin);
+    chk('Check distribution', R.okDist, R.okDist ? 'OK' : 'REVISE');
+    R.AstTop = row(`Top steel both ways ${p.topDia} dia @ ${p.topSpacing} c/c (temperature)`, ((Math.PI / 4) * p.topDia ** 2 * 1000) / p.topSpacing, 'sqmm/m');
+
+    // 6. abutment
+    sec('6. ABUTMENT (CC M15 with 15% plums) - STABILITY (IRC 78, per m length)');
+    inp('Stem top width at bed block level (bed block 0.50 + dirt wall part 0.50)', 'abTopW', 'm');
+    inp('Back batter projection', 'abBackBatter', 'm');
+    R.stemBase = row('Stem base width', p.frontBatter + p.abTopW + p.abBackBatter, 'm');
+    inp('Footing toe projection', 'abToe', 'm');
+    inp('Footing heel projection', 'abHeel', 'm');
+    R.ftgW = row('Footing width', p.abToe + R.stemBase + p.abHeel, 'm');
+    inp('Unit wt of soil', 'gammaSoil', 't/cum', 'PCC 2.4 / RCC 2.5');
+    inp('Angle of internal friction', 'phi', 'deg', 'Assumed for back fill');
+    R.Ka = row('Ka (Rankine)', (1 - Math.sin(rad(p.phi))) / (1 + Math.sin(rad(p.phi))));
+    R.Kp = row('Kp = 1/Ka', 1 / R.Ka);
+    inp('LL surcharge equivalent height', 'surcharge', 'm', 'IRC 6 cl.214.1.1.3');
+    inp('Coefficient of friction (concrete on soil)', 'mu', '');
+    inp('Safe bearing capacity (assumed)', 'sbc', 't/sqm', 'To be confirmed by trial pit');
+    row('Vertical loads (t) and lever arms from toe (m)', 'W (t)', '', 'arm x (m) from toe', { sub: true });
+    const toe = p.abToe, fb = p.frontBatter;
+    const W = [];
+    const wrow = (label, w, x) => { W.push({ label, w, x }); row(label, w, 't', `x = ${fmt(x, 3)} m`); return { w, x }; };
+    wrow('Footing', R.ftgW * p.footingT * 2.4, R.ftgW / 2);
+    wrow('Stem - front triangle', 0.5 * fb * R.stemH * 2.4, toe + (2 * fb) / 3);
+    wrow('Stem - rectangle below bed block level', p.abTopW * R.stemH * 2.4, toe + fb + p.abTopW / 2);
+    wrow('Stem - top part behind bed block (0.50 wide) up to deck top', 0.5 * (R.abTop - R.stemTop) * 2.4, toe + fb + 0.75);
+    wrow('Stem - back triangle', 0.5 * p.abBackBatter * (R.abTop - R.ftgTop) * 2.4, toe + fb + p.abTopW + p.abBackBatter / 3);
+    wrow('Bed block 0.50 x 0.30 (RCC)', 0.5 * p.bedBlockT * 2.5, toe + fb + 0.25);
+    wrow('Soil over back batter', 0.5 * p.abBackBatter * (R.abTop - R.ftgTop) * p.gammaSoil, toe + fb + p.abTopW + (2 * p.abBackBatter) / 3);
+    wrow('Soil over heel', p.abHeel * (p.frl - R.ftgTop) * p.gammaSoil, toe + R.stemBase + p.abHeel / 2);
+    const deckDL = ((p.D * 2.5 * B + p.wc * 2.2 * p.carriageway + 2 * (p.kerbW * p.kerbH * 2.5 + p.railingLoad)) * R.deckL / 2) / B;
+    const xBrg = toe + fb + p.bearingW / 2;
+    wrow('Deck DL reaction (slab + WC + kerbs + railing)', deckDL, xBrg);
+    const Lcb = p.span + p.bearingW;
+    R.LLcases = vehicles.map((v) => {
+      const a = abutmentLL(v, Lcb);
+      return { name: v.name, id: v.id, R: a.R / B, Hb: a.Hb / B };
+    });
+    for (const c of R.LLcases) row(`LL reaction ${c.name}, no impact at fdn (IRC 6 cl.208.4)`, c.R, 't', `x = ${fmt(xBrg, 3)} m`);
+    row('Horizontal forces (t) and lever arms above base (m)', '', '', '', { sub: true });
+    const Pa = 0.5 * R.Ka * p.gammaSoil * R.H ** 2, yPa = R.H / 3;
+    const Ps = R.Ka * p.gammaSoil * p.surcharge * R.H, yPs = R.H / 2;
+    const yBr = R.soffit - p.foundationLevel;
+    row('Active earth pressure 0.5 Ka g H^2 (H = FRL - base)', Pa, 't', `y = ${fmt(yPa, 3)} m`);
+    row('LL surcharge Ka g h H', Ps, 't', `y = ${fmt(yPs, 3)} m`);
+    for (const c of R.LLcases) row(`Braking - ${c.name}, shared by 2 abutments, at bearing level`, c.Hb, 't', `y = ${fmt(yBr, 3)} m`);
+    const sumV1 = W.reduce((s, o) => s + o.w, 0);
+    const sumMR1 = W.reduce((s, o) => s + o.w * o.x, 0);
+    const sumH1 = Pa + Ps, sumMO1 = Pa * yPa + Ps * yPs;
+    const stab = (V, MR, H, MO) => {
+      const e = R.ftgW / 2 - (MR - MO) / V;
+      return { V, MR, H, MO, fosO: MR / MO, fosS: (p.mu * V) / H, e, pmax: (V / R.ftgW) * (1 + (6 * e) / R.ftgW), pmin: (V / R.ftgW) * (1 - (6 * e) / R.ftgW) };
+    };
+    const cases = [Object.assign({ name: 'Case 1: span unloaded' }, stab(sumV1, sumMR1, sumH1, sumMO1))];
+    for (const c of R.LLcases) {
+      cases.push(Object.assign({ name: `Case 2: ${c.name} on span` }, stab(sumV1 + c.R, sumMR1 + c.R * xBrg, sumH1 + c.Hb, sumMO1 + c.Hb * yBr)));
+    }
+    R.abCases = cases;
+    for (const c of cases) {
+      row(c.name, '', '', '', { sub: true });
+      row('Sum V', c.V, 't'); row('Sum MR', c.MR, 't-m'); row('Sum H', c.H, 't'); row('Sum MO', c.MO, 't-m');
+      chk('FOS overturning (>= 2.0)', c.fosO >= 2, fmt(c.fosO, 2), 'IRC 78 cl.706.3.4');
+      chk('FOS sliding (>= 1.5)', c.fosS >= 1.5, fmt(c.fosS, 2), 'IRC 78 cl.706.3.4 (no shear key)');
+      row('Eccentricity e', c.e, 'm', `< B/6 = ${fmt(R.ftgW / 6, 3)}`);
+      chk(`Max base pressure (<= SBC ${fmt(p.sbc, 1)})`, c.pmax <= p.sbc, fmt(c.pmax, 2) + ' t/sqm');
+      chk('Min base pressure (>= 0, no tension)', c.pmin >= 0, fmt(c.pmin, 2) + ' t/sqm');
+    }
+    R.okAb = cases.every((c) => c.fosO >= 2 && c.fosS >= 1.5 && c.pmax <= p.sbc && c.pmin >= 0);
+    chk('ABUTMENT RESULT', R.okAb, R.okAb ? 'ALL CHECKS OK' : 'REVISE');
+    // stem check at footing top (plain concrete, no tension), each loaded case
+    row('Stem base check at footing top (free cantilever, plain concrete - no tension)', '', '', '', { sub: true });
+    const stemW = W.slice(1); // excl footing & soil over heel (removed below)
+    const Wst = stemW.filter((o) => o.label !== 'Soil over heel');
+    const hSt = (R.hStem = p.frl - R.ftgTop);
+    const MoSt0 = (0.5 * R.Ka * p.gammaSoil * hSt ** 3) / 3 + (R.Ka * p.gammaSoil * p.surcharge * hSt ** 2) / 2;
+    R.stemCases = R.LLcases.map((c) => {
+      const V = Wst.reduce((s, o) => s + o.w, 0) + c.R;
+      const M = Wst.reduce((s, o) => s + o.w * (o.x - toe), 0) + c.R * (xBrg - toe);
+      const Mo = MoSt0 + c.Hb * (R.soffit - R.ftgTop);
+      const e = R.stemBase / 2 - (M - Mo) / V;
+      return { name: c.name, V, M, Mo, e, smax: (V / R.stemBase) * (1 + (6 * e) / R.stemBase), smin: (V / R.stemBase) * (1 - (6 * e) / R.stemBase) };
+    });
+    let gs = R.stemCases[0];
+    for (const s of R.stemCases) if (s.smin < gs.smin) gs = s;
+    R.stemGov = gs;
+    row('Governing load', gs.name, '');
+    row('V at stem base', gs.V, 't');
+    row('M of V about stem front edge', gs.M, 't-m');
+    row('Height of earth on stem h = FRL - footing top', hSt, 'm');
+    row('Overturning M at stem base', gs.Mo, 't-m');
+    row('e at stem base', gs.e, 'm', `< B/6 = ${fmt(R.stemBase / 6, 3)}`);
+    row('Max compressive stress', gs.smax, 't/sqm', 'Permissible M15 = 400 t/sqm');
+    row('Min stress (>= 0, no tension)', gs.smin, 't/sqm');
+    R.okStem = R.stemCases.every((s) => s.smin >= 0 && s.smax <= 400);
+    chk('STEM RESULT', R.okStem, R.okStem ? 'OK' : 'REVISE');
+
+    // 7. wing walls
+    sec('7. SPLAYED WING WALLS (CC M15 with plums) - max section at abutment end; returns 1000 x 1100');
+    inp('Wing footing thickness', 'wFootT', 'm');
+    R.wFtgTop = row('Wing footing top level', p.foundationLevel + p.wFootT, 'm');
+    inp('Shear key below wing footing: width', 'keyW', 'm');
+    inp('Shear key depth', 'keyD', 'm');
+    const dk = p.cbl - p.foundationLevel;
+    R.Pkey = row('Passive resistance of shear key (FOS 2 applied)', (0.5 * R.Kp * p.gammaSoil * ((dk + p.keyD) ** 2 - dk ** 2)) / 2, 't');
+    inp('Top width', 'wTopW', 'm');
+    inp('Front batter projection', 'wFrontBatter', 'm');
+    inp('Bottom width of stem', 'wBaseW', 'm');
+    R.wBack = row('Back batter projection', p.wBaseW - p.wTopW - p.wFrontBatter, 'm');
+    inp('Toe projection', 'wToe', 'm');
+    inp('Heel projection', 'wHeel', 'm');
+    R.wH = row('Stem height (FRL - wing footing top)', p.frl - R.wFtgTop, 'm');
+    R.wFtgW = row('Footing width', p.wToe + p.wBaseW + p.wHeel, 'm');
+    if (R.wBack < 0) warnings.push('Wing wall: back batter is negative - increase bottom width.');
+    const wt = p.wToe, wh = R.wH;
+    const WW = [
+      ['Footing', R.wFtgW * p.wFootT * 2.4, R.wFtgW / 2],
+      ['Stem front triangular', 0.5 * p.wFrontBatter * wh * 2.4, wt + (2 * p.wFrontBatter) / 3],
+      ['Stem rectangular', p.wTopW * wh * 2.4, wt + p.wFrontBatter + p.wTopW / 2],
+      ['Stem back triangular', 0.5 * R.wBack * wh * 2.4, wt + p.wFrontBatter + p.wTopW + R.wBack / 3],
+      ['Soil over back batter', 0.5 * R.wBack * wh * p.gammaSoil, wt + p.wBaseW - R.wBack / 3],
+      ['Soil over heel', p.wHeel * wh * p.gammaSoil, wt + p.wBaseW + p.wHeel / 2],
+    ];
+    for (const [l, w, x] of WW) row(l, w, 't', `x = ${fmt(x, 3)} m`);
+    const wV = WW.reduce((s, o) => s + o[1], 0), wMR = WW.reduce((s, o) => s + o[1] * o[2], 0);
+    R.w = { V: wV, MR: wMR, H: sumH1, MO: sumMO1 };
+    row('Sum V', wV, 't'); row('Sum MR', wMR, 't-m');
+    row('Sum H (earth + surcharge)', sumH1, 't'); row('Sum MO', sumMO1, 't-m');
+    R.w.fosO = wMR / sumMO1;
+    R.w.fosS = (p.mu * wV + R.Pkey) / sumH1;
+    R.w.e = R.wFtgW / 2 - (wMR - sumMO1) / wV;
+    R.w.pmax = (wV / R.wFtgW) * (1 + (6 * R.w.e) / R.wFtgW);
+    R.w.pmin = (wV / R.wFtgW) * (1 - (6 * R.w.e) / R.wFtgW);
+    chk('FOS overturning (>= 2.0)', R.w.fosO >= 2, fmt(R.w.fosO, 2));
+    chk('FOS sliding incl. shear key (>= 1.5)', R.w.fosS >= 1.5, fmt(R.w.fosS, 2));
+    row('e', R.w.e, 'm');
+    chk(`Max base pressure (<= SBC ${fmt(p.sbc, 1)})`, R.w.pmax <= p.sbc, fmt(R.w.pmax, 2) + ' t/sqm');
+    chk('Min base pressure (>= 0)', R.w.pmin >= 0, fmt(R.w.pmin, 2) + ' t/sqm');
+    row('Wing stem base check (free cantilever, plain concrete - no tension)', '', '', '', { sub: true });
+    const WS = WW.slice(1, 5);
+    const sV = WS.reduce((s, o) => s + o[1], 0), sM = WS.reduce((s, o) => s + o[1] * (o[2] - wt), 0);
+    const sMo = (0.5 * R.Ka * p.gammaSoil * wh ** 3) / 3 + (R.Ka * p.gammaSoil * p.surcharge * wh ** 2) / 2;
+    const se = p.wBaseW / 2 - (sM - sMo) / sV;
+    R.ws = { V: sV, M: sM, Mo: sMo, e: se, smax: (sV / p.wBaseW) * (1 + (6 * se) / p.wBaseW), smin: (sV / p.wBaseW) * (1 - (6 * se) / p.wBaseW) };
+    row('V at stem base', sV, 't'); row('M of V about stem front edge', sM, 't-m');
+    row('Overturning M at stem base', sMo, 't-m'); row('e at stem base', se, 'm');
+    row('Max compressive stress', R.ws.smax, 't/sqm');
+    row('Min stress (>= 0)', R.ws.smin, 't/sqm');
+    R.okWing = R.w.fosO >= 2 && R.w.fosS >= 1.5 && R.w.pmax <= p.sbc && R.w.pmin >= 0 && R.ws.smin >= 0;
+    chk('WING WALL RESULT', R.okWing, R.okWing ? 'ALL CHECKS OK' : 'REVISE');
+    R.wFreeH = row('Wing wall at free end: stem height (tapers to ground level)', (p.frl + p.gl) / 2 - R.wFtgTop, 'm', 'Section reduced in proportion');
+
+    // 8. summary
+    sec('8. SUMMARY OF ADOPTED DESIGN');
+    const abWorst = {
+      fosO: Math.min(...cases.map((c) => c.fosO)), fosS: Math.min(...cases.map((c) => c.fosS)),
+      pmax: Math.max(...cases.map((c) => c.pmax)), pmin: Math.min(...cases.map((c) => c.pmin)),
+    };
+    R.abWorst = abWorst;
+    R.summary = [
+      ['Vent', `1 No. x ${fmt(p.span, 2)} m clear span, RCC solid slab, simply supported`],
+      ['Deck', `${fmt(p.D * 1000, 0)} mm RCC M20, ${fmt(R.deckL, 2)} m long x ${fmt(B, 2)} m wide; ${p.mainDia} dia @ ${p.mainSpacing} c/c main, ${p.distDia} dia @ ${p.distSpacing} distribution, ${p.topDia} dia @ ${p.topSpacing} top`],
+      ['Live load', isD ? `2-lane Class A / 1-lane Class 70R (governing: ${gov.veh.name})` : 'IRC Class A (single lane)'],
+      ['Wearing coat / kerb / railing', `${fmt(p.wc * 1000, 0)} mm M20; RCC kerb ${fmt(p.kerbW * 1000, 0)} x ${fmt(p.kerbH * 1000, 0)}; hand railing as per MOST SD/202`],
+      ['Approach slabs', `${fmt(p.approachThk * 1000, 0)} mm RCC M20, ${fmt(p.approachLen, 2)} m long each side, 12 dia @ 150 T&B both ways; 20 mm expansion joints`],
+      ['Abutments', `${fmt(p.abTopW, 2)} top / ${fmt(R.stemBase, 2)} base (front batter ${fmt(fb, 2)}, back ${fmt(p.abBackBatter, 2)}), CC M15 plums, stem ${fmt(R.stemH)} m, on ${fmt(R.ftgW, 2)} x ${fmt(p.footingT, 2)} PCC M15 footing`],
+      ['Bed blocks', 'RCC M20 500 x 300, 10 dia @ 150 T&B both ways'],
+      ['Wing walls', `${fmt(p.wTopW, 2)} top / ${fmt(p.wBaseW, 2)} base (front batter ${fmt(p.wFrontBatter, 2)}), footing ${fmt(R.wFtgW, 2)} x ${fmt(p.wFootT, 2)} + shear key ${fmt(p.keyW, 2)} x ${fmt(p.keyD, 2)}; returns 1000 x 1100`],
+      ['Levels', `FRL +${fmt(p.frl)},  soffit +${fmt(R.soffit)},  TBL +${fmt(R.tbl)},  FSL +${fmt(R.fsl)},  CBL +${fmt(p.cbl)},  foundation +${fmt(p.foundationLevel)}`],
+      ['Abutment checks', `FOS overturning ${fmt(abWorst.fosO, 2)}, sliding ${fmt(abWorst.fosS, 2)}, base pressure ${fmt(abWorst.pmax, 2)} / ${fmt(abWorst.pmin, 2)} t/sqm, stem ${fmt(gs.smax, 2)} / ${fmt(gs.smin, 2)}`],
+      ['Wing checks', `FOS overturning ${fmt(R.w.fosO, 2)}, sliding ${fmt(R.w.fosS, 2)}, base ${fmt(R.w.pmax, 2)} / ${fmt(R.w.pmin, 2)}, stem ${fmt(R.ws.smax, 2)} / ${fmt(R.ws.smin, 2)} t/sqm`],
+      ['Canal', `${fmt(p.apronThk * 1000, 0)} mm CC M15 apron between abutments; ${fmt(p.liningThk * 1000, 0)} mm CC M15 lining ${fmt(p.liningLen, 0)} m u/s & d/s with 300 x 1000 CC M15 curtain walls at both ends`],
+    ];
+    for (const [a, b] of R.summary) row(a, b, '');
+    R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 0)} t/sqm (trial pit), silt factor ${fmt(p.siltFactor, 1)}, back-fill phi ${fmt(p.phi, 0)} deg. ${p.frlNote}`;
+
+    R.allOk = R.okSoffit && R.okFound && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okWing;
+    const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
+    R.typ = typ;
+    R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${p.canalName.toUpperCase()}, ${p.location.toUpperCase()}`;
+    R.subtitle = `single vent ${fmt(p.span, 2)} m clear span RCC solid slab | Carriageway ${fmt(p.carriageway, 2)} m | approach slabs | hand railing | ${isD ? 'IRC Class A (2 lanes) / Class 70R' : 'IRC Class A'} | WSM`;
+    R.codes = 'Codes: IRC 5-2015, IRC 6-2017, IRC 21-2000 (WSM), IRC 78-2014, IRC SP:13-2004, IS 456-2000, IS 1786-2008, IS 2502-1963.';
+    R.nameOfWork = `Construction of ${typ} across ${p.canalName.replace(/\s*\(.*\)\s*/, '')} at Km ${p.chainage} in ${p.location}, ${p.district} District.`;
+    return { p, R, sections: secs, warnings };
+  }
+
+  // Auto-size helpers used by the "Auto design" button.
+  function autoDesign(input) {
+    const p = Object.assign({}, DEFAULTS, input);
+    const log = [];
+    let r = design(p);
+    if (Math.abs(p.span - r.R.spanSuggested) > 1e-9 && p.span < r.R.topFSL) { p.span = r.R.spanSuggested; log.push(`Span set to ${p.span} m`); r = design(p); }
+    if (!r.R.okFound) { p.foundationLevel = r.R.flSuggested; log.push(`Foundation level set to ${fmt(p.foundationLevel)}`); r = design(p); }
+    // deck: least thickness (25 mm steps) for which some bar dia / spacing
+    // satisfies depth, main steel and shear together; widest spacing preferred.
+    const spacings = [200, 175, 150, 125, 110, 100, 90, 80, 75];
+    const dias = [...new Set([p.mainDia, 16, 20, 25])];
+    deck: for (let i = 0; i < 40; i++) {
+      let fallback = null;
+      for (const dia of dias) {
+        for (const sp of spacings) {
+          const t = design(Object.assign({}, p, { mainDia: dia, mainSpacing: sp })).R;
+          if (t.okDepth && t.okAst && t.okShear) {
+            if (sp >= 100) { p.mainDia = dia; p.mainSpacing = sp; break deck; }
+            if (!fallback) fallback = [dia, sp];
+            break;
+          }
+        }
+      }
+      if (fallback) { [p.mainDia, p.mainSpacing] = fallback; break; }
+      p.D = +(p.D + 0.025).toFixed(3);
+    }
+    for (const sp of [200, 175, 150, 125, 100]) { p.distSpacing = sp; if (design(p).R.okDist) break; }
+    log.push(`Deck ${fmt(p.D * 1000, 0)} mm, ${p.mainDia} dia @ ${p.mainSpacing}, dist ${p.distDia} @ ${p.distSpacing}`);
+    // abutment: widen back batter then footing projections
+    r = design(p);
+    for (let i = 0; i < 60 && !(r.R.okAb && r.R.okStem); i++) {
+      const c = r.R.abCases, st = r.R.stemGov;
+      if (st.smin < 0 || c.some((k) => k.fosO < 2)) p.abBackBatter = +(p.abBackBatter + 0.1).toFixed(2);
+      else if (c.some((k) => k.pmin < 0 || k.fosS < 1.5)) p.abHeel = +(p.abHeel + 0.1).toFixed(2);
+      else p.abToe = +(p.abToe + 0.1).toFixed(2);
+      r = design(p);
+    }
+    for (let i = 0; i < 60 && !r.R.okWing; i++) { p.wBaseW = +(p.wBaseW + 0.1).toFixed(2); r = design(p); }
+    log.push(`Abutment back batter ${p.abBackBatter}, toe ${p.abToe}, heel ${p.abHeel}; wing base ${p.wBaseW}`);
+    return { input: p, log, result: r };
+  }
+
+  Object.assign(BD, { DEFAULTS, CARRIAGEWAY, design, autoDesign, alphaFor, fmt });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * Estimate: detailed measurements, bar bending schedule, abstract,
+ * seigniorage, theoretical requirement and general abstract, in the format
+ * of the department's SLRB estimate workbook (SSR 2026-27 rates, editable).
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const r2 = (x) => Math.round(x * 100) / 100;
+
+  // SSR 2026-27 rates from the reference DATA sheet (Rs / unit). Editable.
+  const RATES = {
+    'IRR-CCDW-1-2': 136.9,
+    'IRR-CCDW-2-3': 6698,
+    'IRR-CCDW-2-9': 7042,
+    'IRR-CCDW-2-22': 7826,
+    'IRR-CCDW-2-1': 82.4,
+    'IRR-CCDW-2-10': 7876,
+    'IRR-CCDW-2-25': 11609,
+    'IRR-CCDW-2-29': 6729.7,
+    'IRR-CCDW-5-5': 1740.9,
+  };
+  const SEIG_RATES = { metal: 117, nsand: 40, msand: 117 };
+  const GA = { labourCess: 0.01, nac: 0.001, smet: 0.02, dmf: 0.3, permit: 0.8, gst: 0.18, roundExtra: 2000 };
+
+  const ITEMS = [
+    { code: 'IRR-CCDW-1-2', unit: 'Cum', key: 'exc',
+      short: 'Earth work in excavation in all kinds of soils of foundation of structures as per drawing and technical specification, including setting out, shoring and bracing, dressing of sides and bottom and backfilling with approved material.',
+      long: 'Earth work in excavation in all kinds of soils of foundation of structures as per drawing and technical specification, including setting out, construction of shoring and bracing, removal of stumps and other deleterious matter, dressing of sides and bottom and backfilling with approved material.' },
+    { code: 'IRR-CCDW-2-3', unit: 'Cum', key: 'pcc', seig: [0.9, 0.2, 0.2], theo: [0.9, 0.4], theoName: 'M-15 Grade (foundation)', seigName: 'M-15 (40 mm) foundation',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 40 mm down size graded aggregates for foundation filling, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-15 ( 28 days cube compressive strength not less than 15 N / sq mm ) grade cement concrete using 40 mm down size approved, clean, hard, graded aggregates for foundation filling including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc. complete with initial lead upto 50 m and all lifts. (Cement content: 260 kg / cum with use of super plasticiser (0.4% by wt. of cement), CA : 0.90 cum, Blending Ratio of CA--50:30:20, FA : 0.40 cum)' },
+    { code: 'IRR-CCDW-2-9', unit: 'Cum', key: 'lining', seig: [0.9, 0.2, 0.2], theo: [0.9, 0.4], theoName: 'M-15 Grade (apron & lining)', seigName: 'M-15 (20 mm) apron & lining',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 20 mm down size graded aggregates for bed apron & canal lining, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-15 ( 28 days cube compressive strength not less than 15 N / sq mm ) grade cement concrete using 40 mm down size approved, clean, hard, graded aggregates for sub-structure / super-structure works including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts. (Cement content: 280 kg / cum with use of super plasticiser (0.4% by wt. of cement), CA : 0.90 cum, Blending Ratio of CA--50:30:20, FA : 0.40 cum)' },
+    { code: 'IRR-CCDW-2-22', unit: 'Cum', key: 'plum', seig: [0.765, 0.17, 0.17], theo: [1.015, 0.34], theoName: 'M-15 Grade (with plums)', seigName: 'M-15 (40 mm) with plums',
+      short: 'Providing and laying insitu vibrated M-15 grade cement concrete using 40 mm down size graded aggregates with placing and sinking plums upto 15 percent for abutments, wing & return walls, complete.',
+      long: 'Providing and laying insitu vibrated M-15 ( 28 days cube compressive strength not less than 15 N / sq mm ) grade cement concrete using 40 mm down size approved, clean, hard, graded aggregates with placing and sinking plums of size 150 to 80 mm upto 15 percent for gravity type retaining walls / piers / abutments etc., including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-1', unit: 'kg', key: 'steel',
+      short: 'Providing, fabricating and placing in position reinforcement steel bars for RCC works including cleaning, straightening, cutting, bending, lapping, tying etc., complete (as per BBS).',
+      long: 'Providing, fabricating and placing in position reinforcement steel bars for RCC works including cleaning, straightening, cutting, bending, hooking, lapping, welding wherever required, tying with 1.25 mm dia soft annealed steel wire, including cost of all materials, machinery, labour etc., complete with initial lead upto 50 and all lifts.' },
+    { code: 'IRR-CCDW-2-10', unit: 'Cum', key: 'bedblock', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (bed blocks)', seigName: 'M-20 (20 mm)',
+      short: 'Providing and laying insitu vibrated M-20 grade cement concrete using 20 mm down size graded aggregates for bed blocks, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-20 ( 28 days cube compressive strength not less than 20 N / sq mm ) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for sub-structure / super-structure works including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts.' },
+    { code: 'IRR-CCDW-2-25', unit: 'Cum', key: 'deck', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (deck, kerb, approach slabs)', seigName: 'M-20 (20 mm) Deck slab',
+      short: 'Providing and laying insitu vibrated M-20 grade cement concrete using 20 mm down size graded aggregates for deck slab, kerb & approach slabs, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-20 ( 28 days cube compressive strength not less than 20 N / sq mm ) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for deck slab & kerb including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts. If water is to be brought from other place add only lead charges @ 500 ltr / cum. (Cement content: 330 kg / cum with use of super plasticiser (0.4% by wt. of cement), CA : 0.80 cum, Blending Ratio of CA--65:35, FA : 0.45 cum)' },
+    { code: 'IRR-CCDW-2-29', unit: 'Cum', key: 'wc', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (wearing coat)', seigName: 'M-20 (20 mm) wearing coat',
+      short: 'Providing and laying VCC M-20 grade wearing coat 75 mm thick over deck slab and approach slabs, complete.',
+      long: 'Providing and laying insitu M-20 (28 days cube compressive strength not less than 20 N/sq mm) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for 75 mm thick wearing coat over the deck slab of {TYP} including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position in alternate panels, levelling, compacting, finishing, curing, packing joints with asphalt mortar etc., complete with initial lead up to 50 m and all lifts.' },
+    { code: 'IRR-CCDW-5-5', unit: 'Rm', key: 'rail', rateNote: 'SoR 2026-27 rate - verify',
+      short: 'Providing hand railing with RCC posts and GI pipe rails as per MOST Drg. No. SD/202, complete.',
+      long: 'Providing hand railing with RCC posts and GI pipe rails as per MOST Drg. No. SD/202 including painting etc., complete.' },
+  ];
+
+  const unitWt = (dia) => Math.round((dia * dia / 162) * 1000) / 1000;
+  const nBars = (len, sp) => Math.ceil((len - 2 * 0.04) / sp - 1e-9) + 1;
+
+  function bbs(d) {
+    const { p, R } = d;
+    const L = R.deckL, B = R.B, c = 0.04;
+    const rows = [];
+    const add = (member, desc, dia, sp, shape, len, nb, nm) => {
+      const tl = len * nb * nm, w = unitWt(dia);
+      rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w, kg: r2(tl * w) });
+    };
+    const m1 = `Deck slab  (1 No.)  ${L.toFixed(2)} x ${B.toFixed(2)} x ${p.D.toFixed(3)} m - M20`;
+    add(m1, '(i) Main bars - bottom (200 end bends)', p.mainDia, p.mainSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.mainSpacing / 1000), 1);
+    add(m1, '(ii) Top bars (span direction)', p.topDia, p.topSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.topSpacing / 1000), 1);
+    add(m1, '(iii) Distributaries - bottom', p.distDia, p.distSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.distSpacing / 1000), 1);
+    add(m1, '(iv) Distributaries - top', p.topDia, p.topSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.topSpacing / 1000), 1);
+    add(m1, '(v) Supporting chairs @ 1 No./sqm', 10, '-', '2 legs 0.30 + 2 feet 0.15', 0.9, Math.ceil(L * B - 1e-9), 1);
+    const m2 = `Kerbs  (2 Nos.)  ${p.kerbW.toFixed(3)} x ${p.kerbH.toFixed(2)} m`;
+    add(m2, '(i) Main bars', 10, '-', 'Straight', L - 2 * c, 4, 2);
+    add(m2, '(ii) Stirrups', 8, 0.2, '2x(0.145+0.22) + 2x0.32 anch. + 0.10', 2 * (0.145 + 0.22) + 2 * 0.32 + 0.1, nBars(L, 0.2), 2);
+    const m3 = `Bed block over abutment  (2 Nos.)  ${B.toFixed(2)} x 0.50 x ${p.bedBlockT.toFixed(2)} m`;
+    add(m3, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(0.5, 0.15), 2);
+    add(m3, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', 0.5 - 2 * c, 2 * nBars(B, 0.15), 2);
+    const m4 = `Approach slab  (2 Nos.)  ${p.approachLen.toFixed(2)} x ${B.toFixed(2)} x ${p.approachThk.toFixed(2)} m`;
+    add(m4, '(i) Main bars (T&B)', 12, 0.15, 'Straight', p.approachLen - 2 * c, 2 * nBars(B, 0.15), 2);
+    add(m4, '(ii) Distributaries (T&B)', 12, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.approachLen, 0.15), 2);
+    const total = r2(rows.reduce((s, x) => s + x.kg, 0));
+    const byDia = {};
+    for (const x of rows) byDia[x.dia] = r2((byDia[x.dia] || 0) + x.kg);
+    return { rows, total, byDia };
+  }
+
+  function estimate(d, opts) {
+    const o = Object.assign({ rates: {}, seigRates: {}, ga: {} }, opts || {});
+    const rates = Object.assign({}, RATES, o.rates);
+    const sr = Object.assign({}, SEIG_RATES, o.seigRates);
+    const ga = Object.assign({}, GA, o.ga);
+    const { p, R } = d;
+    const B = R.B, L = R.deckL, typ = R.typ;
+    const where = `${typ} @ Km ${p.chainage}`;
+    const excDepthAb = r3(p.gl - p.foundationLevel);
+    const excDepthW = excDepthAb;
+    const lining = r3(p.bedWidth + 2 * Math.sqrt(1 + p.sideSlope ** 2) * (p.fsd + p.freeBoard));
+    const abArea = 0.5 * p.frontBatter * R.stemH + p.abTopW * R.stemH + 0.5 * (R.deckTop - R.stemTop) + 0.5 * p.abBackBatter * (R.deckTop - R.ftgTop);
+    const abH = R.deckTop - R.ftgTop;
+    const wAvg = (p.wTopW + p.wBaseW) / 2;
+    const b = bbs(d);
+    // [desc, no, x, L, W, D]
+    const M = {
+      exc: [
+        ['For abutments', 1, 2, B + 0.6, R.ftgW + 0.6, excDepthAb],
+        ['for splayed wing walls', 1, 4, p.wingLen + 0.6, R.wFtgW + 0.6, excDepthW],
+        ['for return walls', 1, 4, 2.6, 2.7, 1.236],
+        ['bed & slope trimming for apron / lining', 1, 1, 2 * p.liningLen + B, lining, 0.15],
+        ['for shear keys below wing wall footings', 1, 4, p.wingLen, p.keyW, p.keyD],
+        ['for curtain walls at u/s & d/s ends of lining', 1, 2, lining, 0.5, 1],
+      ],
+      pcc: [
+        ['For abutment foundation', 1, 2, B, R.ftgW, p.footingT],
+        ['for splayed wing walls', 1, 4, p.wingLen, R.wFtgW, p.wFootT],
+        ['for return walls', 1, 4, 2, 2.1, 0.3],
+        ['for shear keys under wing walls', 1, 4, p.wingLen, p.keyW, p.keyD],
+        ['for curtain walls 300 x 1000 at u/s & d/s ends of lining', 1, 2, lining, 0.3, 1],
+      ],
+      lining: [
+        [`Bed apron in between abutments (${(p.apronThk * 1000).toFixed(0)} thk)`, 1, 1, B, r3(R.clearCBL), p.apronThk],
+        [`CC lining bed & slopes u/s & d/s ${p.liningLen} m each (${(p.liningThk * 1000).toFixed(0)} thk)`, 1, 2, p.liningLen, lining, p.liningThk],
+      ],
+      plum: [
+        [`For abutments (section ${abArea.toFixed(3)} sqm = ${(abArea / abH).toFixed(4)} avg x ${abH.toFixed(3)} ht)`, 1, 2, B, r3(abArea / abH), r3(abH)],
+        [`for splayed wing walls (${p.wTopW.toFixed(2)}+${p.wBaseW.toFixed(2)})/2 tapering, avg ${wAvg.toFixed(3)}`, 1, 4, p.wingLen, r3(wAvg), r3(R.wFreeH)],
+        ['for return walls (1000 x 1100)', 1, 4, 1, 1.1, 1.5],
+      ],
+      bedblock: [['for bed blocks on abutments', 1, 2, B, 0.5, p.bedBlockT]],
+      deck: [
+        ['for deck slab', 1, 1, L, B, p.D],
+        ['for kerb walls', 1, 2, L, p.kerbW, p.kerbH],
+        ['for approach slab', 1, 2, p.approachLen, B, p.approachThk],
+      ],
+      wc: [
+        ['wearing coat over carriageway (deck)', 1, 1, L, p.carriageway, p.wc],
+        ['wearing coat over approach slabs', 1, 2, p.approachLen, p.carriageway, p.wc],
+      ],
+      rail: [['on both sides of deck', 1, 2, L, 1, 1]],
+    };
+    const items = ITEMS.map((it, i) => {
+      const rows = (M[it.key] || []).map(([desc, n1, n2, l, w, dd]) => {
+        const l3 = r3(l), w3 = r3(w), d3 = r3(dd);
+        return { desc, n1, n2, l: l3, w: w3, d: d3, qty: r3(n1 * n2 * l3 * w3 * d3) };
+      });
+      const qty = it.key === 'steel' ? b.total : r3(rows.reduce((s, x) => s + x.qty, 0));
+      const rate = rates[it.code];
+      return Object.assign({}, it, { sl: i + 1, long: it.long.replace('{TYP}', typ), where, rows, qty, rate, amount: Math.round(qty * rate) });
+    });
+    const ecv = items.reduce((s, x) => s + x.amount, 0);
+    // seigniorage
+    const seig = items.filter((x) => x.seig).map((x) => ({
+      name: `${x.seigName}  ${x.code}`, qty: x.qty, f: x.seig,
+      metal: x.qty * x.seig[0], nsand: x.qty * x.seig[1], msand: x.qty * x.seig[2],
+    }));
+    const tot = { metal: 0, nsand: 0, msand: 0 };
+    for (const s of seig) { tot.metal += s.metal; tot.nsand += s.nsand; tot.msand += s.msand; }
+    const amt = { metal: Math.round(tot.metal * sr.metal), nsand: Math.round(tot.nsand * sr.nsand), msand: Math.round(tot.msand * sr.msand) };
+    const seigTotal = amt.metal + amt.nsand + amt.msand;
+    const dmf = Math.round(seigTotal * ga.dmf);
+    const smet = Math.round(seigTotal * ga.smet);
+    const permit = (amt.metal + amt.msand) * ga.permit;
+    const theo = items.filter((x) => x.theo).map((x) => ({ name: x.theoName, qty: x.qty, fm: x.theo[0], fs: x.theo[1], metal: x.qty * x.theo[0], sand: x.qty * x.theo[1] }));
+    // general abstract
+    const lc = ecv * ga.labourCess;
+    const nac = Math.round(ecv * ga.nac);
+    const partB = lc + nac + seigTotal + smet + dmf + permit;
+    const gst = (ecv + partB) * ga.gst;
+    const sub = ecv + partB + gst;
+    const rounding = Math.ceil(sub / 1000 - 1e-9) * 1000 - sub + ga.roundExtra;
+    const total = sub + rounding;
+    const genAbst = [
+      ['Total ECV Amount', ecv],
+      [` LS Provision for Labour Cess @ ${ga.labourCess * 100} %`, lc],
+      [` LS Provision for NAC @ ${ga.nac * 100} %`, nac],
+      [' LS Provision for Seigniorage Charges', seigTotal],
+      [` SMET Provision @ ${ga.smet * 100} % for Seigniorage Charges`, smet],
+      [` DMF Provision @ ${ga.dmf * 100} % for Seigniorage Charges`, dmf],
+      [`Provision towards Permit Charges @ ${ga.permit * 100} % for Seigniorage Charges`, permit],
+      [`Add ${(ga.gst * 100).toFixed(2)}% GST on (Part A+Part B)`, gst],
+      ['Rounding off and unforseen expenditure', rounding],
+    ];
+    return {
+      nameOfWork: `Name of work:- ${R.nameOfWork}`, items, ecv, bbs: b, seig, seigTot: tot, seigAmt: amt, seigRates: sr, seigTotal, dmf, smet, permit,
+      theo, genAbst, lc, nac, partB, gst, rounding, total, lakhs: total / 100000, rates, ga,
+    };
+  }
+
+  Object.assign(BD, { estimate, bbs, RATES, SEIG_RATES, GA, EST_ITEMS: ITEMS });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * Minimal 2D drafting model shared by the SVG (screen / PDF) and DXF writers.
+ * Sheet units are millimetres, origin bottom-left, y up (as in CAD).
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+
+  // layer -> [DXF colour index, SVG colour, linetype]
+  const LAYERS = {
+    OUTLINE: [7, '#111', 'CONTINUOUS'],
+    THIN: [8, '#555', 'CONTINUOUS'],
+    HIDDEN: [8, '#666', 'DASHED'],
+    CENTER: [1, '#d0202a', 'CENTER'],
+    DIM: [5, '#1a3fd6', 'CONTINUOUS'],
+    DIMTEXT: [6, '#c0169a', 'CONTINUOUS'],
+    TEXT: [7, '#111', 'CONTINUOUS'],
+    TITLE: [1, '#d0202a', 'CONTINUOUS'],
+    LABEL: [5, '#1a3fd6', 'CONTINUOUS'],
+    HATCH: [8, '#777', 'CONTINUOUS'],
+    REBAR: [7, '#111', 'CONTINUOUS'],
+    WATER: [5, '#1a3fd6', 'CONTINUOUS'],
+    BORDER: [7, '#111', 'CONTINUOUS'],
+  };
+
+  class Dwg {
+    constructor(w, h) { this.w = w; this.h = h; this.ents = []; this.seed = 1; }
+    rnd() { this.seed = (this.seed * 16807) % 2147483647; return (this.seed - 1) / 2147483646; }
+    add(e) { this.ents.push(e); return e; }
+    line(x1, y1, x2, y2, layer = 'OUTLINE', o = {}) { return this.add(Object.assign({ t: 'line', x1, y1, x2, y2, layer }, o)); }
+    poly(pts, closed = true, layer = 'OUTLINE', o = {}) { return this.add(Object.assign({ t: 'poly', pts, closed, layer }, o)); }
+    rect(x, y, w, h, layer = 'OUTLINE', o = {}) { return this.poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], true, layer, o); }
+    circle(x, y, r, layer = 'OUTLINE', o = {}) { return this.add(Object.assign({ t: 'circle', x, y, r, layer }, o)); }
+    text(x, y, s, h = 2, layer = 'TEXT', o = {}) { return this.add(Object.assign({ t: 'text', x, y, s: String(s), h, layer, anchor: 'start', rot: 0 }, o)); }
+    // concrete stipple (dots + small triangles) inside a polygon
+    stipple(pts, density = 0.05, kind = 'conc') {
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      const n = Math.min(900, Math.round((x1 - x0) * (y1 - y0) * density));
+      for (let i = 0; i < n; i++) {
+        const x = x0 + this.rnd() * (x1 - x0), y = y0 + this.rnd() * (y1 - y0);
+        if (!inside(pts, x, y)) continue;
+        if (kind === 'conc' && this.rnd() < 0.3) {
+          const s = 0.5 + this.rnd() * 0.4, a = this.rnd() * Math.PI;
+          const tri = [0, 1, 2].map((k) => [x + s * Math.cos(a + (k * 2 * Math.PI) / 3), y + s * Math.sin(a + (k * 2 * Math.PI) / 3)]);
+          if (tri.every((p) => inside(pts, p[0], p[1]))) this.poly(tri, true, 'HATCH', { w: 0.1 });
+        } else this.circle(x, y, 0.12, 'HATCH', { fill: true });
+      }
+    }
+    // dimensions: a,b are sheet points; offset direction by 'side'
+    dim(ax, ay, bx, by, label, o = {}) {
+      const vertical = Math.abs(ax - bx) < 1e-6;
+      const L = 'DIM';
+      const ah = 1.6, aw = 0.5;
+      const arrow = (x, y, dx, dy) => {
+        const nx = -dy, ny = dx;
+        this.poly([[x, y], [x - dx * ah + nx * aw, y - dy * ah + ny * aw], [x - dx * ah - nx * aw, y - dy * ah - ny * aw]], true, L, { fill: true });
+      };
+      this.line(ax, ay, bx, by, L, { w: 0.15 });
+      const len = Math.hypot(bx - ax, by - ay) || 1;
+      const dx = (bx - ax) / len, dy = (by - ay) / len;
+      if (len > 4.5) { arrow(bx, by, dx, dy); arrow(ax, ay, -dx, -dy); }
+      else { arrow(ax, ay, dx, dy); arrow(bx, by, -dx, -dy); }
+      // extension ticks
+      const ext = o.ext == null ? 1.5 : o.ext;
+      if (vertical) { this.line(ax - ext, ay, ax + ext, ay, L, { w: 0.15 }); this.line(bx - ext, by, bx + ext, by, L, { w: 0.15 }); }
+      else { this.line(ax, ay - ext, ax, ay + ext, L, { w: 0.15 }); this.line(bx, by - ext, bx, by + ext, L, { w: 0.15 }); }
+      const h = o.h || 1.8;
+      if (label === '' || label == null) return;
+      if (vertical) this.text(ax - 0.8, (ay + by) / 2, label, h, 'DIMTEXT', { anchor: 'middle', rot: 90 });
+      else this.text((ax + bx) / 2, ay + 0.8, label, h, 'DIMTEXT', { anchor: 'middle' });
+    }
+    leader(x1, y1, x2, y2, label, o = {}) {
+      this.line(x1, y1, x2, y2, 'LABEL', { w: 0.15 });
+      const tl = o.textLen || label.length * (o.h || 1.8) * 0.62;
+      const right = o.right != null ? o.right : x2 >= x1;
+      const x3 = right ? x2 + tl : x2 - tl;
+      this.line(x2, y2, x3, y2, 'LABEL', { w: 0.15 });
+      this.text(right ? x2 + 0.5 : x2 - 0.5, y2 + 0.7, label, o.h || 1.8, 'TEXT', { anchor: right ? 'start' : 'end' });
+      // arrow at x1,y1
+      const len = Math.hypot(x2 - x1, y2 - y1) || 1, dx = (x1 - x2) / len, dy = (y1 - y2) / len;
+      this.poly([[x1, y1], [x1 - dx * 1.4 - dy * 0.4, y1 - dy * 1.4 + dx * 0.4], [x1 - dx * 1.4 + dy * 0.4, y1 - dy * 1.4 - dx * 0.4]], true, 'LABEL', { fill: true });
+    }
+    title(x, y, s, h = 3.2) {
+      this.text(x, y, s, h, 'TITLE', { anchor: 'middle' });
+      const w = s.length * h * 0.62;
+      this.line(x - w / 2 - 4, y - 2, x + w / 2 + 4, y - 2, 'THIN', { w: 0.2 });
+    }
+    // table: cols = widths, rows = arrays of strings; header row coloured
+    table(x, yTop, cols, rows, o = {}) {
+      const rh = o.rh || 5, h = o.h || 1.6;
+      const W = cols.reduce((a, b) => a + b, 0);
+      let y = yTop;
+      rows.forEach((r, i) => {
+        const hdr = i === 0 && o.header !== false;
+        this.rect(x, y - rh, W, rh, 'THIN', { w: 0.2 });
+        let cx = x;
+        r.forEach((c, j) => {
+          if (j > 0) this.line(cx, y, cx, y - rh, 'THIN', { w: 0.2 });
+          const center = hdr || (o.center && o.center.includes(j));
+          this.text(center ? cx + cols[j] / 2 : cx + 1, y - rh / 2 - h / 2.6, String(c), h, hdr ? 'LABEL' : 'TEXT', { anchor: center ? 'middle' : 'start' });
+          cx += cols[j];
+        });
+        y -= rh;
+      });
+      return y;
+    }
+  }
+
+  function inside(pts, x, y) {
+    let c = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  }
+
+  // A view maps world metres into a sheet viewport: X = ox + x*1000/scale.
+  function view(dw, ox, oy, scale) {
+    const k = 1000 / scale;
+    const X = (x) => ox + x * k, Y = (y) => oy + y * k;
+    const P = (pts) => pts.map(([x, y]) => [X(x), Y(y)]);
+    return {
+      k, X, Y, P, scale,
+      line: (x1, y1, x2, y2, l, o) => dw.line(X(x1), Y(y1), X(x2), Y(y2), l, o),
+      poly: (pts, c, l, o) => dw.poly(P(pts), c, l, o),
+      rect: (x, y, w, h, l, o) => dw.rect(X(x), Y(y), w * k, h * k, l, o),
+      circle: (x, y, r, l, o) => dw.circle(X(x), Y(y), r, l, o), // r in sheet mm
+      text: (x, y, s, h, l, o) => dw.text(X(x), Y(y), s, h, l, o),
+      stipple: (pts, dens, kind) => dw.stipple(P(pts), dens, kind),
+      solid: (pts, l = 'OUTLINE', o = {}) => { dw.poly(P(pts), true, l, o); dw.stipple(P(pts), o.density || 0.12, o.kind || 'conc'); },
+      dimH: (x1, x2, y, label, off = 0, o) => dw.dim(X(x1), Y(y) + off, X(x2), Y(y) + off, label, o),
+      dimV: (y1, y2, x, label, off = 0, o) => dw.dim(X(x) + off, Y(y1), X(x) + off, Y(y2), label, o),
+      leader: (x, y, dx, dy, label, o) => dw.leader(X(x), Y(y), X(x) + dx, Y(y) + dy, label, o),
+      level: (x, y, label, o = {}) => {
+        const sx = X(x), sy = Y(y), right = o.right !== false;
+        dw.poly([[sx, sy], [sx - 0.9, sy + 1.5], [sx + 0.9, sy + 1.5]], true, 'DIM', { fill: false, w: 0.15 });
+        dw.line(sx, sy, sx + (right ? 1 : -1) * (o.len || 3), sy, 'DIM', { w: 0.15 });
+        dw.text(sx + (right ? 1.2 : -1.2), sy + 2, label, o.h || 1.8, 'TEXT', { anchor: right ? 'start' : 'end' });
+      },
+    };
+  }
+
+  // ------------------------------------------------------------- SVG writer
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function toSVG(dw, o = {}) {
+    const H = dw.h;
+    const out = [];
+    out.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dw.w} ${dw.h}" ${o.fluid ? '' : `width="${o.width || dw.w + 'mm'}" height="${o.height || dw.h + 'mm'}"`} font-family="Arial, Helvetica, sans-serif">`);
+    out.push(`<rect x="0" y="0" width="${dw.w}" height="${dw.h}" fill="#fff"/>`);
+    const f = (n) => (Math.round(n * 100) / 100).toString();
+    for (const e of dw.ents) {
+      const [, col, lt] = LAYERS[e.layer] || LAYERS.OUTLINE;
+      const sw = e.w != null ? e.w : e.layer === 'OUTLINE' || e.layer === 'BORDER' ? 0.3 : e.layer === 'REBAR' ? 0.35 : 0.18;
+      const dash = lt === 'DASHED' ? ' stroke-dasharray="2 1"' : lt === 'CENTER' ? ' stroke-dasharray="6 1.2 1.2 1.2"' : '';
+      if (e.t === 'line') out.push(`<line x1="${f(e.x1)}" y1="${f(H - e.y1)}" x2="${f(e.x2)}" y2="${f(H - e.y2)}" stroke="${col}" stroke-width="${sw}"${dash}/>`);
+      else if (e.t === 'poly') {
+        const d = e.pts.map((p) => `${f(p[0])},${f(H - p[1])}`).join(' ');
+        const fill = e.fill ? col : 'none';
+        out.push(`<${e.closed ? 'polygon' : 'polyline'} points="${d}" fill="${fill}" stroke="${col}" stroke-width="${sw}"${dash} stroke-linejoin="round"/>`);
+      } else if (e.t === 'circle') out.push(`<circle cx="${f(e.x)}" cy="${f(H - e.y)}" r="${f(e.r)}" fill="${e.fill ? col : 'none'}" stroke="${col}" stroke-width="${e.fill ? 0 : sw}"/>`);
+      else if (e.t === 'text') {
+        const anchor = e.anchor === 'middle' ? 'middle' : e.anchor === 'end' ? 'end' : 'start';
+        const rot = e.rot ? ` transform="rotate(${-e.rot} ${f(e.x)} ${f(H - e.y)})"` : '';
+        out.push(`<text x="${f(e.x)}" y="${f(H - e.y)}" font-size="${f(e.h * 1.4)}" fill="${col}" text-anchor="${anchor}"${rot}${e.bold ? ' font-weight="bold"' : ''}>${esc(e.s)}</text>`);
+      }
+    }
+    out.push('</svg>');
+    return out.join('\n');
+  }
+
+  // ------------------------------------------------------------- DXF writer (R12)
+  function toDXF(dw) {
+    const o = [];
+    const p = (c, v) => o.push(String(c), String(v));
+    const n = (v) => (Math.round(v * 10000) / 10000).toString();
+    p(0, 'SECTION'); p(2, 'HEADER');
+    p(9, '$ACADVER'); p(1, 'AC1009');
+    p(9, '$INSUNITS'); p(70, 4);
+    p(9, '$EXTMIN'); p(10, 0); p(20, 0);
+    p(9, '$EXTMAX'); p(10, dw.w); p(20, dw.h);
+    p(9, '$LTSCALE'); p(40, 1);
+    p(0, 'ENDSEC');
+    p(0, 'SECTION'); p(2, 'TABLES');
+    p(0, 'TABLE'); p(2, 'LTYPE'); p(70, 3);
+    const lt = (name, desc, pat) => {
+      p(0, 'LTYPE'); p(2, name); p(70, 0); p(3, desc); p(72, 65); p(73, pat.length);
+      p(40, pat.reduce((a, b) => a + Math.abs(b), 0));
+      for (const x of pat) p(49, x);
+    };
+    lt('CONTINUOUS', 'Solid line', []);
+    lt('DASHED', '__ __ __', [2, -1]);
+    lt('CENTER', '____ _ ____', [6, -1.2, 1.2, -1.2]);
+    p(0, 'ENDTAB');
+    p(0, 'TABLE'); p(2, 'LAYER'); p(70, Object.keys(LAYERS).length);
+    for (const [name, [col, , ltype]] of Object.entries(LAYERS)) { p(0, 'LAYER'); p(2, name); p(70, 0); p(62, col); p(6, ltype); }
+    p(0, 'ENDTAB');
+    p(0, 'TABLE'); p(2, 'STYLE'); p(70, 1);
+    p(0, 'STYLE'); p(2, 'STANDARD'); p(70, 0); p(40, 0); p(41, 0.8); p(50, 0); p(71, 0); p(42, 2.5); p(3, 'txt'); p(4, '');
+    p(0, 'ENDTAB');
+    p(0, 'ENDSEC');
+    p(0, 'SECTION'); p(2, 'ENTITIES');
+    for (const e of dw.ents) {
+      if (e.t === 'line') { p(0, 'LINE'); p(8, e.layer); p(10, n(e.x1)); p(20, n(e.y1)); p(30, 0); p(11, n(e.x2)); p(21, n(e.y2)); p(31, 0); }
+      else if (e.t === 'poly') {
+        if (e.fill && e.closed && e.pts.length <= 4) {
+          // filled arrowheads / small solids
+          const q = e.pts.length === 3 ? [...e.pts, e.pts[2]] : [e.pts[0], e.pts[1], e.pts[3], e.pts[2]];
+          p(0, 'SOLID'); p(8, e.layer);
+          q.forEach((pt, i) => { p(10 + i, n(pt[0])); p(20 + i, n(pt[1])); p(30 + i, 0); });
+        } else {
+          p(0, 'POLYLINE'); p(8, e.layer); p(66, 1); p(10, 0); p(20, 0); p(30, 0); p(70, e.closed ? 1 : 0);
+          for (const pt of e.pts) { p(0, 'VERTEX'); p(8, e.layer); p(10, n(pt[0])); p(20, n(pt[1])); p(30, 0); }
+          p(0, 'SEQEND'); p(8, e.layer);
+        }
+      } else if (e.t === 'circle') {
+        if (e.fill && e.r < 0.3) { p(0, 'POINT'); p(8, e.layer); p(10, n(e.x)); p(20, n(e.y)); p(30, 0); }
+        else {
+          p(0, 'CIRCLE'); p(8, e.layer); p(10, n(e.x)); p(20, n(e.y)); p(30, 0); p(40, n(e.r));
+          if (e.fill) { p(0, 'CIRCLE'); p(8, e.layer); p(10, n(e.x)); p(20, n(e.y)); p(30, 0); p(40, n(e.r / 2)); }
+        }
+      } else if (e.t === 'text') {
+        const ha = e.anchor === 'middle' ? 1 : e.anchor === 'end' ? 2 : 0;
+        p(0, 'TEXT'); p(8, e.layer); p(10, n(e.x)); p(20, n(e.y)); p(30, 0); p(40, n(e.h)); p(1, e.s.replace(/\n/g, ' '));
+        if (e.rot) p(50, e.rot);
+        p(41, 0.8);
+        if (ha) { p(72, ha); p(11, n(e.x)); p(21, n(e.y)); p(31, 0); }
+      }
+    }
+    p(0, 'ENDSEC'); p(0, 'EOF');
+    return o.join('\r\n') + '\r\n';
+  }
+
+  Object.assign(BD, { Dwg, view, toSVG, toDXF, LAYERS });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * Drawing sheets (A2 landscape, 594 x 420 mm), laid out like the reference
+ * SLRB drawings:
+ *   Sheet 1 - Sectional elevation, half plan at top / at foundation, notes,
+ *             hydraulic particulars, particulars of road, trial pit.
+ *   Sheet 2 - Deck slab / approach slab / bed block / kerb reinforcement,
+ *             abutment and wing wall sections, stress table, reinforcement
+ *             schedule.
+ * All geometry comes from the design result, so the drawings follow any
+ * change of HPs or dimensions.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const W = 594, H = 420;
+  const SCALES = [10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300];
+  const mm = (v) => String(Math.round(v * 1000));
+  const lv = (v) => (v >= 0 ? '+' : '') + v.toFixed(3);
+  const pick = (wm, hm, wmm, hmm) => SCALES.find((s) => (wm * 1000) / s <= wmm && (hm * 1000) / s <= hmm) || 300;
+
+  function frame(dw, d, no, title, scaleTxt) {
+    const { p, R } = d;
+    dw.rect(8, 8, 578, 404, 'BORDER', { w: 0.6 });
+    dw.rect(566, 400, 20, 12, 'THIN');
+    dw.text(576, 404.5, `${no}/2`, 2.2, 'TITLE', { anchor: 'middle' });
+    // title block
+    const x0 = 388, x1 = 586;
+    const Y = [120, 104, 92, 83, 77, 71, 67, 27, 19, 8];
+    dw.rect(x0, 8, x1 - x0, 112, 'OUTLINE', { w: 0.4 });
+    for (const y of Y.slice(1, -1)) dw.line(x0, y, x1, y, 'THIN', { w: 0.2 });
+    dw.text((x0 + x1) / 2, 113.5, (p.state.replace(/^GOVERNMENT OF /i, 'GOVERNMENT OF ') + '.').toUpperCase(), 2.6, 'TITLE', { anchor: 'middle' });
+    dw.text((x0 + x1) / 2, 107, p.department.replace('IRRIGATION & CAD', 'I & CAD') + '.', 2.6, 'TITLE', { anchor: 'middle' });
+    const now = R.nameOfWork.replace(/\.$/, '');
+    const cut = now.lastIndexOf(' in ');
+    dw.text((x0 + x1) / 2, 99, cut > 0 ? now.slice(0, cut) + ',' : now, 1.8, 'TEXT', { anchor: 'middle' });
+    if (cut > 0) dw.text((x0 + x1) / 2, 95, now.slice(cut + 4) + '.', 1.8, 'TEXT', { anchor: 'middle' });
+    dw.text(x0 + 2, 84.5, 'TITLE :', 1.6, 'TITLE');
+    dw.text(x0 + 18, 87, title, 1.9, 'TEXT');
+    dw.text(x0 + 2, 79, 'CONTRACTOR :', 1.6, 'TITLE');
+    dw.text(x0 + 2, 73, 'PREPARED BY :', 1.6, 'TITLE');
+    const cw = (x1 - x0) / 5;
+    ['CHECKED BY', 'CHECKED BY', 'SUBMITTED BY', 'RECOMMENDED BY', 'APPROVED BY'].forEach((t, i) => {
+      dw.text(x0 + cw * i + cw / 2, 68.2, t, 1.4, 'TITLE', { anchor: 'middle' });
+      if (i) dw.line(x0 + cw * i, 71, x0 + cw * i, 27, 'THIN', { w: 0.2 });
+    });
+    dw.text(x0 + 2, 22, 'PREPARED FOR :', 1.4, 'TITLE'); dw.text(x0 + 32, 22, 'APPROVAL', 1.5, 'TEXT');
+    dw.line(x0 + 66, 27, x0 + 66, 19, 'THIN', { w: 0.2 });
+    dw.text(x0 + 68, 22, 'DRG NO : ----------', 1.4, 'TITLE');
+    dw.line(x0 + 132, 27, x0 + 132, 19, 'THIN', { w: 0.2 });
+    dw.text(x0 + 134, 22, 'SCALE:', 1.4, 'TITLE'); dw.text(x0 + 150, 22, scaleTxt, 1.5, 'TEXT');
+    dw.text(x0 + 2, 12, 'PREPARED BY :', 1.4, 'TITLE');
+    dw.line(x0 + 102, 19, x0 + 102, 8, 'THIN', { w: 0.2 });
+    dw.text(x0 + 104, 12, 'CHECKED BY :  -------', 1.4, 'TITLE');
+    dw.line(x0 + 180, 19, x0 + 180, 8, 'THIN', { w: 0.2 });
+    dw.text(x0 + 182, 12, 'REV :', 1.4, 'TITLE');
+  }
+
+  // ------------------------------------------------------------ sheet 1
+  function sheet1(d) {
+    const { p, R } = d;
+    const dw = new BD.Dwg(W, H);
+    const s2 = p.span / 2, fb = p.frontBatter, bbw = 0.5;
+    const typ = R.typ;
+    // ---------------- sectional elevation
+    const halfL = s2 + p.abTopW + p.approachLen + 0.6;
+    const halfF = s2 - fb + R.stemBase + p.abHeel + 0.2;
+    const ext = Math.max(halfL, halfF);
+    const hTot = p.frl - p.foundationLevel + 1.6;
+    const se = pick(2 * ext + 1, hTot, 330, 100);
+    const datum = p.foundationLevel;
+    const v = BD.view(dw, 190, 286, se);
+    const y = (lvl) => lvl - datum;
+    dw.title(190, 262, 'SECTIONAL ELEVATION');
+    for (const sg of [-1, 1]) {
+      const X = (x) => sg * x;
+      const P = (pts) => pts.map(([a, b]) => [X(a), b]);
+      // footing
+      const fx0 = s2 - fb - p.abToe, fx1 = s2 - fb + R.stemBase + p.abHeel;
+      v.solid(P([[fx0, 0], [fx1, 0], [fx1, y(R.ftgTop)], [fx0, y(R.ftgTop)]]), 'OUTLINE', { density: 0.1 });
+      // stem
+      v.solid(P([[s2 - fb, y(R.ftgTop)], [s2, y(R.stemTop)], [s2 + bbw, y(R.stemTop)], [s2 + bbw, y(R.deckTop)], [s2 + p.abTopW, y(R.deckTop)], [s2 + p.abTopW + p.abBackBatter, y(R.ftgTop)]]), 'OUTLINE', { density: 0.1 });
+      // bed block
+      v.poly(P([[s2, y(R.stemTop)], [s2 + bbw, y(R.stemTop)], [s2 + bbw, y(R.soffit)], [s2, y(R.soffit)]]));
+      // approach slab + wearing coat
+      const ax0 = s2 + p.abTopW, ax1 = ax0 + p.approachLen;
+      v.solid(P([[ax0, y(R.approachBot)], [ax1, y(R.approachBot)], [ax1, y(R.deckTop)], [ax0, y(R.deckTop)]]), 'OUTLINE', { density: 0.08 });
+      v.poly(P([[ax0, y(R.deckTop)], [ax1, y(R.deckTop)], [ax1, y(p.frl)], [ax0, y(p.frl)]]), true, 'THIN');
+      // road arrow
+      v.line(X(ax1), y(p.frl), X(ax1 + 0.5), y(p.frl), 'OUTLINE');
+      dw.poly([[v.X(X(ax1 + 0.55)), v.Y(y(p.frl))], [v.X(X(ax1 + 0.3)), v.Y(y(p.frl)) + 0.9], [v.X(X(ax1 + 0.3)), v.Y(y(p.frl)) - 0.9]], true, 'OUTLINE', { fill: true });
+      v.text(X(ax1 + 0.2), y(p.frl) + 0.15, 'ROAD', 1.8, 'TEXT', { anchor: 'middle' });
+      v.level(X(ax0 + 1.4), y(p.frl), `R.C.L${lv(p.frl)}`);
+      v.text(X(ax1 + 0.15), y(R.approachBot) - 0.15, lv(R.approachBot), 1.6, 'TEXT', { anchor: sg > 0 ? 'start' : 'end' });
+      // levels at abutment
+      v.text(X(s2 + bbw + 0.35), y(R.soffit) - 0.12, lv(R.soffit), 1.6, 'TEXT', { anchor: sg > 0 ? 'start' : 'end' });
+      v.text(X(s2 + bbw + 0.35), y(R.stemTop) - 0.12, lv(R.stemTop), 1.6, 'TEXT', { anchor: sg > 0 ? 'start' : 'end' });
+      v.text(X(fx1 + 0.1), y(R.ftgTop) - 0.05, lv(R.ftgTop), 1.6, 'TEXT', { anchor: sg > 0 ? 'start' : 'end' });
+      v.text(X(fx1 + 0.1), -0.05, lv(p.foundationLevel), 1.6, 'TEXT', { anchor: sg > 0 ? 'start' : 'end' });
+      // kerb / railing (beyond)
+      const kx0 = s2 + p.bearingW, kTop = y(R.deckTop) + p.kerbH;
+      v.poly(P([[kx0 - 0.3, y(R.deckTop)], [kx0, y(R.deckTop)], [kx0, kTop + 0.95], [kx0 - 0.08, kTop + 1.05], [kx0 - 0.22, kTop + 1.05], [kx0 - 0.3, kTop + 0.95]]), true, 'OUTLINE', { w: 0.25 });
+      v.poly(P([[0.9 * s2 - 0.1, kTop], [0.9 * s2 + 0.1, kTop], [0.9 * s2 + 0.1, kTop + 0.8], [0.9 * s2 - 0.1, kTop + 0.8]]), true, 'THIN');
+      for (const hh of [0.25, 0.45, 0.65]) v.line(X(kx0 - 0.3), kTop + hh, X(0.25 * s2), kTop + hh, 'THIN', { w: 0.2 });
+      // dims below footing
+      const yd = -0.45;
+      v.dimH(X(fx0), X(fx1), 0, mm(R.ftgW), -14);
+      v.dimH(X(s2 - fb), X(s2 - fb + R.stemBase), 0, mm(R.stemBase), -8);
+      const segs = [[fx0, s2 - fb, p.abToe], [s2 - fb, s2, fb], [s2, s2 + p.abTopW, p.abTopW], [s2 + p.abTopW, s2 + p.abTopW + p.abBackBatter, p.abBackBatter], [s2 + p.abTopW + p.abBackBatter, fx1, p.abHeel]];
+      for (const [a, b, val] of segs) v.dimH(X(a), X(b), y(R.ftgTop), mm(val), 2.5, { h: 1.5 });
+      void yd;
+      // top dims
+      v.dimH(X(ax0), X(ax1), y(R.deckTop), mm(p.approachLen), (hTot - y(R.deckTop)) * v.k - 5);
+      v.dimH(X(s2), X(ax0), y(R.deckTop), mm(p.abTopW), (hTot - y(R.deckTop)) * v.k - 5);
+      v.dimV(0, y(R.ftgTop), X(fx1), mm(p.footingT), sg * 6);
+      v.dimV(y(R.stemTop), y(R.soffit), X(s2), mm(p.bedBlockT), -sg * 3, { h: 1.5 });
+    }
+    // deck + WC + joint
+    const dx = s2 + p.bearingW;
+    v.poly([[-dx, y(R.soffit)], [dx, y(R.soffit)], [dx, y(R.deckTop)], [-dx, y(R.deckTop)]], true, 'OUTLINE', { w: 0.4 });
+    v.poly([[-dx, y(R.deckTop)], [dx, y(R.deckTop)], [dx, y(p.frl)], [-dx, y(p.frl)]], true, 'THIN');
+    v.dimH(-s2, s2, y(R.deckTop), mm(p.span), (hTot - y(R.deckTop)) * v.k - 5);
+    v.dimV(y(R.soffit), y(R.deckTop), 0.35 * s2, mm(p.D), 0, { h: 1.5 });
+    // canal
+    const cb = R.clearCBL / 2;
+    v.poly([[-cb, y(p.cbl)], [cb, y(p.cbl)], [cb, y(p.cbl - p.apronThk)], [-cb, y(p.cbl - p.apronThk)]], true, 'OUTLINE', { w: 0.25 });
+    for (const sg of [-1, 1]) {
+      v.line(sg * p.bedWidth / 2, y(p.cbl), sg * R.topTBL / 2, y(R.tbl), 'HIDDEN');
+      v.line(sg * R.topTBL / 2, y(R.tbl), sg * (R.topTBL / 2 + 1.2), y(R.tbl), 'HIDDEN');
+    }
+    const fw = R.clearFSLw / 2;
+    v.line(-fw, y(R.fsl), fw, y(R.fsl), 'WATER', { w: 0.2 });
+    for (const xx of [-0.45 * fw, 0.45 * fw]) for (const [dl, dd] of [[0.18, 0.08], [0.12, 0.16], [0.06, 0.24]]) v.line(xx - dl, y(R.fsl) - dd, xx + dl, y(R.fsl) - dd, 'WATER', { w: 0.15 });
+    v.text(0.05, y(R.fsl) + 0.08, `F.S.L${lv(R.fsl)}`, 1.7, 'TEXT');
+    v.text(0.05, y(p.cbl) + 0.08, `CBL${lv(p.cbl)}`, 1.7, 'TEXT');
+    v.dimV(y(p.cbl), y(R.fsl), -0.12 * fw, mm(p.fsd), 0, { h: 1.5 });
+    v.dimH(-p.bedWidth / 2, p.bedWidth / 2, y(p.cbl), mm(p.bedWidth), -6, { h: 1.6 });
+    // centre line
+    v.line(0, -0.3, 0, hTot - 0.2, 'CENTER', { w: 0.2 });
+    // labels
+    const topY = v.Y(hTot);
+    dw.leader(v.X(-s2 - p.abTopW - 1.6), v.Y(y(p.frl) - 0.04), v.X(-s2 - p.abTopW - 1.6) - 6, topY + 5, `${mm(p.wc)} THICK WEARING COAT WITH M20`, { right: false });
+    dw.leader(v.X(-s2 - p.abTopW - 0.7), v.Y(y(R.approachBot) + 0.15), v.X(-s2 - p.abTopW - 0.7) + 1, topY + 1, `${mm(p.approachThk)} THICK APPROACH SLAB WITH M20`, { right: false });
+    dw.leader(v.X(-s2 - p.bearingW - 0.01), v.Y(y(R.deckTop) + 0.1), v.X(-s2 - p.bearingW) + 6, topY + 9, '20 THK. EXP. JOINT(TYP)');
+    dw.leader(v.X(-0.2 * s2), v.Y(y(R.soffit) + p.D * 0.5), v.X(-0.2 * s2) + 3, topY + 5, `${mm(p.D)} THK. RCC SLAB WITH M20`);
+    dw.leader(v.X(s2 + p.bearingW - 0.15), v.Y(y(R.deckTop) + p.kerbH * 0.6), v.X(s2 + p.bearingW) + 4, topY + 1, 'KERB');
+    dw.leader(v.X(-s2 - p.bearingW + 0.15), v.Y(y(R.deckTop) + p.kerbH + 0.9), v.X(-s2 - p.bearingW) - 4, topY + 12, 'MOST STANDARD (HAND RAILING)', { right: false });
+
+    // ---------------- half plans
+    const B2 = R.B / 2;
+    const sx = 0.25 * p.wingLen;
+    const planHalfY = B2 + p.wingLen + 0.5;
+    const planHalfX = s2 + p.abTopW + p.approachLen + 0.4;
+    const sp = pick(2 * planHalfX, 2 * planHalfY, 320, 170);
+    const pv = BD.view(dw, 190, 160, sp);
+    dw.title(190, pv.Y(-planHalfY) - 9, 'HALF PLAN AT TOP AND HALF PLAN AT FOUNDATION');
+    pv.rect(-planHalfX, -planHalfY, 2 * planHalfX, 2 * planHalfY, 'THIN');
+    pv.line(-planHalfX - 0.3, 0, planHalfX + 0.3, 0, 'CENTER', { w: 0.2 });
+    pv.line(0, -planHalfY - 0.3, 0, planHalfY + 0.3, 'CENTER', { w: 0.2 });
+    // road / deck bands
+    for (const sg of [-1, 1]) pv.line(-planHalfX, sg * B2, planHalfX, sg * B2, 'THIN');
+    for (const sgx of [-1, 1]) {
+      const X = (x) => sgx * x;
+      // ---- top plan (y > 0)
+      pv.rect(Math.min(X(s2 + p.bearingW), X(s2 + p.bearingW)), 0, 0, 0);
+      pv.line(X(s2 + p.bearingW), 0, X(s2 + p.bearingW), B2, 'OUTLINE');
+      pv.line(X(s2 + p.abTopW), 0, X(s2 + p.abTopW), B2, 'OUTLINE');
+      pv.line(X(s2 + bbw), 0, X(s2 + bbw), B2, 'THIN');
+      pv.line(X(s2 + p.abTopW + p.approachLen), 0, X(s2 + p.abTopW + p.approachLen), B2, 'OUTLINE');
+      pv.line(X(s2 - fb), 0, X(s2 - fb), B2, 'HIDDEN');
+      pv.line(X(s2), 0, X(s2), B2, 'HIDDEN');
+      // railing posts
+      pv.rect(Math.min(X(s2 + p.bearingW - 0.35), X(s2 + p.bearingW)), B2 - p.kerbW - 0.05, 0.35, p.kerbW + 0.05, 'OUTLINE');
+      // wing (top)
+      const wTop = [[X(s2), B2], [X(s2 + sx), B2 + p.wingLen], [X(s2 + sx + p.wTopW), B2 + p.wingLen], [X(s2 + p.wTopW), B2]];
+      pv.poly(wTop, true, 'OUTLINE');
+      const wBase = [[X(s2 - p.wFrontBatter), B2], [X(s2 - p.wFrontBatter + sx), B2 + p.wingLen], [X(s2 - p.wFrontBatter + sx + p.wBaseW), B2 + p.wingLen], [X(s2 - p.wFrontBatter + p.wBaseW), B2]];
+      pv.poly(wBase, true, 'HIDDEN');
+      const rx0 = s2 + sx + p.wTopW;
+      pv.poly([[X(rx0), B2 + p.wingLen - 1.1], [X(rx0 + 1.0), B2 + p.wingLen - 1.1], [X(rx0 + 1.0), B2 + p.wingLen], [X(rx0), B2 + p.wingLen]], true, 'OUTLINE');
+      // canal banks (top half beyond deck)
+      pv.line(X(p.bedWidth / 2), B2, X(p.bedWidth / 2), planHalfY, 'THIN');
+      pv.line(X(R.topTBL / 2), B2 + 0.2, X(R.topTBL / 2), planHalfY, 'THIN');
+      for (let yy = B2 + 0.4; yy < planHalfY - 0.2; yy += 0.5) pv.line(X(R.topTBL / 2), yy, X(R.topTBL / 2 - 0.22), yy, 'THIN', { w: 0.15 });
+      pv.text(X((p.bedWidth + R.topTBL) / 4), B2 + p.wingLen * 0.72, `SLOPE ${p.sideSlope}:1`, 1.6, 'TEXT', { anchor: 'middle' });
+      pv.text(X(R.topTBL / 2 + 0.1), B2 + p.wingLen - 0.1, `TBL${lv(R.tbl)}`, 1.4, 'TEXT', { anchor: 'start', rot: 90 * sgx });
+      pv.text(X(planHalfX - 0.6), B2 + p.wingLen * 0.55, `G.L ${lv(p.gl)}`, 1.6, 'TEXT', { anchor: 'middle', rot: sgx > 0 ? 90 : 0 });
+      pv.dimH(X(s2 + sx + p.wTopW - 1.0 + 1.0), X(s2 + sx + p.wTopW + 1.0), B2 + p.wingLen, '1000', 3, { h: 1.4 });
+      pv.dimV(B2, B2 + p.wingLen, X(s2 + sx + p.wTopW + 1.0), mm(p.wingLen), sgx * 4, { h: 1.5 });
+      // ---- foundation plan (y < 0)
+      const fx0 = s2 - fb - p.abToe, fx1 = s2 - fb + R.stemBase + p.abHeel;
+      pv.solid([[X(fx0), -B2], [X(fx1), -B2], [X(fx1), 0], [X(fx0), 0]], 'OUTLINE', { density: 0.08 });
+      pv.line(X(s2 - fb), -B2, X(s2 - fb), 0, 'HIDDEN');
+      pv.line(X(s2 - fb + R.stemBase), -B2, X(s2 - fb + R.stemBase), 0, 'HIDDEN');
+      const wf0 = s2 - p.wFrontBatter - p.wToe;
+      const wf = [[X(wf0), -B2], [X(wf0 + R.wFtgW), -B2], [X(wf0 + R.wFtgW + sx), -B2 - p.wingLen], [X(wf0 + sx), -B2 - p.wingLen]];
+      pv.solid(wf, 'OUTLINE', { density: 0.08 });
+      pv.poly([[X(wf0), -B2 - 0.2], [X(wf0 + p.keyW), -B2 - 0.2], [X(wf0 + p.keyW + sx * 0.9), -B2 - p.wingLen + 0.05], [X(wf0 + sx * 0.9), -B2 - p.wingLen + 0.05]], true, 'HIDDEN');
+      pv.poly([[X(rx0 - 0.5), -B2 - p.wingLen], [X(rx0 + 1.5), -B2 - p.wingLen], [X(rx0 + 1.5), -B2 - p.wingLen + 2.1 > -B2 ? -B2 : -B2 - p.wingLen + 2.1], [X(rx0 - 0.5), -B2 - p.wingLen + 2.1 > -B2 ? -B2 : -B2 - p.wingLen + 2.1]], true, 'HIDDEN');
+      pv.line(X(p.bedWidth / 2), -planHalfY, X(p.bedWidth / 2), 0, 'THIN');
+      pv.line(X(R.topTBL / 2), -planHalfY, X(R.topTBL / 2), -B2 - 0.2, 'THIN');
+      pv.text(X(planHalfX - 0.6), -B2 - p.wingLen * 0.45, `G.L ${lv(p.gl)}`, 1.6, 'TEXT', { anchor: 'middle', rot: sgx > 0 ? 90 : 0 });
+      pv.dimH(X(fx0), X(fx1), -B2 / 2, mm(R.ftgW), 0, { h: 1.5 });
+      pv.dimH(X(s2 + p.abTopW), X(s2 + p.abTopW + p.approachLen), B2 * 0.35, mm(p.approachLen), 0, { h: 1.5 });
+    }
+    pv.dimH(-s2, s2, B2 * 0.6, mm(p.span), 0, { h: 1.6 });
+    
+    pv.dimV(-B2, B2, planHalfX - 1.4, mm(R.B), 0, { h: 1.5 });
+    pv.dimH(-p.bedWidth / 2, p.bedWidth / 2, planHalfY - 0.3, mm(p.bedWidth), 0, { h: 1.5 });
+    pv.text(-planHalfX + 0.4, B2 * 0.8, 'HALF PLAN AT TOP', 1.9, 'LABEL');
+    pv.text(-planHalfX + 0.4, -B2 * 0.8, 'HALF PLAN AT FOUNDATION', 1.9, 'LABEL');
+    pv.text(0.15, B2 * 0.1, `R.C.L${lv(p.frl)}`, 1.6, 'TEXT');
+    for (const sg of [1, -1]) {
+      const yc = sg * (B2 + p.wingLen * 0.5);
+      pv.text(-0.25, yc - 0.6, 'CANAL FLOW', 2.2, 'TEXT', { rot: 90, bold: true });
+      pv.line(0.35, yc - 0.6, 0.35, yc + 0.6, 'OUTLINE');
+      dw.poly([[pv.X(0.35), pv.Y(yc + 0.7)], [pv.X(0.35) - 0.9, pv.Y(yc + 0.7) - 2.4], [pv.X(0.35) + 0.9, pv.Y(yc + 0.7) - 2.4]], true, 'OUTLINE', { fill: true });
+    }
+    pv.text(0.1, B2 + 0.35, `CBL${lv(p.cbl)}`, 1.5, 'TEXT');
+
+    // ---------------- notes
+    const notes = [
+      'ALL THE DIMENSIONS ARE IN MILLIMETERS AND LEVELS ARE IN METERS',
+      'WRITTEN DIMENSIONS ONLY SHALL BE FOLLOWED',
+      `THE ${typ} IS DESIGNED FOR A CARRIAGE WAY WIDTH OF ${p.carriageway.toFixed(2)} m AND FOR ${p.bridgeType === 'DLRB' ? 'TWO LANES OF CLASS-A / ONE LANE OF CLASS 70R' : 'CLASS- A'} LOADING.`,
+      `THE ABUTMENTS ARE DESIGNED FOR EARTH PRESSURE COMPUTED BY RANKINE THEORY TAKING THE WEIGHT OF CONCRETE AS 2400 KG/CUM AND ANGLE OF INTERNAL FRICTION AS ${p.phi} DEGREES AND THE WEIGHT OF EARTH AS ${Math.round(p.gammaSoil * 1000)} Kg/cum.`,
+      `THE FILLING BEHIND THE ABUTMENT SHALL BE DONE SIMULTANEOUSLY WITH THE RAISING OF THE STRUCTURE WITH SOILS OF Ø VALUE NOT LESS THAN ${p.phi}° AND PERMEABILITY K NOT MORE THAN 3 M/YEAR.`,
+      'DESIGN CODES: IRC 5-2015, IRC 6-2017, IRC 21-2000, IRC 78-2014, IRC SP:13-2004, IS 456, IS 1786.',
+      'MINIMUM COVER TO ALL REINFORCEMENT INCLUDING STIRRUPS SHALL BE 40 MM.',
+      'ALL REINFORCING STEEL SHALL BE OF HIGH YIELD STRENGTH DEFORMED BARS (Fe 415) CONFORMING TO IS 1786.',
+      'JOINTS OR LAPPING OF BARS IN MAIN REINFORCEMENT SHALL BE AVOIDED AS FAR AS POSSIBLE. IF INEVITABLE, CLAUSE 304.6.6 OF IRC 21-2000 SHALL BE STRICTLY FOLLOWED.',
+      'BENDING OF REINFORCEMENT BARS SHALL BE AS PER IS 2502. SUPPORTING CHAIRS OF 10 MM DIA SHALL BE PROVIDED AT SUITABLE INTERVALS AS PER IS 2502.',
+      'CONCRETE SHALL BE PROVIDED IN MECHANICAL MIXERS OF CAPACITY NOT LESS THAN 200 LITRES. PROPER COMPACTION SHALL BE ENSURED BY USE OF FORM AND NEEDLE VIBRATORS.',
+      'GRADES OF CONCRETE:',
+      '   PCC M15 WITH 40MM M.S.A FOR FOUNDATION.',
+      '   CC M15 WITH 15% PLUMS FOR ABUTMENT WALL, WING WALL AND RETURNS.',
+      '   RCC M20 WITH 20MM M.S.A FOR DECK SLAB, BED BLOCKS, APPROACH SLAB, KERB, WEARING COAT.',
+      '   CC M15 WITH 20MM M.S.A FOR CANAL FLOOR / LINING.',
+      'THE EXPANSION JOINT MUST BE ROBUST, DURABLE, WATERTIGHT AND REPLACEABLE. IT MUST BE PROVIDED OVER FULL WIDTH OF SUPER STRUCTURE INCLUDING KERB.',
+      'THE EXPANSION JOINT SHALL CATER FOR A TOTAL MOVEMENT OF 20 MM.',
+      'THE DETAILS OF DRAINAGE SPOUT SHALL BE PROVIDED AS PER M.O.S.T DRAWING.',
+      'THE HAND RAILING AND OTHER DETAILS SHALL BE AS PER MOST DRG NO. SD/202.',
+      `THE PROPOSED ROAD LEVEL SHALL BE CONNECTED TO THE EXISTING ROAD LEVEL SUITABLY AS PER SITE CONDITIONS${p.frlNote ? ' (' + p.frlNote.replace(/^FRL adopted = /i, '').replace(/\.$/, '').toUpperCase() + ')' : ''}.`,
+      `${mm(p.liningThk)} MM THICK CANAL LINING IN C.C. M15 GRADE SHALL BE PROVIDED UPTO ${p.liningLen}M LENGTH ON EITHER SIDE WITH 300 x 1000 CC M15 CURTAIN WALLS AT BOTH ENDS (IRC SP:13 / IRC 89).`,
+      `SBC ASSUMED ${p.sbc} t/sqm - TO BE CONFIRMED BY TRIAL PIT BEFORE EXECUTION.`,
+    ];
+    dw.text(392, 402, 'NOTES:', 2.4, 'TITLE');
+    dw.line(392, 400.5, 408, 400.5, 'TITLE', { w: 0.2 });
+    let ny = 396, k = 0;
+    for (const n of notes) {
+      const indent = n.startsWith('   ');
+      const lines = wrapText(indent ? n.trim() : n, 100);
+      lines.forEach((ln, i) => {
+        const pre = !indent && i === 0 ? `${++k}) ` : '';
+        dw.text(indent ? 398 : i === 0 ? 392 : 396, ny, pre + ln, 1.25, 'TEXT');
+        ny -= 2.6;
+      });
+    }
+    // HP table
+    const hy = Math.min(ny - 6, 282);
+    dw.title(484, hy, `HYDRAULIC PARTICULARS OF THE CANAL @ ${p.chainage} KM`, 2.4);
+    const hp = [
+      ['S.No.', 'DESCRIPTION', 'PARTICULARS'],
+      ['1.', 'DISCHARGE (Q)', `${p.Q.toFixed(3)} Cumecs.`],
+      ['2.', 'BED WIDTH', `${p.bedWidth.toFixed(3)} m`],
+      ['3.', 'FSD', `${p.fsd.toFixed(3)} m`],
+      ['4.', 'VELOCITY', `${R.vel.toFixed(3)} m/sec`],
+      ['5.', "VALUE OF ' n '", `${p.manningN}`],
+      ['6.', 'BED FALL', `1 IN ${p.bedFall}`],
+      ['7.', 'SIDE SLOPES', `${p.sideSlope} : 1`],
+      ['8.', 'FREE BOARD', `${p.freeBoard.toFixed(3)} m`],
+      ['9.', 'TOP WIDTH OF BANKS (L/R)', `${p.bankWidthL.toFixed(3)} M / ${p.bankWidthR.toFixed(3)} M`],
+      ['10.', 'CBL', lv(p.cbl) + ' m'],
+      ['11.', 'FSL', lv(R.fsl) + ' m'],
+      ['12.', 'TBL', lv(R.tbl) + ' m'],
+      ['13.', 'GROUND LEVEL', lv(p.gl) + ' m'],
+    ];
+    dw.table(414, hy - 5, [12, 76, 52], hp, { rh: 4.3, h: 1.4 });
+    // road particulars
+    dw.title(290, 50, 'PARTICULARS OF ROAD.', 2.4);
+    dw.table(228, 46, [12, 58, 60], [
+      ['S.No.', 'DESCRIPTION', 'PARTICULARS'],
+      ['1.', 'TYPE OF ROAD', p.roadType],
+      ['2.', 'CONNECTION FROM', ''],
+      ['3.', 'CONNECTING TO', ''],
+      ['4.', 'ROAD WIDTH', `${p.carriageway.toFixed(2)} m`],
+      ['5.', 'GROUND LEVEL', lv(p.gl) + ' m'],
+      ['6.', 'PROPOSED ROAD LEVEL', lv(p.frl) + ' m'],
+    ], { rh: 5, h: 1.5 });
+    // trial pit
+    dw.title(62, 50, 'TRAIL PIT PARTICULARS', 2.4);
+    dw.text(52, 44, lv(p.gl), 1.5, 'TEXT', { anchor: 'end' });
+    dw.rect(54, 12, 6, 32, 'OUTLINE', { w: 0.3 });
+    dw.text(64, 35, 'TO BE RECORDED AT SITE', 1.5, 'TEXT');
+    dw.text(64, 24, '(SOIL STRATA & SBC)', 1.5, 'TEXT');
+    frame(dw, d, 1, `PLAN AND SECTIONAL ELEVATION OF ${typ} @ km ${p.chainage}`, `1:${se} / 1:${sp}`);
+    return dw;
+  }
+
+  function wrapText(s, n) {
+    const words = s.split(' '), out = [];
+    let cur = '';
+    for (const w of words) {
+      if ((cur + ' ' + w).trim().length > n) { out.push(cur.trim()); cur = w; } else cur += ' ' + w;
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+
+  // ------------------------------------------------------------ sheet 2
+  function sheet2(d) {
+    const { p, R } = d;
+    const dw = new BD.Dwg(W, H);
+    const c = p.cover;
+    const L = R.deckL, B = R.B;
+    // A. slab in span direction
+    const s1 = pick(L + 0.4, p.D + 0.3, 250, 60);
+    const va = BD.view(dw, 150 - (L * 1000) / s1 / 2, 360, s1);
+    va.rect(0, 0, L, p.D, 'OUTLINE', { w: 0.45 });
+    va.text(L / 2, p.D / 2, 'M20', 1.8, 'TEXT', { anchor: 'middle' });
+    const yb = c + p.mainDia / 2000, yt = p.D - c - p.topDia / 2000;
+    va.poly([[c, yb + 0.2], [c, yb], [L - c, yb], [L - c, yb + 0.2]], false, 'REBAR', { w: 0.45 });
+    va.line(c, yt, L - c, yt, 'REBAR', { w: 0.35 });
+    for (let x = c + 0.05; x <= L - c; x += p.distSpacing / 1000) va.circle(x, yb + (p.mainDia + p.distDia) / 2000, 0.45, 'REBAR', { fill: true });
+    for (let x = c + 0.05; x <= L - c; x += p.topSpacing / 1000) va.circle(x, yt - (p.topDia * 1.0) / 1000, 0.45, 'REBAR', { fill: true });
+    va.dimH(0, p.bearingW, p.D, mm(p.bearingW), 6);
+    va.dimH(p.bearingW, L - p.bearingW, p.D, mm(p.span), 6);
+    va.dimH(L - p.bearingW, L, p.D, mm(p.bearingW), 6);
+    va.dimV(0, p.D, L, mm(p.D), 6);
+    for (const x of [p.bearingW, L - p.bearingW]) va.line(x, -0.1, x, p.D + 0.4, 'THIN', { w: 0.15 });
+    dw.leader(va.X(L * 0.28), va.Y(yt), va.X(L * 0.28) - 4, va.Y(p.D) + 16, `${p.topDia} DIA AT ${p.topSpacing} C/C (TOP, ALONG SPAN)`, { right: false });
+    dw.leader(va.X(L * 0.75), va.Y(yt - 0.01), va.X(L * 0.75) + 3, va.Y(p.D) + 16, `${p.topDia} DIA AT ${p.topSpacing} C/C (TOP, ACROSS)`);
+    dw.leader(va.X(L * 0.3), va.Y(yb), va.X(L * 0.3) - 8, va.Y(0) - 7, `${p.mainDia} DIA AT ${p.mainSpacing} C/C (MAIN, BOTTOM)`, { right: false });
+    dw.leader(va.X(L * 0.7), va.Y(yb + 0.02), va.X(L * 0.7) + 8, va.Y(0) - 7, `${p.distDia} DIA AT ${p.distSpacing} C/C (DISTRIBUTION)`);
+    dw.text(va.X(L / 2), va.Y(0) - 14, `(MAIN BARS ${p.mainDia} DIA @ ${p.mainSpacing} C/C STRAIGHT WITH 200 MM END BENDS)`, 1.4, 'TEXT', { anchor: 'middle' });
+    dw.title(va.X(L / 2), va.Y(0) - 21, 'REINF. DETAILS OF SLAB IN SPAN DIRECTION');
+
+    // B. slab in cross section
+    const s2 = pick(B + 0.5, p.D + p.kerbH + 1.2, 250, 70);
+    const vb = BD.view(dw, 150 - (B * 1000) / s2 / 2, 255, s2);
+    vb.rect(0, 0, B, p.D, 'OUTLINE', { w: 0.45 });
+    vb.text(B / 2, p.D / 2, 'M20', 1.8, 'TEXT', { anchor: 'middle' });
+    for (const x0 of [0, B - p.kerbW]) {
+      vb.rect(x0, p.D, p.kerbW, p.kerbH, 'OUTLINE', { w: 0.4 });
+      vb.rect(x0 + p.kerbW * 0.1, p.D + p.kerbH, p.kerbW * 0.8, 1.1 - p.kerbH, 'THIN');
+      vb.line(x0 + p.kerbW * 0.1, p.D + 0.75, x0 + p.kerbW * 0.9, p.D + 0.75, 'THIN', { w: 0.15 });
+      vb.line(x0 + p.kerbW * 0.1, p.D + 0.95, x0 + p.kerbW * 0.9, p.D + 0.95, 'THIN', { w: 0.15 });
+    }
+    vb.rect(p.kerbW, p.D, p.carriageway, p.wc, 'THIN');
+    const ybm = c + p.mainDia / 2000;
+    for (let x = c + 0.03; x <= B - c; x += p.mainSpacing / 1000) vb.circle(x, ybm, 0.5, 'REBAR', { fill: true });
+    vb.line(c, ybm + (p.mainDia + p.distDia) / 2000, B - c, ybm + (p.mainDia + p.distDia) / 2000, 'REBAR', { w: 0.35 });
+    for (let x = c + 0.03; x <= B - c; x += p.topSpacing / 1000) vb.circle(x, p.D - c - p.topDia / 1000, 0.4, 'REBAR', { fill: true });
+    vb.line(c, p.D - c - p.topDia / 2000 + 0.012, B - c, p.D - c - p.topDia / 2000 + 0.012, 'REBAR', { w: 0.3 });
+    vb.dimH(0, p.kerbW, p.D + p.kerbH, mm(p.kerbW), 2, { h: 1.5 });
+    vb.dimH(p.kerbW, B - p.kerbW, p.D + p.kerbH, mm(p.carriageway), 2);
+    vb.dimH(B - p.kerbW, B, p.D + p.kerbH, mm(p.kerbW), 2, { h: 1.5 });
+    vb.dimH(0, B, 0, mm(B), -10);
+    vb.dimV(0, p.D, 0, mm(p.D), -5);
+    vb.dimV(p.D, p.D + p.kerbH, 0, mm(p.kerbH), -5, { h: 1.5 });
+    vb.dimV(p.D, p.D + 1.1, 0, '1100', -11);
+    dw.leader(vb.X(B * 0.5), vb.Y(p.D + p.wc * 0.6), vb.X(B * 0.62), vb.Y(p.D) + 11, `${mm(p.wc)} THK WEARING COAT M20`);
+    dw.leader(vb.X(B - p.kerbW * 0.5), vb.Y(p.D + p.kerbH * 0.5), vb.X(B) + 12, vb.Y(p.D) + 2, `KERB ${mm(p.kerbW)}x${mm(p.kerbH)} (M20)`);
+    dw.leader(vb.X(B - p.kerbW * 0.5), vb.Y(p.D + 1.0), vb.X(B) - 6, vb.Y(p.D + 1.1) + 6, 'HAND RAILING POST (MOST SD/202)', { right: false });
+    dw.leader(vb.X(B * 0.3), vb.Y(ybm + 0.015), vb.X(B * 0.25), vb.Y(0) - 5, `${p.distDia} DIA AT ${p.distSpacing} C/C (DISTRIBUTION)`, { right: false });
+    dw.leader(vb.X(B * 0.7), vb.Y(ybm), vb.X(B * 0.75), vb.Y(0) - 5, `${p.mainDia} DIA AT ${p.mainSpacing} C/C (MAIN)`);
+    dw.title(vb.X(B / 2), vb.Y(0) - 17, 'REINF. DETAILS OF SLAB IN CROSS SECTION');
+
+    // C. approach slab
+    const s3 = pick(p.approachLen + 0.3, p.approachThk, 150, 30);
+    const vc = BD.view(dw, 360, 360, s3);
+    vc.rect(0, 0, p.approachLen, p.approachThk, 'OUTLINE', { w: 0.45 });
+    vc.text(p.approachLen / 2, p.approachThk / 2, 'M20', 1.8, 'TEXT', { anchor: 'middle' });
+    for (const yy of [c + 0.006, p.approachThk - c - 0.006]) {
+      vc.line(c, yy, p.approachLen - c, yy, 'REBAR', { w: 0.3 });
+      for (let x = c + 0.03; x <= p.approachLen - c; x += 0.15) vc.circle(x, yy + (yy < 0.1 ? 0.012 : -0.012), 0.4, 'REBAR', { fill: true });
+    }
+    vc.dimH(0, p.approachLen, 0, mm(p.approachLen), -5);
+    vc.dimV(0, p.approachThk, p.approachLen, mm(p.approachThk), 5);
+    dw.leader(vc.X(p.approachLen * 0.3), vc.Y(p.approachThk - c), vc.X(p.approachLen * 0.3) - 2, vc.Y(p.approachThk) + 8, '12 DIA AT 150 C/C (T&B)', { right: false });
+    dw.leader(vc.X(p.approachLen * 0.75), vc.Y(p.approachThk - c), vc.X(p.approachLen * 0.75) + 2, vc.Y(p.approachThk) + 8, '12 DIA AT 150 C/C (T&B)');
+    dw.title(vc.X(p.approachLen / 2), vc.Y(0) - 12, `REINF. DETAIL OF APPROACH SLAB (1:${s3})`);
+
+    // D. bed block & kerb (1:15)
+    const vd = BD.view(dw, 440, 312, 15);
+    vd.rect(0, 0, 0.5, p.bedBlockT, 'OUTLINE', { w: 0.45 });
+    vd.text(0.25, p.bedBlockT / 2, 'M20', 1.6, 'TEXT', { anchor: 'middle' });
+    for (const yy of [0.05, p.bedBlockT - 0.05]) { vd.line(0.04, yy, 0.46, yy, 'REBAR'); for (const x of [0.07, 0.25, 0.43]) vd.circle(x, yy + (yy < 0.1 ? 0.012 : -0.012), 0.5, 'REBAR', { fill: true }); }
+    vd.dimH(0, 0.5, 0, '500', -4, { h: 1.5 });
+    vd.dimV(0, p.bedBlockT, 0.5, mm(p.bedBlockT), 4, { h: 1.5 });
+    dw.leader(vd.X(0.25), vd.Y(p.bedBlockT - 0.04), vd.X(0.25) + 6, vd.Y(p.bedBlockT) + 10, '10 DIA @ 150 C/C (T&B) BOTH WAYS');
+    dw.title(vd.X(0.25), vd.Y(0) - 10, 'BED BLOCK (1:15)', 2.4);
+    const ve = BD.view(dw, 548, 312, 15);
+    ve.rect(0, 0, p.kerbW, p.kerbH, 'OUTLINE', { w: 0.45 });
+    ve.poly([[0.04, 0.04], [p.kerbW - 0.04, 0.04], [p.kerbW - 0.04, p.kerbH - 0.04], [0.04, p.kerbH - 0.04]], true, 'REBAR', { w: 0.3 });
+    ve.line(0.04, 0.04, 0.04, -0.08, 'REBAR', { w: 0.3 }); ve.line(p.kerbW - 0.04, 0.04, p.kerbW - 0.04, -0.08, 'REBAR', { w: 0.3 });
+    for (const [x, yy] of [[0.055, 0.055], [p.kerbW - 0.055, 0.055], [0.055, p.kerbH - 0.055], [p.kerbW - 0.055, p.kerbH - 0.055]]) ve.circle(x, yy, 0.55, 'REBAR', { fill: true });
+    ve.line(-0.1, 0, p.kerbW + 0.3, 0, 'THIN');
+    ve.dimH(0, p.kerbW, p.kerbH, mm(p.kerbW), 3, { h: 1.5 });
+    ve.dimV(0, p.kerbH, 0, mm(p.kerbH), -4, { h: 1.5 });
+    dw.leader(ve.X(p.kerbW - 0.04), ve.Y(p.kerbH * 0.6), ve.X(0) - 2, ve.Y(p.kerbH) + 10, '4-10 DIA + 8 DIA STIRRUPS @ 200', { right: false });
+    dw.title(ve.X(p.kerbW / 2), ve.Y(0) - 10, 'KERB (1:15)', 2.4);
+
+    // E. stress table
+    dw.text(392, 282, 'STRESS TABLE :', 2.3, 'TITLE');
+    dw.text(530, 276.5, 'STRESS IN t/Sq.m.', 1.4, 'LABEL', { anchor: 'middle' });
+    const f3 = (x) => (x >= 0 ? '+' : '') + x.toFixed(3);
+    dw.table(392, 274, [14, 50, 32, 32, 32, 32], [
+      ['S.NO.', 'DESCRIPTION', 'CONC. MAX', 'CONC. MIN', 'SOIL MAX', 'SOIL MIN'],
+      ['1', 'ABUTMENT', f3(R.stemGov.smax), f3(R.stemGov.smin), f3(R.abWorst.pmax), f3(R.abWorst.pmin)],
+      ['2', 'WING WALL', f3(R.ws.smax), f3(R.ws.smin), f3(R.w.pmax), f3(R.w.pmin)],
+    ], { rh: 5.5, h: 1.5 });
+    dw.text(392, 254, `SBC ASSUMED ${p.sbc} t/sqm.  FOS: ABUTMENT OVERTURNING ${R.abWorst.fosO.toFixed(2)}, SLIDING ${R.abWorst.fosS.toFixed(2)};  WING WALL ${R.w.fosO.toFixed(2)} / ${R.w.fosS.toFixed(2)} (WITH SHEAR KEY).`, 1.3, 'TEXT');
+    // F. reinforcement schedule
+    dw.text(392, 245, 'REINFORCEMENT SCHEDULE :', 2.3, 'TITLE');
+    dw.table(392, 240, [44, 88, 52], [
+      ['MEMBER', 'BARS', 'REMARKS'],
+      ['Deck - bottom main', `${p.mainDia} dia @ ${p.mainSpacing} c/c, 200 end bends`, 'no bent up bars'],
+      ['Deck - distribution', `${p.distDia} dia @ ${p.distSpacing} c/c (bottom)`, 'over main bars'],
+      ['Deck - top', `${p.topDia} dia @ ${p.topSpacing} c/c both ways`, 'nominal'],
+      ['Chairs', '10 dia, 1 No./sqm', 'IS 2502'],
+      ['Kerb (2 Nos)', '4-10 dia + 8 dia stirrups @ 200', 'anchored in deck'],
+      ['Bed block (2 Nos)', '10 dia @ 150 c/c T&B both ways', ''],
+      ['Approach slab (2 Nos)', '12 dia @ 150 c/c T&B both ways', `${mm(p.approachLen)} x ${mm(B)} x ${mm(p.approachThk)}`],
+      ['Hand railing', 'As per MOST Drg. No. SD/202', ''],
+    ], { rh: 5, h: 1.45 });
+
+    // G. abutment section
+    const fb = p.frontBatter;
+    const aW = p.abToe + R.stemBase + p.abHeel + 1.6;
+    const aH = p.frl - p.foundationLevel + 0.4;
+    const s4 = pick(aW + 0.6, aH, 170, 135);
+    const vg = BD.view(dw, 38, 40, s4);
+    const yl = (lvl) => lvl - p.foundationLevel;
+    const x0 = 0, xs = p.abToe; // stem front toe at x = toe
+    vg.solid([[x0, 0], [R.ftgW, 0], [R.ftgW, p.footingT], [x0, p.footingT]], 'OUTLINE', { density: 0.12 });
+    vg.text(R.ftgW / 2, p.footingT / 2 - 0.05, 'PCC M15', 1.5, 'TEXT', { anchor: 'middle' });
+    // stem, canal face on the right (like the reference)
+    const Xm = (x) => R.ftgW - x;
+    const stem = [[xs, yl(R.ftgTop)], [xs + fb, yl(R.stemTop)], [xs + fb + 0.5, yl(R.stemTop)], [xs + fb + 0.5, yl(R.deckTop)], [xs + fb + p.abTopW, yl(R.deckTop)], [xs + R.stemBase, yl(R.ftgTop)]].map(([a, b]) => [Xm(a), b]);
+    vg.solid(stem, 'OUTLINE', { density: 0.12 });
+    vg.poly([[Xm(xs + fb), yl(R.stemTop)], [Xm(xs + fb + 0.5), yl(R.stemTop)], [Xm(xs + fb + 0.5), yl(R.soffit)], [Xm(xs + fb), yl(R.soffit)]]);
+    vg.text(Xm(xs + fb + 0.25), yl(R.stemTop) + 0.1, 'M20', 1.3, 'TEXT', { anchor: 'middle' });
+    // deck & approach stubs
+    vg.poly([[Xm(xs + fb + 0.5 - 0.02), yl(R.soffit)], [Xm(xs + fb - 0.6), yl(R.soffit)], [Xm(xs + fb - 0.6), yl(R.deckTop)], [Xm(xs + fb + 0.5 - 0.02), yl(R.deckTop)]], false, 'OUTLINE');
+    vg.text(Xm(xs + fb), yl(R.soffit) + p.D / 2 - 0.05, 'M20', 1.3, 'TEXT', { anchor: 'middle' });
+    vg.poly([[Xm(xs + fb + p.abTopW), yl(R.approachBot)], [Xm(xs + fb + p.abTopW + 1.4), yl(R.approachBot)], [Xm(xs + fb + p.abTopW + 1.4), yl(R.deckTop)], [Xm(xs + fb + p.abTopW), yl(R.deckTop)]], false, 'OUTLINE');
+    vg.text(Xm(xs + fb + p.abTopW + 0.7), yl(R.approachBot) + 0.1, 'M20', 1.3, 'TEXT', { anchor: 'middle' });
+    vg.line(Xm(xs + fb + p.abTopW + 1.6), yl(p.frl), Xm(xs + fb - 0.6), yl(p.frl), 'THIN');
+    vg.text(Xm(xs + fb + p.abTopW + 1.65), yl(p.frl) - 0.02, `R.C.L${lv(p.frl)}`, 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(Xm(xs + fb + p.abTopW + 1.65), yl(R.approachBot) - 0.02, lv(R.approachBot), 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(Xm(xs + fb + p.abTopW + 1.65), yl(R.soffit) - 0.1, lv(R.soffit), 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(Xm(xs + fb + p.abTopW + 1.65), yl(R.stemTop) - 0.02, lv(R.stemTop), 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(-0.1, p.footingT, lv(R.ftgTop), 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(-0.1, 0, lv(p.foundationLevel), 1.5, 'TEXT', { anchor: 'end' });
+    vg.text(R.ftgW / 2, yl(R.ftgTop) + R.stemH * 0.35, 'ABUTMENT WITH', 1.4, 'TEXT', { anchor: 'middle' });
+    vg.text(R.ftgW / 2, yl(R.ftgTop) + R.stemH * 0.35 - 0.18, 'CC M15 + 15% PLUMS', 1.4, 'TEXT', { anchor: 'middle' });
+    // dims
+    const segs = [[0, p.abToe, p.abToe], [p.abToe, p.abToe + p.abBackBatter, p.abBackBatter], [p.abToe + p.abBackBatter, p.abToe + p.abBackBatter + p.abTopW, p.abTopW], [p.abToe + p.abBackBatter + p.abTopW, p.abToe + R.stemBase, fb], [p.abToe + R.stemBase, R.ftgW, p.abHeel]];
+    for (const [a, b, val] of segs) vg.dimH(a, b, p.footingT, mm(val), 2.5, { h: 1.5 });
+    vg.dimH(p.abToe, p.abToe + R.stemBase, 0, mm(R.stemBase), -5);
+    vg.dimH(0, R.ftgW, 0, mm(R.ftgW), -11);
+    vg.dimV(0, p.footingT, R.ftgW, mm(p.footingT), 5);
+    vg.dimV(yl(R.ftgTop), yl(R.stemTop), R.ftgW, mm(R.stemH), 5);
+    vg.dimV(yl(R.stemTop), yl(R.soffit), R.ftgW, mm(p.bedBlockT), 5, { h: 1.5 });
+    vg.dimV(yl(R.approachBot), yl(R.deckTop), 0, mm(p.approachThk), -3, { h: 1.5 });
+    dw.leader(vg.X(Xm(xs + fb + 0.5)), vg.Y(yl(R.deckTop) - 0.05), vg.X(Xm(xs + fb + 0.5)) - 8, vg.Y(yl(p.frl)) + 12, '20 THK EXP. JOINT', { right: false });
+    dw.leader(vg.X(Xm(xs + fb + 0.25)), vg.Y(yl(R.stemTop) + 0.15), vg.X(R.ftgW) + 14, vg.Y(yl(R.stemTop)) - 5, `BED BLOCK 500x${mm(p.bedBlockT)} M20`);
+    dw.leader(vg.X(Xm(xs + fb * 0.5)), vg.Y(yl(R.ftgTop) + 0.3), vg.X(R.ftgW) + 14, vg.Y(yl(R.ftgTop) + 0.3) - 1, 'WEEP HOLES 75Ø @ 1 m');
+    dw.title(vg.X(R.ftgW / 2), 22, 'SECTION OF ABUTMENT & FOUNDATION');
+
+    // H. wing wall section
+    const wWm = R.wFtgW + 0.4, wHm = R.wH + p.wFootT + p.keyD + 0.3;
+    const s5 = pick(wWm + 0.6, wHm, 120, 140);
+    const vh = BD.view(dw, 262, 32 + (p.keyD * 1000) / s5, s5);
+    vh.solid([[0, 0], [R.wFtgW, 0], [R.wFtgW, p.wFootT], [0, p.wFootT]], 'OUTLINE', { density: 0.12 });
+    vh.text(R.wFtgW / 2, p.wFootT / 2 - 0.05, 'PCC M15', 1.4, 'TEXT', { anchor: 'middle' });
+    vh.solid([[0, 0], [p.keyW, 0], [p.keyW, -p.keyD], [0, -p.keyD]], 'OUTLINE', { density: 0.12 });
+    const wx = p.wToe;
+    vh.solid([[wx, p.wFootT], [wx + p.wFrontBatter, p.wFootT + R.wH], [wx + p.wFrontBatter + p.wTopW, p.wFootT + R.wH], [wx + p.wBaseW, p.wFootT]], 'OUTLINE', { density: 0.12 });
+    vh.text(wx + p.wBaseW / 2, p.wFootT + R.wH * 0.3, 'WING WALL WITH', 1.4, 'TEXT', { anchor: 'middle' });
+    vh.text(wx + p.wBaseW / 2, p.wFootT + R.wH * 0.3 - 0.2, 'CC M15 + 15% PLUMS', 1.4, 'TEXT', { anchor: 'middle' });
+    vh.dimH(wx + p.wFrontBatter, wx + p.wFrontBatter + p.wTopW, p.wFootT + R.wH, mm(p.wTopW), 3, { h: 1.5 });
+    vh.dimH(wx, wx + p.wBaseW, p.wFootT, mm(p.wBaseW), 1.5, { h: 1.5 });
+    vh.dimH(0, R.wFtgW, -p.keyD, mm(R.wFtgW), -4);
+    vh.dimV(p.wFootT, p.wFootT + R.wH, R.wFtgW, mm(R.wH), 5);
+    vh.dimV(0, p.wFootT, R.wFtgW, mm(p.wFootT), 5, { h: 1.5 });
+    vh.dimV(-p.keyD, 0, 0, mm(p.keyD), -3, { h: 1.5 });
+    vh.text(-0.1, p.wFootT + R.wH, lv(p.frl), 1.5, 'TEXT', { anchor: 'end' });
+    vh.text(-0.1, p.wFootT, lv(R.wFtgTop), 1.5, 'TEXT', { anchor: 'end' });
+    vh.text(-0.1, 0, lv(p.foundationLevel), 1.5, 'TEXT', { anchor: 'end' });
+    dw.leader(vh.X(p.keyW), vh.Y(-p.keyD / 2), vh.X(p.keyW) + 18, vh.Y(-p.keyD / 2) - 3, `SHEAR KEY ${mm(p.keyW)}x${mm(p.keyD)}`);
+    dw.title(vh.X(R.wFtgW / 2), 22, 'SECTION OF WING WALL');
+    dw.text(vh.X(R.wFtgW / 2), 17, '(AT ABUTMENT END; HEIGHT TAPERING TO BANK)', 1.3, 'TEXT', { anchor: 'middle' });
+
+    frame(dw, d, 2, `SECTIONS AND REINFORCEMENT DETAILS OF ${R.typ} @ km ${p.chainage}`, 'AS SHOWN');
+    return dw;
+  }
+
+  Object.assign(BD, { sheet1, sheet2 });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * Excel export (ExcelJS, loaded from CDN in index.html).
+ * Design workbook: DESIGN sheet in the reference layout (values).
+ * Estimate workbook: Cover, Check slip, Gen Abst, Abstract, detailed, steel,
+ * seigniorage, theoritical requirement - with live formulas like the reference.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const thin = { style: 'thin' };
+  const box = { top: thin, left: thin, bottom: thin, right: thin };
+  const bold = { bold: true };
+  const wrap = { wrapText: true, vertical: 'top' };
+
+  function signatures(ws, row, p) {
+    ws.getCell(row, 2).value = 'Assistant Executive Engineer';
+    ws.getCell(row, 5).value = 'Dy.Executive Engineer';
+    ws.getCell(row, 9).value = 'Executive Engineer';
+    ws.getCell(row + 1, 2).value = p.subDivision;
+    ws.getCell(row + 1, 5).value = p.subDivision;
+    ws.getCell(row + 1, 9).value = p.division;
+    for (const c of [2, 5, 9]) ws.getCell(row, c).font = bold;
+  }
+
+  function designWorkbook(d) {
+    const wb = new g.ExcelJS.Workbook();
+    const ws = wb.addWorksheet('DESIGN', { pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
+    ws.columns = [{ width: 70 }, { width: 16 }, { width: 10 }, { width: 55 }];
+    ws.addRow([d.R.title]).font = { bold: true, size: 12 };
+    ws.addRow([d.R.subtitle]);
+    ws.addRow([d.R.codes + ' Yellow cells = inputs.']);
+    ws.addRow([]);
+    for (const s of d.sections) {
+      const hr = ws.addRow([s.title]);
+      hr.font = { bold: true, color: { argb: 'FF1F3A93' } };
+      for (const r of s.rows) {
+        const v = typeof r.value === 'number' ? Math.round(r.value * 1e6) / 1e6 : r.value;
+        const row = ws.addRow([r.label, v, r.unit, r.remark]);
+        row.getCell(1).alignment = { wrapText: true };
+        row.getCell(4).alignment = { wrapText: true };
+        if (r.sub) row.font = { italic: true, bold: true };
+        if (typeof v === 'number') row.getCell(2).numFmt = Math.abs(v) >= 1000 ? '0.00' : '0.000';
+        if (r.input) row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF99' } };
+        if (r.check) {
+          row.getCell(2).font = { bold: true, color: { argb: r.ok ? 'FF0A7A2F' : 'FFC0142B' } };
+        }
+      }
+      ws.addRow([]);
+    }
+    ws.addRow([d.R.assumptions]).getCell(1).alignment = { wrapText: true };
+    for (const w of d.warnings) ws.addRow(['NOTE: ' + w]).font = { color: { argb: 'FFC0142B' } };
+    return wb;
+  }
+
+  function estimateWorkbook(d, e) {
+    const { p, R } = d;
+    const wb = new g.ExcelJS.Workbook();
+    const name = e.nameOfWork;
+
+    // Cover
+    const cv = wb.addWorksheet('Cover Page.');
+    cv.columns = Array.from({ length: 10 }, () => ({ width: 11 }));
+    cv.getCell('C4').value = p.state; cv.getCell('C4').font = { bold: true, size: 16 };
+    cv.getCell('C11').value = p.department; cv.getCell('C11').font = { bold: true, size: 14 };
+    cv.getCell('B15').value = name; cv.mergeCells('B15:J16'); cv.getCell('B15').alignment = wrap; cv.getCell('B15').font = { bold: true, size: 12 };
+    cv.getCell('C17').value = 'AMOUNT OF ESTIMATE'; cv.getCell('C17').font = { bold: true, size: 12 };
+    cv.getCell('F18').value = 'Rs '; cv.getCell('G18').value = { formula: "'Gen Abst'!C18", result: +e.lakhs.toFixed(2) };
+    cv.getCell('I18').value = 'Lakhs ';
+
+    // Check slip
+    const ck = wb.addWorksheet('Check slip - TS');
+    ck.columns = [{ width: 5 }, { width: 60 }, { width: 3 }, { width: 60 }];
+    ck.addRow(['CHECK SLIP ACCOMPANYING THE PROJECT / SCHEME / WORK ESTIMATE']).font = bold;
+    ck.addRow([]);
+    const slip = [
+      ['Name of the Project /Scheme/Work', R.nameOfWork],
+      ['Estimate Amount Rs.', { formula: 'TEXT(\'Gen Abst\'!C18,"0.00")&" Lakhs"', result: e.lakhs.toFixed(2) + ' Lakhs' }],
+      ['Category of Project /Scheme /Work', p.project],
+      ['Location /District /Mandal /Village', `${p.location}, ${p.district} Dist.`],
+      ['Scope of work in brief', `Construction of single vent ${R.typ} of ${p.span.toFixed(2)} m clear span with ${p.carriageway.toFixed(2)} m carriageway across ${p.canalName} at Km ${p.chainage}`],
+      ['Whether the approved Designs /Drawings /Hydraulic particulars /Cross sections are enclosed', 'ENCLOSED'],
+      ['Whether the data enclosed is based on the current SSR with year', '2026-27'],
+      ['Whether geological and foundation investigations carried out', 'Trial pit to be taken before execution'],
+      ['Whether the provision for formation of road, NH crossing, railway crossing and other road crossings is based on their specification and standards.', 'YES (as per IRC codes)'],
+      ['Construction programme of the Project/Scheme/work', '6 months'],
+    ];
+    slip.forEach(([a, b], i) => { const r = ck.addRow([i + 1, a, ':', b]); r.alignment = wrap; });
+
+    // sheet order as in the reference workbook; filled below in dependency order
+    const ga = wb.addWorksheet('Gen Abst');
+    const ab = wb.addWorksheet('Abstract');
+    const dt = wb.addWorksheet('detailed ');
+    const st = wb.addWorksheet('steel');
+    const sg = wb.addWorksheet('seignorage');
+    const th = wb.addWorksheet('theoritical requirement');
+
+    dt.columns = [{ width: 6 }, { width: 60 }, { width: 5 }, { width: 3 }, { width: 5 }, { width: 9 }, { width: 9 }, { width: 9 }, { width: 11 }, { width: 6 }];
+    dt.getCell('A1').value = 'Detailed Estimate'; dt.getCell('A1').font = { bold: true, size: 13 };
+    dt.getCell('A3').value = name; dt.mergeCells('A3:J3'); dt.getCell('A3').alignment = wrap; dt.getRow(3).height = 30;
+    dt.getRow(4).values = ['S.No.', 'Description of Item', 'No', '', '', 'Length', 'Width', 'Depth', 'Qty', 'Unit'];
+    dt.getRow(4).font = bold;
+    let rr = 6;
+    const totRef = {};
+    for (const it of e.items) {
+      dt.getCell(rr, 2).value = it.code; dt.getCell(rr, 2).font = bold; rr++;
+      dt.getCell(rr, 1).value = it.sl; dt.getCell(rr, 2).value = it.long; dt.getCell(rr, 2).alignment = wrap;
+      dt.getRow(rr).height = Math.min(160, 15 * Math.ceil(it.long.length / 70)); rr++;
+      if (it.key === 'steel') {
+        dt.getCell(rr, 2).value = 'Qty sheet enclosed (Bar Bending Schedule)';
+        totRef[it.code] = { cell: 'I' + rr }; // formula set once the BBS total row is known
+        dt.getCell(rr, 10).value = 'kgs'; rr++;
+        continue;
+      }
+      dt.getCell(rr, 2).value = it.where; rr++;
+      const first = rr;
+      for (const x of it.rows) {
+        dt.getRow(rr).values = ['', x.desc, x.n1, 'x', x.n2, x.l, x.w, x.d];
+        dt.getCell(rr, 9).value = { formula: `ROUND(C${rr}*E${rr}*F${rr}*G${rr}*H${rr},3)`, result: x.qty };
+        rr++;
+      }
+      dt.getCell(rr, 8).value = 'Total'; dt.getCell(rr, 8).font = bold;
+      dt.getCell(rr, 9).value = { formula: `SUM(I${first}:I${rr - 1})`, result: it.qty }; dt.getCell(rr, 9).font = bold;
+      dt.getCell(rr, 10).value = it.unit;
+      totRef[it.code] = { cell: 'I' + rr };
+      rr++;
+    }
+    signatures(dt, rr + 2, p);
+
+    // steel / BBS
+    st.columns = [{ width: 6 }, { width: 42 }, { width: 8 }, { width: 8 }, { width: 30 }, { width: 9 }, { width: 8 }, { width: 8 }, { width: 11 }, { width: 10 }, { width: 12 }];
+    st.getCell('A1').value = 'REINFORCEMENT STEEL'; st.getCell('A2').value = 'BAR BENDING SCHEDULE'; st.getCell('A1').font = bold; st.getCell('A2').font = bold;
+    st.getCell('A3').value = name;
+    st.getRow(4).values = ['SLNO', 'Description Of Bars', 'Dia Of Bar (mm)', 'Spacing (m)', 'Shape / Length make-up', 'Length (m)', 'No of Bars', 'No of Mem.', 'Total Length (m)', 'Weight Of Bar Per RMT (kg)', 'Total Weight In Kgs'];
+    st.getRow(4).font = bold; st.getRow(4).alignment = { wrapText: true };
+    let sr = 5, sl = 0, lastMember = null;
+    const firstSteel = sr;
+    for (const x of e.bbs.rows) {
+      if (x.member !== lastMember) { sl++; st.getRow(sr).values = [sl, x.member]; st.getRow(sr).font = bold; sr++; lastMember = x.member; }
+      st.getRow(sr).values = ['', x.desc, x.dia, x.sp, x.shape, x.len, x.nb, x.nm];
+      st.getCell(sr, 9).value = { formula: `F${sr}*G${sr}*H${sr}`, result: x.tl };
+      st.getCell(sr, 10).value = { formula: `ROUND(C${sr}^2/162,3)`, result: x.w };
+      st.getCell(sr, 11).value = { formula: `ROUND(I${sr}*J${sr},2)`, result: x.kg };
+      sr++;
+    }
+    sr++;
+    st.getCell(sr, 10).value = 'TOTAL'; st.getCell(sr, 11).value = { formula: `SUM(K${firstSteel}:K${sr - 2})`, result: e.bbs.total };
+    st.getRow(sr).font = bold;
+    const steelTot = sr;
+    sr += 2;
+    st.getCell(sr, 2).value = 'Dia-wise abstract'; st.getCell(sr, 2).font = bold; sr++;
+    st.getRow(sr).values = ['', 'Dia (mm)', 'Wt (kg)']; sr++;
+    const dws = sr;
+    for (const [dia, kg] of Object.entries(e.bbs.byDia)) {
+      st.getCell(sr, 2).value = +dia;
+      st.getCell(sr, 3).value = { formula: `SUMIF(C${firstSteel}:C${steelTot - 2},B${sr},K${firstSteel}:K${steelTot - 2})`, result: kg };
+      sr++;
+    }
+    st.getCell(sr, 2).value = 'Total'; st.getCell(sr, 3).value = { formula: `SUM(C${dws}:C${sr - 1})`, result: e.bbs.total };
+    signatures(st, sr + 3, p);
+    // patch detailed steel link
+    const sref = totRef['IRR-CCDW-2-1'];
+    dt.getCell(sref.cell).value = { formula: `steel!K${steelTot}`, result: e.bbs.total };
+
+    // Abstract
+    ab.columns = [{ width: 6 }, { width: 15 }, { width: 70 }, { width: 11 }, { width: 11 }, { width: 7 }, { width: 14 }, { width: 22 }];
+    ab.getCell('A1').value = 'ABSTRACT'; ab.getCell('A1').font = { bold: true, size: 13 };
+    ab.getCell('A3').value = name; ab.mergeCells('A3:G3'); ab.getCell('A3').alignment = wrap; ab.getRow(3).height = 30;
+    ab.getRow(5).values = ['Sl.No.', 'Item Code', 'Description of Item', 'Qty', 'Rate', 'Unit', 'Amount in Rs.'];
+    ab.getRow(6).values = [1, 2, 3, 4, 5, 6, 7];
+    ab.getRow(5).font = bold;
+    let ar = 7;
+    for (const it of e.items) {
+      ab.getRow(ar).values = [it.sl, it.code, it.short];
+      ab.getCell(ar, 3).alignment = wrap; ab.getRow(ar).height = 45;
+      ab.getCell(ar, 4).value = { formula: `'detailed '!${totRef[it.code].cell}`, result: it.qty };
+      ab.getCell(ar, 5).value = it.rate; ab.getCell(ar, 5).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF99' } };
+      ab.getCell(ar, 6).value = it.unit;
+      ab.getCell(ar, 7).value = { formula: `ROUND(D${ar}*E${ar},0)`, result: it.amount };
+      if (it.rateNote) ab.getCell(ar, 8).value = it.rateNote;
+      for (let c = 1; c <= 7; c++) ab.getCell(ar, c).border = box;
+      ar++;
+    }
+    ab.getCell(ar, 6).value = 'ECV'; ab.getCell(ar, 7).value = { formula: `SUM(G7:G${ar - 1})`, result: e.ecv }; ab.getRow(ar).font = bold;
+    const ecvCell = 'G' + ar;
+    signatures(ab, ar + 3, p);
+
+    // seigniorage
+    sg.columns = [{ width: 6 }, { width: 42 }, { width: 3 }, { width: 5 }, { width: 5 }, { width: 10 }, { width: 8 }, { width: 10 }, { width: 8 }, { width: 11 }, { width: 8 }, { width: 11 }, { width: 8 }, { width: 11 }];
+    sg.getCell('A1').value = 'Seigniorage Calculation'; sg.getCell('A1').font = bold;
+    sg.getCell('A2').value = name;
+    sg.getRow(5).values = ['S.No', 'Specification in Brief', '', 'Unit', '', 'Quantity', 'Earth/ Gravel', '', 'Metal/ Stone', '', ' NSand', '', 'M Sand'];
+    sg.getRow(7).values = ['', '', '', '', '', '', 'Factor', 'Quantity', 'Factor', 'Quantity', 'Factor', 'Quantity', 'Factor', 'Quantity'];
+    sg.getRow(5).font = bold;
+    let gr = 8;
+    const gFirst = gr;
+    e.seig.forEach((s, i) => {
+      const it = e.items.find((x) => s.name.endsWith(x.code));
+      sg.getRow(gr).values = [i + 1, s.name, '', 1, 'cum'];
+      sg.getCell(gr, 6).value = { formula: `'detailed '!${totRef[it.code].cell}`, result: s.qty };
+      sg.getCell(gr, 9).value = s.f[0]; sg.getCell(gr, 10).value = { formula: `F${gr}*I${gr}`, result: s.metal };
+      sg.getCell(gr, 11).value = s.f[1]; sg.getCell(gr, 12).value = { formula: `F${gr}*K${gr}`, result: s.nsand };
+      sg.getCell(gr, 13).value = s.f[2]; sg.getCell(gr, 14).value = { formula: `F${gr}*M${gr}`, result: s.msand };
+      gr++;
+    });
+    const tq = gr;
+    sg.getCell(tq, 1).value = 'Total Quantity';
+    for (const [c, k] of [['J', 'metal'], ['L', 'nsand'], ['N', 'msand']]) sg.getCell(`${c}${tq}`).value = { formula: `SUM(${c}${gFirst}:${c}${tq - 1})`, result: e.seigTot[k] };
+    sg.getCell(tq + 1, 1).value = 'Rate';
+    sg.getCell(`J${tq + 1}`).value = e.seigRates.metal; sg.getCell(`L${tq + 1}`).value = e.seigRates.nsand; sg.getCell(`N${tq + 1}`).value = e.seigRates.msand;
+    sg.getCell(tq + 2, 1).value = 'Amount Rs';
+    for (const [c, k] of [['J', 'metal'], ['L', 'nsand'], ['N', 'msand']]) sg.getCell(`${c}${tq + 2}`).value = { formula: `ROUND(${c}${tq + 1}*${c}${tq},0)`, result: e.seigAmt[k] };
+    sg.getCell(tq + 3, 1).value = 'Total Rs'; sg.getCell(`H${tq + 3}`).value = { formula: `SUM(J${tq + 2}:N${tq + 2})`, result: e.seigTotal };
+    sg.getCell(tq + 4, 1).value = `DMF at ${e.ga.dmf * 100} % on Seigniorage`; sg.getCell(`H${tq + 4}`).value = { formula: `ROUND(H${tq + 3}*${e.ga.dmf},0)`, result: e.dmf };
+    sg.getCell(tq + 5, 1).value = `SMFT at ${e.ga.smet * 100} % on Signiorage`; sg.getCell(`H${tq + 5}`).value = { formula: `ROUND(H${tq + 3}*${e.ga.smet},0)`, result: e.smet };
+    sg.getCell(tq + 6, 2).value = `permit fee ${e.ga.permit * 100}% on metal`; sg.getCell(`H${tq + 6}`).value = { formula: `(J${tq + 2}+N${tq + 2})*${e.ga.permit}`, result: e.permit };
+    const seigTotCell = `H${tq + 3}`, dmfCell = `H${tq + 4}`, permitCell = `H${tq + 6}`;
+    signatures(sg, tq + 9, p);
+
+    // theoretical requirement
+    th.columns = [{ width: 42 }, { width: 3 }, { width: 11 }, { width: 3 }, { width: 8 }, { width: 3 }, { width: 12 }, { width: 6 }];
+    th.getCell('A1').value = 'Theoritical Requirement'; th.getCell('A1').font = bold;
+    th.getCell('A2').value = name;
+    let tr = 4;
+    th.getCell(tr, 1).value = '1.Theoritical requirement for Metal'; th.getCell(tr, 1).font = bold; tr++;
+    const m0 = tr;
+    for (const t of e.theo) { th.getRow(tr).values = [t.name, '', t.qty, 'x', t.fm, '']; th.getCell(tr, 7).value = { formula: `C${tr}*E${tr}`, result: t.metal }; tr++; }
+    th.getCell(tr, 5).value = 'Total'; th.getCell(tr, 7).value = { formula: `SUM(G${m0}:G${tr - 1})`, result: e.theo.reduce((s, t) => s + t.metal, 0) }; th.getCell(tr, 8).value = 'Cum'; tr += 2;
+    th.getCell(tr, 1).value = '2.Theoritical requirement for Sand'; th.getCell(tr, 1).font = bold; tr++;
+    const s0 = tr;
+    for (const t of e.theo) { th.getRow(tr).values = [t.name, '', t.qty, 'x', t.fs, '']; th.getCell(tr, 7).value = { formula: `C${tr}*E${tr}`, result: t.sand }; tr++; }
+    th.getCell(tr, 5).value = 'Total'; th.getCell(tr, 7).value = { formula: `SUM(G${s0}:G${tr - 1})`, result: e.theo.reduce((s, t) => s + t.sand, 0) }; th.getCell(tr, 8).value = 'Cum';
+
+    // General abstract
+    ga.columns = [{ width: 6 }, { width: 70 }, { width: 16 }];
+    ga.getCell('A1').value = 'GENERAL ABSTRACT'; ga.getCell('A1').font = { bold: true, size: 13 };
+    ga.getCell('A2').value = name; ga.mergeCells('A2:C2'); ga.getCell('A2').alignment = wrap; ga.getRow(2).height = 30;
+    ga.getRow(3).values = ['S.No', 'DESCRIPTION OF WORK', 'Amount in Rs.']; ga.getRow(3).font = bold;
+    ga.getCell('B4').value = 'Part A   (Item Works)'; ga.getCell('B4').font = bold;
+    ga.getRow(5).values = [1, 'Total ECV Amount']; ga.getCell('C5').value = { formula: `Abstract!${ecvCell}`, result: e.ecv };
+    ga.getCell('B6').value = 'Total Rs.'; ga.getCell('C6').value = { formula: 'SUM(C5:C5)', result: e.ecv };
+    ga.getCell('B7').value = 'Part B'; ga.getCell('B7').font = bold;
+    const gab = e.genAbst;
+    ga.getRow(8).values = [2, gab[1][0]]; ga.getCell('C8').value = { formula: `C6*${e.ga.labourCess}`, result: e.lc };
+    ga.getRow(9).values = [3, gab[2][0]]; ga.getCell('C9').value = { formula: `ROUND(C6*${e.ga.nac},0)`, result: e.nac };
+    ga.getRow(10).values = [4, gab[3][0]]; ga.getCell('C10').value = { formula: `seignorage!${seigTotCell}`, result: e.seigTotal };
+    ga.getRow(11).values = [5, gab[4][0]]; ga.getCell('C11').value = { formula: `ROUND(${e.ga.smet}*C10,0)`, result: e.smet };
+    ga.getRow(12).values = [6, gab[5][0]]; ga.getCell('C12').value = { formula: `seignorage!${dmfCell}`, result: e.dmf };
+    ga.getRow(13).values = [7, gab[6][0]]; ga.getCell('C13').value = { formula: `seignorage!${permitCell}`, result: e.permit };
+    ga.getCell('B14').value = 'Sub Total'; ga.getCell('C14').value = { formula: 'SUM(C8:C13)', result: e.partB };
+    ga.getRow(15).values = [8, gab[7][0]]; ga.getCell('C15').value = { formula: `(C6+C14)*${e.ga.gst}`, result: e.gst };
+    ga.getRow(16).values = [9, gab[8][0]]; ga.getCell('C16').value = { formula: `ROUNDUP((C6+C14+C15)/1000,0)*1000-(C6+C14+C15)+${e.ga.roundExtra}`, result: e.rounding };
+    ga.getCell('B17').value = ' Total Rs.'; ga.getCell('C17').value = { formula: 'C16+C15+C14+C6', result: e.total };
+    ga.getCell('B18').value = 'Or Say (LAKHS)'; ga.getCell('C18').value = { formula: 'C17/100000', result: +e.lakhs.toFixed(2) };
+    ga.getRow(17).font = bold; ga.getRow(18).font = bold;
+    for (let r = 3; r <= 18; r++) for (let c = 1; c <= 3; c++) ga.getCell(r, c).border = box;
+    for (let r = 5; r <= 17; r++) ga.getCell(r, 3).numFmt = '#,##0.00';
+    signatures(ga, 21, p);
+    return wb;
+  }
+
+  async function download(wb, filename) {
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    return BD.saveBlob(blob, filename);
+  }
+
+  Object.assign(BD, { designWorkbook, estimateWorkbook, downloadWorkbook: download });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * PDF output (jsPDF + AutoTable) and file saving.
+ * Drawings are drawn from the same drafting model as the SVG / DXF, so the
+ * PDF is vector and exact at A2. Report and estimate go to A4 tables.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+
+  // Save a generated file: the claude.ai "downloads" capability when the page
+  // runs as a hosted artifact, otherwise a normal browser download.
+  let dlNs;
+  async function downloadsNs() {
+    if (dlNs !== undefined) return dlNs;
+    try { dlNs = g.claude && g.claude.use ? await g.claude.use('downloads') : null; } catch (e) { dlNs = null; }
+    return dlNs;
+  }
+  BD.saveBlob = async function (blob, filename) {
+    const ns = await downloadsNs();
+    if (ns) {
+      try { await ns.save({ filename, data: blob }); return true; }
+      catch (e) { if (e && e.code === 'declined') return false; throw new Error((e && e.message) || 'The file could not be saved.'); }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    return true;
+  };
+
+  const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const hex6 = (c) => (c.length === 4 ? '#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3] : c);
+  const latin = (s) => String(s).replace(/[φ]/g, 'dia').replace(/[≥]/g, '>=').replace(/[≤]/g, '<=').replace(/[–—]/g, '-').replace(/[₹]/g, 'Rs').replace(/[^\x00-\xff]/g, '?');
+
+  function drawDwg(doc, dw) {
+    const H = dw.h;
+    for (const e of dw.ents) {
+      const [, col, lt] = BD.LAYERS[e.layer] || BD.LAYERS.OUTLINE;
+      const c = rgb(hex6(col));
+      doc.setDrawColor(...c); doc.setFillColor(...c); doc.setTextColor(...c);
+      const sw = e.w != null ? e.w : e.layer === 'OUTLINE' || e.layer === 'BORDER' ? 0.3 : e.layer === 'REBAR' ? 0.35 : 0.18;
+      doc.setLineWidth(sw);
+      doc.setLineDashPattern(lt === 'DASHED' ? [2, 1] : lt === 'CENTER' ? [6, 1.2, 1.2, 1.2] : [], 0);
+      if (e.t === 'line') doc.line(e.x1, H - e.y1, e.x2, H - e.y2);
+      else if (e.t === 'poly') {
+        const pts = e.pts;
+        const d = [];
+        for (let i = 1; i < pts.length; i++) d.push([pts[i][0] - pts[i - 1][0], -(pts[i][1] - pts[i - 1][1])]);
+        doc.lines(d, pts[0][0], H - pts[0][1], [1, 1], e.fill ? 'FD' : 'S', !!e.closed);
+      } else if (e.t === 'circle') doc.circle(e.x, H - e.y, e.r, e.fill ? 'F' : 'S');
+      else if (e.t === 'text') {
+        const s = latin(e.s);
+        doc.setFont('helvetica', e.bold ? 'bold' : 'normal');
+        doc.setFontSize(e.h * 1.4 * 2.8346);
+        const w = doc.getTextWidth(s);
+        const off = e.anchor === 'middle' ? -w / 2 : e.anchor === 'end' ? -w : 0;
+        const a = ((e.rot || 0) * Math.PI) / 180;
+        doc.text(s, e.x + off * Math.cos(a), H - e.y - off * Math.sin(a), { angle: e.rot || 0 });
+      }
+    }
+    doc.setLineDashPattern([], 0);
+  }
+
+  function drawingsPDF(dws) {
+    const { jsPDF } = g.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [dws[0].w, dws[0].h], compress: true });
+    dws.forEach((dw, i) => { if (i) doc.addPage([dw.w, dw.h], 'landscape'); drawDwg(doc, dw); });
+    return doc.output('blob');
+  }
+
+  const BLUE = [29, 78, 216], OK = [10, 122, 47], BAD = [192, 20, 43], INP = [255, 248, 197], HEAD = [238, 242, 248];
+
+  function a4(title, lines) {
+    const { jsPDF } = g.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5);
+    const t = doc.splitTextToSize(latin(title), 182);
+    doc.text(t, 14, 16);
+    let y = 16 + t.length * 5;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(90);
+    for (const l of lines) { const s = doc.splitTextToSize(latin(l), 182); doc.text(s, 14, y); y += s.length * 3.8; }
+    doc.setTextColor(0);
+    return { doc, y: y + 2 };
+  }
+
+  function footer(doc, d) {
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) {
+      doc.setPage(i); doc.setFontSize(7.5); doc.setTextColor(120);
+      doc.text(latin(d.R.nameOfWork), 14, 290);
+      doc.text(`Page ${i} of ${n}`, 196, 290, { align: 'right' });
+    }
+  }
+
+  function signatures(doc, p) {
+    let y = doc.lastAutoTable.finalY + 28;
+    if (y > 270) { doc.addPage(); y = 40; }
+    doc.setFontSize(9); doc.setTextColor(0); doc.setFont('helvetica', 'bold');
+    [['Assistant Executive Engineer', p.subDivision], ['Dy. Executive Engineer', p.subDivision], ['Executive Engineer', p.division]].forEach(([a, b], i) => {
+      const x = 14 + 30 + i * 61;
+      doc.setFont('helvetica', 'bold'); doc.text(a, x, y, { align: 'center' });
+      doc.setFont('helvetica', 'normal'); doc.text(latin(b), x, y + 4.5, { align: 'center' });
+    });
+  }
+
+  function reportPDF(d) {
+    const { doc, y } = a4(d.R.title, [d.R.subtitle, d.R.codes + ' Shaded values are inputs.']);
+    let startY = y;
+    for (const s of d.sections) {
+      const body = s.rows.map((r) => {
+        const v = typeof r.value === 'number' ? (Number.isInteger(r.value) ? String(r.value) : Math.abs(r.value) >= 1000 ? r.value.toFixed(2) : r.value.toFixed(3)) : String(r.value);
+        return r.sub ? [{ content: latin(r.label), colSpan: 4, styles: { fontStyle: 'bolditalic', fillColor: HEAD } }] : [latin(r.label), latin(v), latin(r.unit || ''), latin(r.remark || '')];
+      });
+      doc.autoTable({
+        startY, head: [[{ content: latin(s.title), colSpan: 4 }]], body, theme: 'grid',
+        styles: { fontSize: 7.6, cellPadding: 1.1, lineColor: [215, 220, 228], lineWidth: 0.1, textColor: 20 },
+        headStyles: { fillColor: [255, 255, 255], textColor: BLUE, fontStyle: 'bold', fontSize: 8.6, lineWidth: 0 },
+        columnStyles: { 0: { cellWidth: 88 }, 1: { cellWidth: 34, halign: 'right', fontStyle: 'bold' }, 2: { cellWidth: 14 }, 3: { textColor: 90, fontSize: 6.8 } },
+        margin: { left: 14, right: 14, bottom: 14 },
+        didParseCell: (h) => {
+          if (h.section !== 'body' || h.column.index !== 1) return;
+          const r = s.rows[h.row.index];
+          if (!r) return;
+          if (r.check) h.cell.styles.textColor = r.ok ? OK : BAD;
+          else if (r.input) h.cell.styles.fillColor = INP;
+        },
+      });
+      startY = doc.lastAutoTable.finalY + 4;
+    }
+    doc.setFontSize(8); doc.setTextColor(90);
+    doc.text(doc.splitTextToSize(latin(d.R.assumptions), 182), 14, doc.lastAutoTable.finalY + 6);
+    signatures(doc, d.p);
+    footer(doc, d);
+    return doc.output('blob');
+  }
+
+  function estimatePDF(d, e) {
+    const inr = (n) => Math.round(n).toLocaleString('en-IN');
+    const { doc, y } = a4('ESTIMATE', [e.nameOfWork]);
+    const base = { theme: 'grid', styles: { fontSize: 7.6, cellPadding: 1.2, lineColor: [200, 206, 216], lineWidth: 0.1, textColor: 20 }, headStyles: { fillColor: HEAD, textColor: 20, fontStyle: 'bold' }, margin: { left: 14, right: 14, bottom: 14 } };
+    const sec = (t, at) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...BLUE); doc.text(t, 14, at); doc.setTextColor(0); doc.setFont('helvetica', 'normal'); return at + 2; };
+    let at = sec('GENERAL ABSTRACT', y + 2);
+    const ga = [['', { content: 'Part A (Item works)', styles: { fontStyle: 'bold' } }, ''], ['1', e.genAbst[0][0], inr(e.genAbst[0][1])], ['', { content: 'Part B', styles: { fontStyle: 'bold' } }, '']];
+    e.genAbst.slice(1).forEach(([a, b], i) => ga.push([String(i + 2), latin(a.trim()), inr(b)]));
+    ga.push(['', { content: 'Total Rs.', styles: { fontStyle: 'bold' } }, { content: inr(e.total), styles: { fontStyle: 'bold' } }]);
+    ga.push(['', { content: 'Or say (Lakhs)', styles: { fontStyle: 'bold' } }, { content: e.lakhs.toFixed(2), styles: { fontStyle: 'bold' } }]);
+    doc.autoTable(Object.assign({}, base, { startY: at, head: [['S.No', 'Description of work', 'Amount in Rs.']], body: ga, columnStyles: { 0: { cellWidth: 12 }, 2: { cellWidth: 34, halign: 'right' } } }));
+    at = sec('ABSTRACT', doc.lastAutoTable.finalY + 8);
+    const ab = e.items.map((it) => [it.sl, it.code, latin(it.short), it.qty.toFixed(3), String(it.rate), it.unit, inr(it.amount)]);
+    ab.push([{ content: 'ECV', colSpan: 6, styles: { fontStyle: 'bold', halign: 'right' } }, { content: inr(e.ecv), styles: { fontStyle: 'bold' } }]);
+    doc.autoTable(Object.assign({}, base, { startY: at, head: [['Sl', 'Item code', 'Description of item', 'Qty', 'Rate', 'Unit', 'Amount']], body: ab, columnStyles: { 0: { cellWidth: 7 }, 1: { cellWidth: 22 }, 3: { halign: 'right', cellWidth: 16 }, 4: { halign: 'right', cellWidth: 15 }, 5: { cellWidth: 10 }, 6: { halign: 'right', cellWidth: 20 } } }));
+    doc.addPage();
+    at = sec('DETAILED ESTIMATE', 16);
+    const dt = [];
+    for (const it of e.items) {
+      dt.push([{ content: `${it.sl}. ${it.code} - ${latin(it.long)}`, colSpan: 6, styles: { fontStyle: 'bold', fillColor: HEAD } }]);
+      if (it.key === 'steel') { dt.push(['Qty as per Bar Bending Schedule', '', '', '', '', it.qty.toFixed(2) + ' kg']); continue; }
+      dt.push([{ content: it.where, colSpan: 6, styles: { fontStyle: 'italic' } }]);
+      for (const r of it.rows) dt.push([latin(r.desc), `${r.n1} x ${r.n2}`, String(r.l), String(r.w), String(r.d), r.qty.toFixed(3)]);
+      dt.push([{ content: 'Total', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } }, { content: `${it.qty.toFixed(3)} ${it.unit}`, styles: { fontStyle: 'bold' } }]);
+    }
+    doc.autoTable(Object.assign({}, base, { startY: at, head: [['Description', 'No', 'Length', 'Width', 'Depth', 'Qty']], body: dt, columnStyles: { 1: { cellWidth: 14, halign: 'center' }, 2: { cellWidth: 16, halign: 'right' }, 3: { cellWidth: 16, halign: 'right' }, 4: { cellWidth: 16, halign: 'right' }, 5: { cellWidth: 24, halign: 'right' } } }));
+    at = sec('BAR BENDING SCHEDULE', doc.lastAutoTable.finalY + 8);
+    const bb = [];
+    let last = '';
+    for (const r of e.bbs.rows) {
+      if (r.member !== last) { bb.push([{ content: latin(r.member), colSpan: 10, styles: { fontStyle: 'bold', fillColor: HEAD } }]); last = r.member; }
+      bb.push([latin(r.desc), r.dia, String(r.sp), latin(r.shape), r.len, r.nb, r.nm, r.tl, r.w, r.kg.toFixed(2)]);
+    }
+    bb.push([{ content: 'TOTAL WEIGHT OF STEEL (kg)', colSpan: 9, styles: { halign: 'right', fontStyle: 'bold' } }, { content: e.bbs.total.toFixed(2), styles: { fontStyle: 'bold' } }]);
+    doc.autoTable(Object.assign({}, base, { startY: at, head: [['Description', 'Dia', 'Spacing', 'Shape', 'Length', 'Nos', 'Mem', 'Total L', 'kg/m', 'kg']], body: bb, styles: Object.assign({}, base.styles, { fontSize: 6.8 }) }));
+    at = sec('SEIGNIORAGE', doc.lastAutoTable.finalY + 8);
+    doc.autoTable(Object.assign({}, base, {
+      startY: at, head: [['Material', 'Quantity (cum)', 'Rate', 'Amount (Rs)']], columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+      body: [
+        ['Metal', e.seigTot.metal.toFixed(3), e.seigRates.metal, inr(e.seigAmt.metal)],
+        ['N-Sand', e.seigTot.nsand.toFixed(3), e.seigRates.nsand, inr(e.seigAmt.nsand)],
+        ['M-Sand', e.seigTot.msand.toFixed(3), e.seigRates.msand, inr(e.seigAmt.msand)],
+        [{ content: 'Total seigniorage', colSpan: 3, styles: { fontStyle: 'bold' } }, inr(e.seigTotal)],
+        [{ content: `DMF ${e.ga.dmf * 100} % / SMET ${e.ga.smet * 100} % / permit fee ${e.ga.permit * 100} %`, colSpan: 3 }, `${inr(e.dmf)} / ${inr(e.smet)} / ${inr(e.permit)}`],
+      ],
+    }));
+    signatures(doc, d.p);
+    footer(doc, d);
+    return doc.output('blob');
+  }
+
+  async function dxfZip(d, base) {
+    const zip = new g.JSZip();
+    zip.file(`${base}_Sheet1.dxf`, BD.toDXF(BD.sheet1(d)));
+    zip.file(`${base}_Sheet2.dxf`, BD.toDXF(BD.sheet2(d)));
+    return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+  }
+
+  Object.assign(BD, { drawingsPDF, reportPDF, estimatePDF, dxfZip });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* UI: input form, live design, report / drawings / estimate views, exports. */
+(function () {
+  'use strict';
+  const BD = window.BD;
+  const $ = (s, r = document) => r.querySelector(s);
+  const fmt = BD.fmt;
+  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1';
+
+  // [key, label, unit, step] ; text fields have step = 'text'
+  const GROUPS = [
+    ['Hydraulic particulars (HPs)', true, [
+      ['Q', 'Discharge Q', 'cumecs', 0.001], ['bedWidth', 'Bed width', 'm', 0.001], ['fsd', 'Full supply depth', 'm', 0.001],
+      ['sideSlope', 'Side slope (H:1)', '', 0.25], ['freeBoard', 'Free board', 'm', 0.01], ['bedFall', 'Bed fall 1 in', '', 100],
+      ['manningN', "Manning's n", '', 0.001], ['cbl', 'Design CBL', 'm', 0.001], ['cblExisting', 'Existing CBL', 'm', 0.001],
+      ['bankWidthL', 'Bank top width L', 'm', 0.1], ['bankWidthR', 'Bank top width R', 'm', 0.1],
+    ]],
+    ['Road & levels', true, [
+      ['span', 'Clear span', 'm', 0.25], ['carriageway', 'Carriageway', 'm', 0.05], ['frl', 'Road level (FRL)', 'm', 0.001],
+      ['gl', 'Ground level', 'm', 0.001], ['foundationLevel', 'Foundation level', 'm', 0.05], ['frlNote', 'FRL note', '', 'text'],
+      ['sbc', 'Safe bearing capacity', 't/sqm', 0.5], ['siltFactor', 'Silt factor f', '', 0.1],
+    ]],
+    ['Project details (for title block & estimate)', false, [
+      ['chainage', 'Chainage (Km)', '', 'text'], ['canalName', 'Canal', '', 'text'],
+      ['location', 'Place / village', '', 'text'], ['district', 'District', '', 'text'],
+      ['project', 'Project', '', 'text'], ['state', 'Government', '', 'text'], ['department', 'Department', '', 'text'],
+      ['subDivision', 'Sub-division', '', 'text'], ['division', 'Division', '', 'text'], ['roadType', 'Type of road', '', 'text'],
+    ]],
+    ['Deck slab', false, [
+      ['D', 'Slab thickness D', 'm', 0.025], ['wc', 'Wearing coat', 'm', 0.005], ['mainDia', 'Main bar dia', 'mm', 1],
+      ['mainSpacing', 'Main bar spacing', 'mm', 5], ['distDia', 'Distribution dia', 'mm', 1], ['distSpacing', 'Distribution spacing', 'mm', 5],
+      ['topDia', 'Top bar dia', 'mm', 1], ['topSpacing', 'Top bar spacing', 'mm', 5], ['cover', 'Clear cover', 'm', 0.005],
+      ['kerbW', 'Kerb width', 'm', 0.025], ['kerbH', 'Kerb height', 'm', 0.025], ['bearingW', 'Bearing width', 'm', 0.01],
+      ['approachLen', 'Approach slab length', 'm', 0.5], ['approachThk', 'Approach slab thk', 'm', 0.025],
+      ['scbc', 'σcbc (M20)', 'N/mm²', 0.5], ['sst', 'σst (Fe415)', 'N/mm²', 10], ['modRatio', 'Modular ratio', '', 1],
+    ]],
+    ['Abutment', false, [
+      ['frontBatter', 'Front batter', 'm', 0.05], ['abTopW', 'Top width', 'm', 0.05], ['abBackBatter', 'Back batter', 'm', 0.05],
+      ['abToe', 'Footing toe', 'm', 0.05], ['abHeel', 'Footing heel', 'm', 0.05], ['footingT', 'Footing thickness', 'm', 0.05],
+      ['bedBlockT', 'Bed block thickness', 'm', 0.05], ['gammaSoil', 'Soil unit weight', 't/cum', 0.1], ['phi', 'Backfill φ', 'deg', 1],
+      ['surcharge', 'LL surcharge height', 'm', 0.1], ['mu', 'Friction coefficient', '', 0.05],
+    ]],
+    ['Wing walls & canal protection', false, [
+      ['wTopW', 'Wing top width', 'm', 0.05], ['wFrontBatter', 'Wing front batter', 'm', 0.05], ['wBaseW', 'Wing base width', 'm', 0.1],
+      ['wToe', 'Wing toe', 'm', 0.05], ['wHeel', 'Wing heel', 'm', 0.05], ['wFootT', 'Wing footing thk', 'm', 0.05],
+      ['wingLen', 'Wing length', 'm', 0.1], ['keyW', 'Shear key width', 'm', 0.05], ['keyD', 'Shear key depth', 'm', 0.05],
+      ['apronThk', 'Apron thickness', 'm', 0.025], ['liningLen', 'Lining length u/s & d/s', 'm', 1], ['liningThk', 'Lining thickness', 'm', 0.025],
+    ]],
+  ];
+
+  const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
+  const EXAMPLES = {
+    km0450: () => Object.assign({}, BD.DEFAULTS),
+    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580),
+    dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
+  };
+
+  let state = load(STORE) || Object.assign({}, BD.DEFAULTS);
+  let rates = load(RSTORE) || {};
+  let cur = null, est = null;
+
+  function load(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+
+  // ---------------------------------------------------------------- form
+  function buildForm() {
+    const form = $('#form');
+    form.innerHTML = '';
+    for (const [title, open, fields] of GROUPS) {
+      const det = document.createElement('details');
+      det.open = open;
+      det.innerHTML = `<summary>${title}</summary><div class="grid"></div>`;
+      const grid = det.querySelector('.grid');
+      for (const [key, label, unit, step] of fields) {
+        const isText = step === 'text';
+        const wrap = document.createElement('label');
+        wrap.className = 'field' + (isText ? ' wide' : '');
+        wrap.innerHTML = `<span>${label}${unit ? ` <em>${unit}</em>` : ''}</span>` +
+          `<input name="${key}" ${isText ? 'type="text"' : `type="number" step="${step}" inputmode="decimal"`}>` +
+          `<small class="hint-inline" data-hint="${key}"></small>`;
+        grid.appendChild(wrap);
+      }
+      form.appendChild(det);
+    }
+    form.addEventListener('input', (e) => {
+      const t = e.target;
+      if (!t.name) return;
+      state[t.name] = t.type === 'number' ? (t.value === '' ? state[t.name] : Number(t.value)) : t.value;
+      schedule();
+    });
+    form.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-use]');
+      if (!b) return;
+      e.preventDefault();
+      state[b.dataset.use] = Number(b.dataset.val);
+      fillForm(); run();
+    });
+  }
+
+  function fillForm() {
+    for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
+    document.querySelectorAll('.type-switch button').forEach((b) => b.classList.toggle('active', b.dataset.type === state.bridgeType));
+  }
+
+  let timer = null;
+  function schedule() { clearTimeout(timer); timer = setTimeout(run, 150); }
+
+  // ---------------------------------------------------------------- render
+  function run() {
+    try {
+      cur = BD.design(state);
+      est = BD.estimate(cur, { rates });
+    } catch (err) {
+      $('#status').innerHTML = `<div class="badge bad">Could not compute: ${esc(err.message)}</div>`;
+      return;
+    }
+    save(STORE, state);
+    renderStatus(); renderHints(); renderReport(); renderEstimate();
+    if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
+  }
+  let drawingsStale = true;
+
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const val = (v) => (typeof v === 'number' ? (Number.isInteger(v) ? String(v) : Math.abs(v) >= 1000 ? v.toFixed(2) : v.toFixed(3)) : esc(v));
+
+  function renderStatus() {
+    const fails = [];
+    for (const s of cur.sections) for (const r of s.rows) if (r.check && !r.ok) fails.push(`${s.title.replace(/^\d+\.\s*/, '').split(' (')[0]}: ${r.label}`);
+    const R = cur.R;
+    const gov = R.govM.veh.name;
+    $('#status').innerHTML =
+      `<div class="badge ${fails.length ? 'bad' : 'ok'}">${fails.length ? `${fails.length} check${fails.length > 1 ? 's' : ''} need revision` : 'All design checks OK'}</div>` +
+      `<div class="kpis">
+        <div><b>${R.typ}</b><span>${fmt(state.span, 2)} m span × ${fmt(R.B, 2)} m wide</span></div>
+        <div><b>${fmt(state.D * 1000, 0)} mm</b><span>deck, ${state.mainDia}φ @ ${state.mainSpacing}</span></div>
+        <div><b>${fmt(R.abWorst.pmax, 2)}</b><span>max base pressure t/m² (SBC ${state.sbc})</span></div>
+        <div><b>₹ ${est.lakhs.toFixed(2)} L</b><span>estimate</span></div>
+      </div>` +
+      (fails.length ? `<ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p class="hint">Tip: <b>Auto design</b> sizes the deck, abutment and wing walls to pass all checks.</p>` : '') +
+      (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '') +
+      `<p class="hint">Governing live load: ${esc(gov)}.</p>`;
+  }
+
+  function renderHints() {
+    const R = cur.R;
+    const set = (k, html) => { const el = document.querySelector(`[data-hint="${k}"]`); if (el) el.innerHTML = html; };
+    document.querySelectorAll('[data-hint]').forEach((el) => (el.innerHTML = ''));
+    if (Math.abs(state.span - R.spanSuggested) > 1e-6) set('span', `Suggested ${fmt(R.spanSuggested, 2)} m (canal top width at FSL ${fmt(R.topFSL, 3)}) <button data-use="span" data-val="${R.spanSuggested}">use</button>`);
+    else set('span', `= suggested from top width at FSL ${fmt(R.topFSL, 3)} m`);
+    set('foundationLevel', `Deepest allowed by scour / apron check: +${fmt(Math.max(R.flScour + 0.01, R.flApron))}${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use ${fmt(R.flSuggested)}</button>`}`);
+    if (!R.okSoffit) set('frl', `Soffit below TBL – FRL ≥ +${fmt(R.frlMin)} <button data-use="frl" data-val="${R.frlMin.toFixed(3)}">use</button>`);
+    set('carriageway', state.bridgeType === 'DLRB' ? 'IRC 5: 7.50 m two-lane' : 'IRC 5: 4.25 m single lane');
+  }
+
+  function renderReport() {
+    const R = cur.R;
+    let h = `<div class="doc"><h2>${esc(R.title)}</h2><p class="meta">${esc(R.subtitle)}</p><p class="meta">${esc(R.codes)} <span class="inp-key">Yellow = input</span></p>`;
+    for (const s of cur.sections) {
+      h += `<h3>${esc(s.title)}</h3><table class="calc"><tbody>`;
+      for (const r of s.rows) {
+        if (r.sub) { h += `<tr class="sub"><td colspan="4">${esc(r.label)}</td></tr>`; continue; }
+        const cls = r.check ? (r.ok ? 'ok' : 'bad') : r.input ? 'inp' : '';
+        h += `<tr><td>${esc(r.label)}</td><td class="v ${cls}">${val(r.value)}</td><td class="u">${esc(r.unit || '')}</td><td class="r">${esc(r.remark || '')}</td></tr>`;
+      }
+      h += '</tbody></table>';
+    }
+    h += `<p class="meta">${esc(R.assumptions)}</p>`;
+    h += signBlock();
+    h += '</div>';
+    $('#report').innerHTML = h;
+  }
+
+  function signBlock() {
+    return `<div class="signs"><div>Assistant Executive Engineer<br><small>${esc(state.subDivision)}</small></div><div>Dy. Executive Engineer<br><small>${esc(state.subDivision)}</small></div><div>Executive Engineer<br><small>${esc(state.division)}</small></div></div>`;
+  }
+
+  const inr = (n) => Math.round(n).toLocaleString('en-IN');
+  function renderEstimate() {
+    const e = est;
+    let h = `<div class="doc"><h2>ESTIMATE</h2><p class="meta">${esc(e.nameOfWork)}</p>`;
+    h += '<h3>GENERAL ABSTRACT</h3><table class="est"><thead><tr><th>S.No</th><th>Description</th><th class="n">Amount (Rs)</th></tr></thead><tbody>';
+    h += `<tr class="sub"><td></td><td>Part A (Item works)</td><td></td></tr>`;
+    h += `<tr><td>1</td><td>${e.genAbst[0][0]}</td><td class="n">${inr(e.genAbst[0][1])}</td></tr><tr class="sub"><td></td><td>Part B</td><td></td></tr>`;
+    e.genAbst.slice(1).forEach(([a, b], i) => { h += `<tr><td>${i + 2}</td><td>${esc(a)}</td><td class="n">${inr(b)}</td></tr>`; });
+    h += `<tr class="tot"><td></td><td>Total Rs.</td><td class="n">${inr(e.total)}</td></tr><tr class="tot"><td></td><td>Or say (Lakhs)</td><td class="n">${e.lakhs.toFixed(2)}</td></tr></tbody></table>`;
+    h += '<h3>ABSTRACT <small>(rates editable – SSR 2026-27 prefilled)</small></h3><table class="est"><thead><tr><th>Sl</th><th>Item code</th><th>Description</th><th class="n">Qty</th><th class="n">Rate</th><th>Unit</th><th class="n">Amount</th></tr></thead><tbody>';
+    for (const it of e.items) {
+      h += `<tr><td>${it.sl}</td><td class="code">${it.code}</td><td>${esc(it.short)}</td><td class="n">${it.qty.toFixed(3)}</td>` +
+        `<td class="n"><input class="rate" type="number" step="0.1" data-code="${it.code}" value="${it.rate}"></td><td>${it.unit}</td><td class="n">${inr(it.amount)}</td></tr>`;
+    }
+    h += `<tr class="tot"><td colspan="6">ECV</td><td class="n">${inr(e.ecv)}</td></tr></tbody></table>`;
+    h += '<h3>DETAILED ESTIMATE</h3><table class="est"><thead><tr><th>Item / description</th><th class="n">No</th><th class="n">L</th><th class="n">B</th><th class="n">D</th><th class="n">Qty</th></tr></thead><tbody>';
+    for (const it of e.items) {
+      h += `<tr class="sub"><td colspan="6">${it.sl}. ${it.code} – ${esc(it.short)}</td></tr>`;
+      if (it.key === 'steel') { h += `<tr><td>Qty as per Bar Bending Schedule</td><td></td><td></td><td></td><td></td><td class="n">${it.qty.toFixed(2)} kg</td></tr>`; continue; }
+      for (const r of it.rows) h += `<tr><td>${esc(r.desc)}</td><td class="n">${r.n1} x ${r.n2}</td><td class="n">${r.l}</td><td class="n">${r.w}</td><td class="n">${r.d}</td><td class="n">${r.qty.toFixed(3)}</td></tr>`;
+      h += `<tr class="tot"><td colspan="5">Total</td><td class="n">${it.qty.toFixed(3)} ${it.unit}</td></tr>`;
+    }
+    h += '</tbody></table>';
+    h += '<h3>BAR BENDING SCHEDULE</h3><table class="est"><thead><tr><th>Description</th><th class="n">Dia</th><th class="n">Spacing</th><th>Shape</th><th class="n">Length</th><th class="n">Nos</th><th class="n">Mem</th><th class="n">Total L</th><th class="n">kg/m</th><th class="n">kg</th></tr></thead><tbody>';
+    let last = '';
+    for (const r of e.bbs.rows) {
+      if (r.member !== last) { h += `<tr class="sub"><td colspan="10">${esc(r.member)}</td></tr>`; last = r.member; }
+      h += `<tr><td>${esc(r.desc)}</td><td class="n">${r.dia}</td><td class="n">${r.sp}</td><td>${esc(r.shape)}</td><td class="n">${r.len}</td><td class="n">${r.nb}</td><td class="n">${r.nm}</td><td class="n">${r.tl}</td><td class="n">${r.w}</td><td class="n">${r.kg.toFixed(2)}</td></tr>`;
+    }
+    h += `<tr class="tot"><td colspan="9">Total steel (${Object.entries(e.bbs.byDia).map(([d, k]) => `${d}φ ${k} kg`).join(', ')})</td><td class="n">${e.bbs.total.toFixed(2)}</td></tr></tbody></table>`;
+    h += `<h3>SEIGNIORAGE</h3><table class="est"><tbody>
+      <tr><td>Metal ${e.seigTot.metal.toFixed(3)} cum @ ${e.seigRates.metal}</td><td class="n">${inr(e.seigAmt.metal)}</td></tr>
+      <tr><td>N-Sand ${e.seigTot.nsand.toFixed(3)} cum @ ${e.seigRates.nsand}</td><td class="n">${inr(e.seigAmt.nsand)}</td></tr>
+      <tr><td>M-Sand ${e.seigTot.msand.toFixed(3)} cum @ ${e.seigRates.msand}</td><td class="n">${inr(e.seigAmt.msand)}</td></tr>
+      <tr class="tot"><td>Total seigniorage / DMF 30 % / SMET 2 % / permit 80 %</td><td class="n">${inr(e.seigTotal)} / ${inr(e.dmf)} / ${inr(e.smet)} / ${inr(e.permit)}</td></tr></tbody></table>`;
+    h += signBlock() + '</div>';
+    $('#estimate').innerHTML = h;
+  }
+
+  let zoom = load('bd-zoom') || 1;
+  function renderDrawings() {
+    const s1 = BD.toSVG(BD.sheet1(cur), { fluid: true });
+    const s2 = BD.toSVG(BD.sheet2(cur), { fluid: true });
+    $('#drawings').innerHTML =
+      `<div class="zoom"><button type="button" data-z="-1">−</button><span>${Math.round(zoom * 100)} %</span><button type="button" data-z="1">+</button></div>` +
+      `<div class="sheets" style="--z:${zoom}"><figure class="sheet">${s1}<figcaption>Sheet 1 of 2</figcaption></figure><figure class="sheet">${s2}<figcaption>Sheet 2 of 2</figcaption></figure></div>`;
+    drawingsStale = false;
+  }
+
+  // ---------------------------------------------------------------- downloads
+  const fileBase = () => `${cur.R.typ.replace(/\./g, '')}_Km${String(state.chainage).replace('.', '')}`;
+  // Runs an export; libraries load deferred, so wait for them briefly.
+  function exporter(libs, fn, label) {
+    return async (ev) => {
+      const btn = ev.currentTarget;
+      for (let i = 0; i < 50 && !libs.every((l) => l()); i++) await new Promise((r) => setTimeout(r, 100));
+      if (!libs.every((l) => l())) { flash('The export library has not loaded yet. Check the internet connection and try again.'); return; }
+      const txt = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Preparing…';
+      try { const ok = await fn(); if (ok !== false) flash(`${label} ready.`); }
+      catch (err) { flash(`${label} could not be created: ${err.message}`); }
+      finally { btn.disabled = false; btn.textContent = txt; }
+    };
+  }
+  const hasXL = () => !!window.ExcelJS, hasPDF = () => !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API.autoTable), hasZip = () => !!window.JSZip;
+  function dl(text, name, type) { return BD.saveBlob(new Blob([text], { type }), name); }
+
+  // ---------------------------------------------------------------- wiring
+  function init() {
+    buildForm(); fillForm();
+    document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
+      if (state.bridgeType === b.dataset.type) return;
+      state.bridgeType = b.dataset.type;
+      state.carriageway = BD.CARRIAGEWAY[state.bridgeType];
+      fillForm(); run();
+    }));
+    document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x === b));
+      document.querySelectorAll('.tab').forEach((t) => (t.hidden = t.id !== 'tab-' + b.dataset.tab));
+      if (b.dataset.tab === 'drawings' && drawingsStale) renderDrawings();
+    }));
+    $('#drawings').addEventListener('click', (e) => {
+      const z = e.target.closest('[data-z]');
+      if (!z) return;
+      zoom = Math.min(4, Math.max(1, zoom + Number(z.dataset.z) * 0.5));
+      save('bd-zoom', zoom);
+      renderDrawings();
+    });
+    $('#btn-auto').addEventListener('click', () => {
+      const a = BD.autoDesign(state);
+      state = a.input; fillForm(); run();
+      const msg = a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above (e.g. raise FRL or improve SBC).';
+      flash(`Auto design: ${a.log.join('; ')}. ${msg}`);
+    });
+    $('#sel-example').addEventListener('change', (e) => {
+      const f = EXAMPLES[e.target.value];
+      if (f) { state = f(); fillForm(); run(); }
+      e.target.value = '';
+    });
+    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, BD.DEFAULTS); fillForm(); run(); });
+    $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
+    $('#file-open').addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try { state = Object.assign({}, BD.DEFAULTS, JSON.parse(await f.text())); fillForm(); run(); }
+      catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
+      e.target.value = '';
+    });
+    $('#estimate').addEventListener('change', (e) => {
+      if (!e.target.classList.contains('rate')) return;
+      rates[e.target.dataset.code] = Number(e.target.value);
+      save(RSTORE, rates); setTimeout(run, 0);
+    });
+    $('#btn-rates-reset').addEventListener('click', () => { rates = {}; save(RSTORE, rates); run(); });
+    $('#btn-pdf-report').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.reportPDF(cur), `${fileBase()}_Design.pdf`), 'Design report PDF'));
+    $('#btn-pdf-est').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.estimatePDF(cur, est), `${fileBase()}_Estimate.pdf`), 'Estimate PDF'));
+    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF([BD.sheet1(cur), BD.sheet2(cur)]), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
+    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await BD.dxfZip(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
+    $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
+    $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));
+    run();
+  }
+
+  function flash(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast'; el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 7000);
+  }
+
+  init();
+})();
+
+</script>

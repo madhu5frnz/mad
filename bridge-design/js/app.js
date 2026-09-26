@@ -222,33 +222,23 @@
     drawingsStale = false;
   }
 
-  // ---------------------------------------------------------------- printing
-  function printWith(kind) {
-    const area = $('#print-area');
-    const ps = $('#page-style');
-    if (kind === 'drawings') {
-      ps.textContent = '@page { size: 594mm 420mm; margin: 0; }';
-      area.innerHTML = [BD.sheet1(cur), BD.sheet2(cur)].map((d) => `<div class="print-sheet">${BD.toSVG(d)}</div>`).join('');
-    } else {
-      ps.textContent = '@page { size: A4 portrait; margin: 12mm; }';
-      area.innerHTML = (kind === 'report' ? $('#report') : $('#estimate')).innerHTML;
-      area.querySelectorAll('input.rate').forEach((i) => i.replaceWith(document.createTextNode(i.value)));
-    }
-    document.body.classList.add('printing');
-    const done = () => { document.body.classList.remove('printing'); area.innerHTML = ''; window.removeEventListener('afterprint', done); };
-    window.addEventListener('afterprint', done);
-    setTimeout(() => window.print(), 50);
-  }
-
   // ---------------------------------------------------------------- downloads
   const fileBase = () => `${cur.R.typ.replace(/\./g, '')}_Km${String(state.chainage).replace('.', '')}`;
-  function need(fn) {
-    return async () => {
-      if (!window.ExcelJS) { alert('The Excel library is still loading. Please try again in a moment.'); return; }
-      await fn();
+  // Runs an export; libraries load deferred, so wait for them briefly.
+  function exporter(libs, fn, label) {
+    return async (ev) => {
+      const btn = ev.currentTarget;
+      for (let i = 0; i < 50 && !libs.every((l) => l()); i++) await new Promise((r) => setTimeout(r, 100));
+      if (!libs.every((l) => l())) { flash('The export library has not loaded yet. Check the internet connection and try again.'); return; }
+      const txt = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Preparing…';
+      try { const ok = await fn(); if (ok !== false) flash(`${label} ready.`); }
+      catch (err) { flash(`${label} could not be created: ${err.message}`); }
+      finally { btn.disabled = false; btn.textContent = txt; }
     };
   }
-  function dl(text, name, type) { BD.saveBlob(new Blob([text], { type }), name); }
+  const hasXL = () => !!window.ExcelJS, hasPDF = () => !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API.autoTable), hasZip = () => !!window.JSZip;
+  function dl(text, name, type) { return BD.saveBlob(new Blob([text], { type }), name); }
 
   // ---------------------------------------------------------------- wiring
   function init() {
@@ -283,12 +273,12 @@
       e.target.value = '';
     });
     $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, BD.DEFAULTS); fillForm(); run(); });
-    $('#btn-save').addEventListener('click', () => dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json'));
+    $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
     $('#file-open').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
       try { state = Object.assign({}, BD.DEFAULTS, JSON.parse(await f.text())); fillForm(); run(); }
-      catch (err) { alert('Not a valid inputs file: ' + err.message); }
+      catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
       e.target.value = '';
     });
     $('#estimate').addEventListener('change', (e) => {
@@ -297,17 +287,12 @@
       save(RSTORE, rates); setTimeout(run, 0);
     });
     $('#btn-rates-reset').addEventListener('click', () => { rates = {}; save(RSTORE, rates); run(); });
-    $('#btn-print-report').addEventListener('click', () => printWith('report'));
-    $('#btn-print-est').addEventListener('click', () => printWith('estimate'));
-    $('#btn-print-dwg').addEventListener('click', () => printWith('drawings'));
-    $('#btn-dxf1').addEventListener('click', () => dl(BD.toDXF(BD.sheet1(cur)), `${fileBase()}_Sheet1.dxf`, 'application/dxf'));
-    $('#btn-dxf2').addEventListener('click', () => dl(BD.toDXF(BD.sheet2(cur)), `${fileBase()}_Sheet2.dxf`, 'application/dxf'));
-    $('#btn-svg').addEventListener('click', () => {
-      dl(BD.toSVG(BD.sheet1(cur)), `${fileBase()}_Sheet1.svg`, 'image/svg+xml');
-      setTimeout(() => dl(BD.toSVG(BD.sheet2(cur)), `${fileBase()}_Sheet2.svg`, 'image/svg+xml'), 400);
-    });
-    $('#btn-xlsx-design').addEventListener('click', need(() => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`)));
-    $('#btn-xlsx-est').addEventListener('click', need(() => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`)));
+    $('#btn-pdf-report').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.reportPDF(cur), `${fileBase()}_Design.pdf`), 'Design report PDF'));
+    $('#btn-pdf-est').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.estimatePDF(cur, est), `${fileBase()}_Estimate.pdf`), 'Estimate PDF'));
+    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF([BD.sheet1(cur), BD.sheet2(cur)]), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
+    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await BD.dxfZip(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
+    $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
+    $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));
     run();
   }
 

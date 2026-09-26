@@ -6,7 +6,6 @@
 <title>SLRB / DLRB Design Generator</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M2 14h28v4H2z%22 fill=%22%231d4ed8%22/%3E%3Cpath d=%22M6 18v10M26 18v10%22 stroke=%22%231d4ed8%22 stroke-width=%223%22/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
-<style id="page-style">@page { size: A4 portrait; margin: 12mm; }</style>
 </head>
 <body>
 <header class="topbar">
@@ -54,7 +53,7 @@
 
     <section class="tab" id="tab-report">
       <div class="toolbar">
-        <button type="button" id="btn-print-report">Print / Save PDF</button>
+        <button type="button" id="btn-pdf-report">Download PDF</button>
         <button type="button" id="btn-xlsx-design">Download Excel</button>
       </div>
       <div id="report" class="report"></div>
@@ -62,18 +61,16 @@
 
     <section class="tab" id="tab-drawings" hidden>
       <div class="toolbar">
-        <button type="button" id="btn-print-dwg">Print / Save PDF (A2)</button>
-        <button type="button" id="btn-dxf1">DXF – Sheet 1</button>
-        <button type="button" id="btn-dxf2">DXF – Sheet 2</button>
-        <button type="button" id="btn-svg">SVG (both)</button>
+        <button type="button" id="btn-pdf-dwg">Download PDF (2 × A2)</button>
+        <button type="button" id="btn-dxf">Download DXF for AutoCAD (zip)</button>
       </div>
-      <p class="hint">Sheet 1: plan &amp; sectional elevation. Sheet 2: sections &amp; reinforcement details. Scroll to zoom with the buttons below each sheet.</p>
+      <p class="hint">Sheet 1: plan &amp; sectional elevation. Sheet 2: sections &amp; reinforcement details. Use + / − to zoom.</p>
       <div id="drawings"></div>
     </section>
 
     <section class="tab" id="tab-estimate" hidden>
       <div class="toolbar">
-        <button type="button" id="btn-print-est">Print / Save PDF</button>
+        <button type="button" id="btn-pdf-est">Download PDF</button>
         <button type="button" id="btn-xlsx-est">Download Excel (with formulas)</button>
         <button type="button" id="btn-rates-reset">Reset rates to SSR 2026-27</button>
       </div>
@@ -82,14 +79,16 @@
   </main>
 </div>
 
-<div id="print-area" aria-hidden="true"></div>
-
 <script src="vendor/exceljs.min.js" defer></script>
+<script src="vendor/jspdf.umd.min.js" defer></script>
+<script src="vendor/jspdf.plugin.autotable.min.js" defer></script>
+<script src="vendor/jszip.min.js" defer></script>
 <script src="js/design.js"></script>
 <script src="js/estimate.js"></script>
 <script src="js/cad.js"></script>
 <script src="js/sheets.js"></script>
 <script src="js/export-xlsx.js"></script>
+<script src="js/pdf.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

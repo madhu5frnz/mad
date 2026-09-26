@@ -7,14 +7,19 @@ reference package (SLRB @ Km 0.450 / Km 1.580, L-1 Minor of Perur Major):
 
 | Output | Contents | Formats |
 |---|---|---|
-| Design report | 8 sections: canal data, general arrangement, levels, ventway & scour, deck slab (IRC 21 WSM, effective width), abutment stability, wing walls, summary | Screen, Print / PDF, Excel |
-| Drawings (2 × A2) | Sheet 1: sectional elevation, half plan at top / foundation, notes, HP table, road particulars, trial pit, title block. Sheet 2: slab / approach slab / bed block / kerb reinforcement, abutment & wing wall sections, stress table, reinforcement schedule | Screen, Print / PDF (A2), **DXF** (AutoCAD), SVG |
-| Estimate | Detailed estimate, abstract (SSR 2026-27 rates, editable), bar bending schedule, seigniorage, theoretical requirement, general abstract (LC, NAC, DMF, SMET, permit, GST) | Screen, Print / PDF, Excel **with live formulas** |
+| Design report | 8 sections: canal data, general arrangement, levels, ventway & scour, deck slab (IRC 21 WSM, effective width), abutment stability, wing walls, summary | Screen, PDF, Excel |
+| Drawings (2 × A2) | Sheet 1: sectional elevation, half plan at top / foundation, notes, HP table, road particulars, trial pit, title block. Sheet 2: slab / approach slab / bed block / kerb reinforcement, abutment & wing wall sections, stress table, reinforcement schedule | Screen, vector PDF (A2), **DXF** for AutoCAD (zip) |
+| Estimate | Detailed estimate, abstract (SSR 2026-27 rates, editable), bar bending schedule, seigniorage, theoretical requirement, general abstract (LC, NAC, DMF, SMET, permit, GST) | Screen, PDF, Excel **with live formulas** |
 
 ## How to use
 
-Open `index.html` in any modern browser — no installation or server needed
-(it also works offline; everything including the Excel library is bundled).
+**Online:** https://claude.ai/artifact/MsTdXDHtBDhDDayet3FRCX (shared from the owner's Share menu).
+
+**Offline:** open `index.html` in any modern browser — no installation or
+server needed; the Excel / PDF / zip libraries are bundled in `vendor/`.
+
+`node tools/build-artifact.js` packs the app into the single file
+`dist/bridge-design.html` (libraries from cdn.jsdelivr.net) for hosting.
 
 1. Choose **S.L.R.B.** or **D.L.R.B.** at the top.
 2. Enter the HPs (Q, bed width, FSD, side slope, free board, bed fall, CBL),
@@ -24,7 +29,7 @@ Open `index.html` in any modern browser — no installation or server needed
    IRC 78 scour / IRC SP:13 apron criteria) — click **use** to accept.
 3. Every check shows OK / REVISE live. **Auto design** sizes the deck
    (thickness, bar dia & spacing), abutment and wing walls to pass all checks.
-4. Download the Excel files / DXF drawings or print to PDF.
+4. Download PDF (report, estimate, 2 × A2 drawings), Excel, or DXF (zip).
    Inputs can be saved to / opened from a `.json` file.
 
 ## Design basis
@@ -84,7 +89,9 @@ js/estimate.js        quantities, BBS, abstract, seigniorage, general abstract
 js/cad.js             drafting model -> SVG and DXF (R12) writers
 js/sheets.js          drawing sheets 1 & 2
 js/export-xlsx.js     Excel export (ExcelJS)
+js/pdf.js             PDF export (jsPDF) and file saving
 js/app.js             user interface
-vendor/exceljs.min.js ExcelJS 4.4.0 (MIT)
+vendor/               ExcelJS 4.4.0, jsPDF 2.5.2, jsPDF-AutoTable 3.8.4, JSZip 3.10.1 (MIT)
+tools/build-artifact.js  single-file build for hosting
 tests/                verification scripts (Node.js)
 ```
