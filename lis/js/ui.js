@@ -1,5 +1,7 @@
 /**
- * LIS Monitoring System v2 — UI Controller & Interaction Handlers
+ * LIS Monitoring System v2 — Ultra-Clean Modern UI Controller
+ * Government of Telangana — Irrigation & CAD Department
+ * Irrigation Division No.3, Miryalaguda
  */
 (function (g) {
   'use strict';
@@ -23,122 +25,205 @@
     return '₹ ' + n.toFixed(2) + ' Cr';
   }
 
-  // ------------------------------------------------------------- Render KPIs
+  // ------------------------------------------------------------- Render KPIs Strip
   function renderKPIs() {
     const schemes = store.schemes;
     const totalAyacut = schemes.reduce((sum, s) => sum + (s.ayacutAcres || 0), 0);
     const totalSanction = schemes.reduce((sum, s) => sum + s.sanction, 0);
     const totalSupp = schemes.reduce((sum, s) => sum + (s.supp / 10000000), 0);
     const avgProgress = Math.round((schemes.reduce((sum, s) => sum + s.progress, 0) / schemes.length) * 10) / 10;
-    const highIssues = store.issues.filter((i) => i.priority === 'High' && i.status !== 'Resolved').length;
+    const urgentIssues = store.issues.filter((i) => i.priority === 'High' && i.status !== 'Resolved').length;
 
-    $('#kpi-ayacut').textContent = totalAyacut.toLocaleString('en-IN') + ' Ac';
-    $('#kpi-sanction').textContent = inrCr(totalSanction);
-    $('#kpi-supp').textContent = inrCr(totalSupp);
-    $('#kpi-progress').textContent = avgProgress + ' %';
-    $('#kpi-issues').textContent = highIssues + ' Urgent';
+    const elAyacut = $('#kpi-ayacut');
+    const elSanction = $('#kpi-sanction');
+    const elSupp = $('#kpi-supp');
+    const elProgress = $('#kpi-progress');
+    const elIssues = $('#kpi-issues');
+
+    if (elAyacut) elAyacut.textContent = totalAyacut.toLocaleString('en-IN') + ' Ac';
+    if (elSanction) elSanction.textContent = inrCr(totalSanction);
+    if (elSupp) elSupp.textContent = inrCr(totalSupp);
+    if (elProgress) elProgress.textContent = avgProgress + ' %';
+    if (elIssues) elIssues.textContent = urgentIssues + ' Urgent';
   }
 
-  // ------------------------------------------------------------- Render Overview Tab
+  // ------------------------------------------------------------- Helper: Get Blocker for Scheme
+  function getTopBlocker(schemeId) {
+    const issue = store.issues.find((i) => i.scheme === schemeId && i.priority === 'High' && i.status !== 'Resolved');
+    if (issue) {
+      return {
+        hasBlocker: true,
+        text: `${issue.title}${issue.costCr ? ` (₹${issue.costCr.toFixed(2)} Cr)` : ''}`
+      };
+    }
+    return {
+      hasBlocker: false,
+      text: 'No critical blockers reported. Work proceeding as scheduled.'
+    };
+  }
+
+  // ------------------------------------------------------------- Render Overview Tab (4 Schemes Showcase)
   function renderOverview() {
     const container = $('#view-overview');
     if (!container) return;
 
-    const schemesHtml = store.schemes.map((s) => `
-      <div class="scheme-card" data-scheme-id="${s.id}">
-        <div class="scheme-header">
-          <span class="scheme-tag">${s.badge}</span>
-          <span class="scheme-code">${s.code}</span>
-        </div>
-        <h3>${s.name}</h3>
-        <p class="scheme-desc">${s.summary}</p>
+    const schemesHtml = store.schemes.map((s) => {
+      const blocker = getTopBlocker(s.id);
+      const isComplete = s.progress >= 100;
+      const progressWidth = Math.min(100, Math.max(4, s.progress));
 
-        <div class="progress-container">
-          <div class="progress-header">
-            <span>Physical Progress</span>
-            <span style="color: var(--brand-accent);">${s.progress}%</span>
+      return `
+        <div class="scheme-box" data-scheme-id="${s.id}">
+          <div class="scheme-box-header">
+            <span class="scheme-code-badge">${s.id}</span>
+            <span class="scheme-duty-badge">${s.ayacut}</span>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" style="width: ${Math.min(100, Math.max(5, s.progress))}%;"></div>
-          </div>
-        </div>
 
-        <div class="spec-grid">
-          <div class="spec-item">
-            <span>Discharge</span>
-            <span>${s.discharge.split(' ')[0]} cumecs</span>
+          <h2>${s.name}</h2>
+          <p class="scheme-sub">${s.summary}</p>
+
+          <div class="progress-block">
+            <div class="progress-labels">
+              <span>Overall Physical Progress</span>
+              <span style="color:var(--primary);font-size:14px;font-weight:800;">${s.progress}%</span>
+            </div>
+            <div class="progress-bar-rail">
+              <div class="progress-bar-fill" style="width: ${progressWidth}%;"></div>
+            </div>
           </div>
-          <div class="spec-item">
-            <span>Static Head</span>
-            <span>${s.head.split(' ')[0]} m</span>
+
+          <div class="features-grid">
+            <div class="feature-col">
+              <small>Discharge</small>
+              <b>${s.discharge.split(' ')[0]} cumecs</b>
+            </div>
+            <div class="feature-col">
+              <small>Static Head</small>
+              <b>${s.head.split(' ')[0]} m</b>
+            </div>
+            <div class="feature-col">
+              <small>Pumps & Motors</small>
+              <b>${s.pumps.split('(')[0].trim()}</b>
+            </div>
+            <div class="feature-col">
+              <small>Pressure Main</small>
+              <b>${s.main.split('+')[0].trim()}</b>
+            </div>
           </div>
-          <div class="spec-item">
-            <span>Pumps & Motors</span>
-            <span>${s.pumps}</span>
+
+          <div class="blocker-alert" style="${blocker.hasBlocker ? '' : 'background:var(--success-soft);border-color:var(--success);color:var(--success);'}">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              ${blocker.hasBlocker 
+                ? '<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>'
+                : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+              }
+            </svg>
+            <div>
+              <b>${blocker.hasBlocker ? 'Key Bottleneck:' : 'Status Clear:'}</b> ${blocker.text}
+            </div>
           </div>
-          <div class="spec-item">
-            <span>Ayacut</span>
-            <span>${s.ayacut}</span>
+
+          <div class="scheme-card-buttons">
+            <button class="btn btn-outline btn-sm btn-open-scheme" data-scheme-id="${s.id}">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+              View Components (${s.components.length})
+            </button>
+            <button class="btn btn-primary btn-sm btn-quick-record" data-scheme-id="${s.id}">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              Record Entry
+            </button>
           </div>
         </div>
-      </div>
+      `;
+    }).join('');
+
+    // Recent measurements table (first 6 items)
+    const logsHtml = store.logs.slice(0, 6).map((l) => `
+      <tr>
+        <td><b>${l.date}</b></td>
+        <td><span class="tag tag-primary">${l.schemeId}</span></td>
+        <td><b>${l.componentName}</b></td>
+        <td><b style="color:var(--primary);font-size:14px;">${l.quantity} ${l.unit}</b></td>
+        <td><code>${l.ref}</code></td>
+        <td>${l.officer}</td>
+        <td><small style="color:var(--text-muted);">${l.remarks}</small></td>
+      </tr>
     `).join('');
 
     container.innerHTML = `
-      <div class="schemes-grid">
+      <div class="schemes-showcase">
         ${schemesHtml}
       </div>
 
-      <div class="table-card">
-        <div class="table-header">
-          <h3>Recent Field Measurement Records (MB Entries)</h3>
-          <button class="btn btn-primary btn-sm" id="btn-open-log-modal-overview">
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
-            Record Field Update
-          </button>
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>Recent Field Measurement Records (MB Entries)</h3>
+            <p>Verified physical execution entries logged by field engineers and sub-division officers.</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline btn-sm" id="btn-goto-logs">
+              View All ${store.logs.length} Log Entries →
+            </button>
+            <button class="btn btn-primary btn-sm" id="btn-open-log-modal-overview">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              + Quick Record Entry
+            </button>
+          </div>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Scheme</th>
-              <th>Component</th>
-              <th>Cumulative Measured</th>
-              <th>Measurement Ref</th>
-              <th>Reporting Officer</th>
-              <th>Remarks</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${store.logs.slice(0, 6).map((l) => `
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
               <tr>
-                <td><b>${l.date}</b></td>
-                <td><span class="scheme-tag">${l.schemeId}</span></td>
-                <td><b>${l.componentName}</b></td>
-                <td><b style="color:var(--brand-accent);">${l.quantity} ${l.unit}</b></td>
-                <td><code>${l.ref}</code></td>
-                <td>${l.officer}</td>
-                <td><small>${l.remarks}</small></td>
+                <th>Date</th>
+                <th>Scheme</th>
+                <th>Component Description</th>
+                <th>Cumulative Executed</th>
+                <th>Measurement Ref (MB)</th>
+                <th>Recording Officer</th>
+                <th>Site Remarks</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${logsHtml}
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
 
-    // Click handler on scheme cards
-    $$('.scheme-card', container).forEach((card) => {
-      card.addEventListener('click', () => {
-        openSchemeDetail(card.dataset.schemeId);
+    // Event handlers on overview elements
+    $$('.btn-open-scheme', container).forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSchemeDetail(btn.dataset.schemeId);
       });
     });
 
-    $('#btn-open-log-modal-overview')?.addEventListener('click', () => {
+    $$('.btn-quick-record', container).forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openFieldUpdateModal(btn.dataset.schemeId);
+      });
+    });
+
+    $$('.scheme-box', container).forEach((box) => {
+      box.addEventListener('click', () => {
+        openSchemeDetail(box.dataset.schemeId);
+      });
+    });
+
+    $('#btn-goto-logs', container)?.addEventListener('click', () => {
+      setTab('logs');
+    });
+
+    $('#btn-open-log-modal-overview', container)?.addEventListener('click', () => {
       openFieldUpdateModal();
     });
   }
 
-  // ------------------------------------------------------------- Scheme Detail View
+  // ------------------------------------------------------------- Scheme Drilldown Detail
   function openSchemeDetail(schemeId) {
     activeSchemeId = schemeId;
     const s = store.schemes.find((item) => item.id === schemeId);
@@ -147,120 +232,164 @@
     setTab('scheme-detail');
 
     const container = $('#view-scheme-detail');
+    if (!container) return;
+
     container.innerHTML = `
-      <div class="detail-header-card">
-        <div class="detail-title-row">
+      <div class="card-section" style="padding:22px;margin-bottom:20px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
           <div>
-            <button class="btn btn-white btn-sm" id="btn-back-overview" style="margin-bottom:8px;">
-              ← Back to All Schemes
+            <button class="btn btn-outline btn-sm" id="btn-back-overview" style="margin-bottom:10px;">
+              ← Back to All 4 Schemes
             </button>
-            <h2>${s.name} (${s.id})</h2>
-            <p style="color:var(--text-muted);font-size:13.5px;">${s.summary}</p>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span class="scheme-code-badge" style="font-size:15px;padding:5px 12px;">${s.id}</span>
+              <h2 style="font-size:22px;font-weight:800;color:var(--text-main);">${s.name}</h2>
+              <span class="tag tag-primary">${s.badge}</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:13.5px;margin-top:6px;max-width:900px;">${s.summary}</p>
           </div>
-          <div>
+
+          <div style="display:flex;gap:10px;">
             <button class="btn btn-primary" id="btn-log-for-scheme">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
               + Record Measurement for ${s.id}
             </button>
           </div>
         </div>
 
-        <div class="detail-specs-bar">
-          <div class="spec-pill"><small>Ayacut</small><b>${s.ayacut}</b></div>
-          <div class="spec-pill"><small>Discharge</small><b>${s.discharge}</b></div>
-          <div class="spec-pill"><small>Total Head</small><b>${s.head}</b></div>
-          <div class="spec-pill"><small>Pumps & Motors</small><b>${s.pumps}</b></div>
-          <div class="spec-pill"><small>Pressure Main</small><b>${s.main}</b></div>
-          <div class="spec-pill"><small>Delivery Cistern</small><b>${s.delivery}</b></div>
-          <div class="spec-pill"><small>Sanction Amount</small><b>${inrCr(s.sanction)}</b></div>
-          <div class="spec-pill"><small>Supp. Agreement</small><b>${inrCr(s.supp / 10000000)}</b></div>
+        <!-- 8 Spec Metric Pills -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Ayacut</small><b style="font-size:14px;color:var(--text-main);">${s.ayacut}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Discharge</small><b style="font-size:14px;color:var(--text-main);">${s.discharge}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Static Head</small><b style="font-size:14px;color:var(--text-main);">${s.head}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Pumps & Motors</small><b style="font-size:14px;color:var(--text-main);">${s.pumps}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Pressure Main</small><b style="font-size:14px;color:var(--text-main);">${s.main}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Delivery Cistern</small><b style="font-size:14px;color:var(--text-main);">${s.delivery}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Sanction Package</small><b style="font-size:14px;color:var(--text-main);">${inrCr(s.sanction)}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Supp. Agreement</small><b style="font-size:14px;color:var(--text-main);">${inrCr(s.supp / 10000000)}</b></div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px;">
-          <div style="background:var(--bg-subtle);padding:14px;border-radius:var(--radius-md);">
-            <b style="font-size:13px;color:var(--brand-accent);">Civil Construction Status</b>
-            <p style="font-size:12.5px;margin-top:4px;color:var(--text-muted);">${s.civilStatus}</p>
+        <!-- 3 Narrative Status Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:16px;">
+          <div style="background:var(--bg-card);border:1px solid var(--border);padding:14px;border-radius:var(--radius-md);">
+            <b style="font-size:13px;color:var(--primary);display:flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+              Civil Construction Status
+            </b>
+            <p style="font-size:12.5px;margin-top:6px;color:var(--text-body);line-height:1.45;">${s.civilStatus}</p>
           </div>
-          <div style="background:var(--bg-subtle);padding:14px;border-radius:var(--radius-md);">
-            <b style="font-size:13px;color:var(--ok);">Equipment & Electrical</b>
-            <p style="font-size:12.5px;margin-top:4px;color:var(--text-muted);">${s.motorDetails || s.equipment || 'Specifications approved'}</p>
+
+          <div style="background:var(--bg-card);border:1px solid var(--border);padding:14px;border-radius:var(--radius-md);">
+            <b style="font-size:13px;color:var(--success);display:flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+              Equipment & Electrical
+            </b>
+            <p style="font-size:12.5px;margin-top:6px;color:var(--text-body);line-height:1.45;">${s.motorDetails || s.equipment || 'Electro-mechanical datasheets approved; factory testing scheduled.'}</p>
           </div>
-          <div style="background:var(--bg-subtle);padding:14px;border-radius:var(--radius-md);">
-            <b style="font-size:13px;color:var(--warn);">Land & Power Clearances</b>
-            <p style="font-size:12.5px;margin-top:4px;color:var(--text-muted);">${s.powerStatus} ${s.landStatus}</p>
+
+          <div style="background:var(--bg-card);border:1px solid var(--border);padding:14px;border-radius:var(--radius-md);">
+            <b style="font-size:13px;color:var(--warning);display:flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+              Land & Power Clearances
+            </b>
+            <p style="font-size:12.5px;margin-top:6px;color:var(--text-body);line-height:1.45;">${s.powerStatus} ${s.landStatus}</p>
           </div>
         </div>
       </div>
 
-      <div class="table-card">
-        <div class="table-header">
-          <h3>Component Stages & Execution Tracking (${s.components.length} Components)</h3>
-        </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Component Description</th>
-              <th>Total Scope</th>
-              <th>Cumulative Executed</th>
-              <th>Unit</th>
-              <th>Stage</th>
-              <th>Current Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${s.components.map((c) => `
-              <tr>
-                <td><code>${c.id}</code></td>
-                <td><b>${c.name}</b></td>
-                <td>${c.total}</td>
-                <td><b style="color:var(--brand-accent);font-size:15px;">${c.completed}</b></td>
-                <td>${c.unit}</td>
-                <td><span class="status-pill ${c.completed >= c.total ? 'ok' : c.completed > 0 ? 'warn' : 'neutral'}">${c.stage}</span></td>
-                <td><small>${c.status}</small></td>
-                <td>
-                  <button class="btn btn-white btn-sm btn-quick-update" data-comp-id="${c.id}" data-comp-name="${c.name}" data-comp-unit="${c.unit}" data-comp-curr="${c.completed}">
-                    Update
-                  </button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      ${s.villages && s.villages.length ? `
-        <div class="table-card">
-          <div class="table-header">
-            <h3>Ayacut Distribution by Village (${s.villages.length} Villages)</h3>
+      <!-- Component Execution Table -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>Component Stages & Detailed Scope Tracking (${s.components.length} Components)</h3>
+            <p>Cumulative physical execution against sanctioned design scopes.</p>
           </div>
-          <table class="data-table">
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
             <thead>
               <tr>
-                <th>Village Name</th>
-                <th>Beneficiary Ayacut (Acres)</th>
-                <th>Share (%)</th>
+                <th>ID</th>
+                <th>Component Description</th>
+                <th>Sanctioned Scope</th>
+                <th>Executed to Date</th>
+                <th>Unit</th>
+                <th>Stage Pill</th>
+                <th>Status Remarks</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              ${s.villages.map((v) => `
-                <tr>
-                  <td><b>${v.name}</b></td>
-                  <td><b>${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
-                  <td>${Math.round((v.ayacut / s.ayacutAcres) * 1000) / 10} %</td>
-                </tr>
-              `).join('')}
+              ${s.components.map((c) => {
+                const pct = c.total > 0 ? Math.min(100, Math.round((c.completed / c.total) * 100)) : 0;
+                const isDone = c.completed >= c.total;
+                const isWip = c.completed > 0;
+                return `
+                  <tr>
+                    <td><code>${c.id}</code></td>
+                    <td><b>${c.name}</b></td>
+                    <td>${c.total}</td>
+                    <td><b style="color:var(--primary);font-size:14.5px;">${c.completed}</b></td>
+                    <td>${c.unit}</td>
+                    <td>
+                      <span class="tag ${isDone ? 'tag-success' : isWip ? 'tag-warning' : 'tag-neutral'}">
+                        ${c.stage} (${pct}%)
+                      </span>
+                    </td>
+                    <td><small style="color:var(--text-muted);">${c.status}</small></td>
+                    <td>
+                      <button class="btn btn-outline btn-sm btn-quick-update" data-comp-id="${c.id}" data-comp-name="${c.name}" data-comp-unit="${c.unit}" data-comp-curr="${c.completed}">
+                        Update
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Village Ayacut Distribution Table (if available) -->
+      ${s.villages && s.villages.length ? `
+        <div class="card-section">
+          <div class="card-section-header">
+            <div>
+              <h3>Beneficiary Ayacut Distribution by Village (${s.villages.length} Villages)</h3>
+              <p>Reconciled irrigation coverage under command network.</p>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="clean-table">
+              <thead>
+                <tr>
+                  <th>Village Name</th>
+                  <th>Beneficiary Ayacut (Acres)</th>
+                  <th>Ayacut Share (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${s.villages.map((v) => `
+                  <tr>
+                    <td><b>${v.name}</b></td>
+                    <td><b>${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
+                    <td><span class="tag tag-primary">${Math.round((v.ayacut / s.ayacutAcres) * 1000) / 10} %</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
       ` : ''}
     `;
 
-    $('#btn-back-overview')?.addEventListener('click', () => {
+    // Event handlers for detail view
+    $('#btn-back-overview', container)?.addEventListener('click', () => {
       setTab('overview');
     });
 
-    $('#btn-log-for-scheme')?.addEventListener('click', () => {
+    $('#btn-log-for-scheme', container)?.addEventListener('click', () => {
       openFieldUpdateModal(s.id);
     });
 
@@ -271,62 +400,73 @@
     });
   }
 
-  // ------------------------------------------------------------- Render Issues Tab
+  // ------------------------------------------------------------- Render Bottlenecks Tab
   function renderIssues() {
     const container = $('#view-issues');
     if (!container) return;
 
+    const urgentCount = store.issues.filter((i) => i.priority === 'High' && i.status !== 'Resolved').length;
+    const totalCost = store.issues.reduce((acc, i) => acc + (i.costCr || 0), 0);
+
     container.innerHTML = `
-      <div class="table-card">
-        <div class="table-header">
+      <div class="card-section">
+        <div class="card-section-header">
           <div>
-            <h3>Bottlenecks & Priority Action Items (${store.issues.length} Items)</h3>
-            <p style="color:var(--text-muted);font-size:12.5px;">Key approvals, land acquisition corridors, TGSPDCL power deposits, and technical compliance.</p>
+            <h3>Critical Bottlenecks & Approvals (${store.issues.length} Items · ${urgentCount} Urgent)</h3>
+            <p>Financial liabilities, TGSPDCL power lines, land acquisition Section 19 awards, and technical compliances.</p>
           </div>
-          <div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="tag tag-danger" style="font-size:12px;">Total Financial Liability: ${inrCr(totalCost)}</span>
             <button class="btn btn-primary btn-sm" id="btn-add-issue">
               + Log New Issue
             </button>
           </div>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Scheme</th>
-              <th>Category</th>
-              <th>Priority</th>
-              <th>Issue Title & Details</th>
-              <th>Required Action</th>
-              <th>Financial Impact</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${store.issues.map((i) => `
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
               <tr>
-                <td><code>${i.id}</code></td>
-                <td><span class="scheme-tag">${i.scheme}</span></td>
-                <td><span class="status-pill neutral">${i.category}</span></td>
-                <td><span class="status-pill ${i.priority === 'High' ? 'danger' : 'warn'}">${i.priority}</span></td>
-                <td>
-                  <b>${i.title}</b>
-                  <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${i.detail}</p>
-                </td>
-                <td><small style="color:var(--text-main);font-weight:500;">${i.actionNeeded}</small></td>
-                <td><b>${i.costCr ? inrCr(i.costCr) : '—'}</b></td>
-                <td>
-                  <select class="form-control select-issue-status" data-issue-id="${i.id}" style="padding:4px 8px;font-size:12px;width:120px;">
-                    <option value="Open" ${i.status === 'Open' ? 'selected' : ''}>Open</option>
-                    <option value="In Progress" ${i.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                    <option value="Under Review" ${i.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-                    <option value="Resolved" ${i.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-                  </select>
-                </td>
+                <th>ID</th>
+                <th>Scheme</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Issue Title & Field Details</th>
+                <th>Required Government / Department Action</th>
+                <th>Liability (₹ Cr)</th>
+                <th>Status</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${store.issues.map((i) => {
+                const isHigh = i.priority === 'High';
+                const isResolved = i.status === 'Resolved';
+                return `
+                  <tr>
+                    <td><code>${i.id}</code></td>
+                    <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">${i.scheme}</span></td>
+                    <td><span class="tag tag-neutral">${i.category}</span></td>
+                    <td><span class="tag ${isResolved ? 'tag-success' : isHigh ? 'tag-danger' : 'tag-warning'}">${i.priority}</span></td>
+                    <td style="max-width:320px;">
+                      <b>${i.title}</b>
+                      <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${i.detail}</p>
+                    </td>
+                    <td style="max-width:280px;"><small style="color:var(--text-main);font-weight:500;">${i.actionNeeded}</small></td>
+                    <td><b style="color:${i.costCr > 0 ? 'var(--danger)' : 'var(--text-muted)'};">${i.costCr ? inrCr(i.costCr) : '—'}</b></td>
+                    <td>
+                      <select class="select-issue-status" data-issue-id="${i.id}" style="padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid var(--border);">
+                        <option value="Open" ${i.status === 'Open' ? 'selected' : ''}>Open</option>
+                        <option value="In Progress" ${i.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="Under Review" ${i.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                        <option value="Resolved" ${i.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                      </select>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
 
@@ -337,55 +477,50 @@
       });
     });
 
-    $('#btn-add-issue')?.addEventListener('click', () => {
+    $('#btn-add-issue', container)?.addEventListener('click', () => {
       openAddIssueModal();
     });
   }
 
-  // ------------------------------------------------------------- Render Tanks Tab
+  // ------------------------------------------------------------- Render Tanks Network Tab
   function renderTanks() {
     const container = $('#view-tanks');
     if (!container) return;
 
-    container.innerHTML = `
-      <div class="table-card" style="margin-bottom:24px;">
-        <div class="table-header">
-          <div>
-            <h3>Thopucherla Cascading Tank Filling Network</h3>
-            <p style="color:var(--text-muted);font-size:12.5px;">6 Nos. minor irrigation tanks fed from L-14 Canal lifting system across Madgulapally mandal.</p>
+    const tanksHtml = LIS.TANKS.map((t) => `
+      <div class="scheme-box" style="padding:18px;">
+        <div class="scheme-box-header">
+          <span class="tag tag-primary">${t.village}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text-muted);">${t.capacityMcft} Mcft</span>
+        </div>
+        <h3 style="font-size:17px;font-weight:800;color:var(--text-main);margin-bottom:4px;">${t.name}</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">Beneficiary Ayacut: <b>${t.ayacutAc} Acres</b></p>
+
+        <div class="progress-block" style="margin-bottom:12px;">
+          <div class="progress-labels">
+            <span>Water Level / Filling Pct</span>
+            <span style="color:var(--water);">${t.fillPct}%</span>
+          </div>
+          <div class="progress-bar-rail">
+            <div class="progress-bar-fill" style="width:${t.fillPct}%;background:linear-gradient(90deg, #38bdf8, #0284c7);"></div>
           </div>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Tank Name</th>
-              <th>Village</th>
-              <th>Storage Capacity (Mcft)</th>
-              <th>Ayacut Fed (Acres)</th>
-              <th>Estimated Water Level / Filling Status</th>
-              <th>Civil Readiness</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${LIS.TANKS.map((t) => `
-              <tr>
-                <td><b>${t.name}</b></td>
-                <td>${t.village}</td>
-                <td><b style="font-family:var(--font-mono);">${t.capacityMcft} Mcft</b></td>
-                <td><b>${t.ayacutAc} Acres</b></td>
-                <td>
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <div class="progress-track" style="width:100px;height:7px;">
-                      <div class="progress-fill" style="width:${t.fillPct}%;"></div>
-                    </div>
-                    <small><b>${t.fillPct}%</b></small>
-                  </div>
-                </td>
-                <td><span class="status-pill ok">${t.status}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
+          <span class="tag tag-success">${t.status}</span>
+          <button class="btn btn-outline btn-sm" onclick="alert('Viewing inlet sluice drawings for ${t.name}')">Inlet Info</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <div class="card-section" style="padding:16px 20px;margin-bottom:20px;">
+        <h3 style="font-size:17px;font-weight:800;color:var(--text-main);">Thopucherla Cascading Tank Filling Network</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-top:4px;">6 Nos. minor irrigation tanks fed from L-14 Canal lifting system across Madgulapally mandal. 100% on departmental land (Zero private land acquisition).</p>
+      </div>
+
+      <div class="schemes-showcase" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+        ${tanksHtml}
       </div>
     `;
   }
@@ -398,75 +533,136 @@
     const totalFundingNeeded = LIS.FUNDING_SUMMARY.reduce((acc, f) => acc + f.total, 0);
 
     container.innerHTML = `
-      <div class="table-card" style="margin-bottom:24px;">
-        <div class="table-header">
+      <div class="card-section">
+        <div class="card-section-header">
           <div>
-            <h3>Agreement & Sanction Financial Comparison (Package: ₹548.23 Cr)</h3>
-            <p style="color:var(--text-muted);font-size:12.5px;">Original agreement vs Supplemental agreement vs Measured Work Done.</p>
+            <h3>Agreement &amp; Sanction Financial Comparison (Package Total: ₹548.23 Cr)</h3>
+            <p>Original agreement vs Supplemental agreement vs Total Recorded Work Done.</p>
           </div>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Scheme</th>
-              <th>Sanction (₹ Cr)</th>
-              <th>Tech. Sanction (₹ Cr)</th>
-              <th>Orig. Agreement (₹ Cr)</th>
-              <th>Supp. Agreement (₹ Cr)</th>
-              <th>Cumulative Bill (₹ Cr)</th>
-              <th>Work Done (₹ Cr)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${store.schemes.map((s) => `
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
               <tr>
-                <td><b>${s.name} (${s.id})</b></td>
-                <td>${inrCr(s.sanction)}</td>
-                <td>${inrCr(s.ts)}</td>
-                <td>${inrCr(s.ecv)}</td>
-                <td><b style="color:var(--brand-accent);">${inrCr(s.supp / 10000000)}</b></td>
-                <td>${inrCr(s.bill / 10000000)}</td>
-                <td><b>${inrCr(s.work)}</b></td>
+                <th>Scheme</th>
+                <th>Sanction (₹ Cr)</th>
+                <th>Tech. Sanction (₹ Cr)</th>
+                <th>Orig. Agreement (₹ Cr)</th>
+                <th>Supp. Agreement (₹ Cr)</th>
+                <th>Cumulative Bill (₹ Cr)</th>
+                <th>Measured Work Done (₹ Cr)</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${store.schemes.map((s) => `
+                <tr>
+                  <td><b>${s.name} (${s.id})</b></td>
+                  <td>${inrCr(s.sanction)}</td>
+                  <td>${inrCr(s.ts)}</td>
+                  <td>${inrCr(s.ecv)}</td>
+                  <td><b style="color:var(--primary);">${inrCr(s.supp / 10000000)}</b></td>
+                  <td>${inrCr(s.bill / 10000000)}</td>
+                  <td><b>${inrCr(s.work)}</b></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="table-card">
-        <div class="table-header">
+      <div class="card-section">
+        <div class="card-section-header">
           <div>
-            <h3>Pending Funding Requisitions & Liabilities (Total: ${inrCr(totalFundingNeeded)})</h3>
-            <p style="color:var(--text-muted);font-size:12.5px;">Breakdown of urgent land compensation, power deposit, and pending bills.</p>
+            <h3>Pending Funding Requisitions &amp; Liabilities (Total: ${inrCr(totalFundingNeeded)})</h3>
+            <p>Clearance breakdown of urgent land compensation, power deposit, and pending bills.</p>
           </div>
+          <span class="tag tag-danger">Urgent Requisitions: ${inrCr(totalFundingNeeded)}</span>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Requisition Head</th>
-              <th>BW (₹ Cr)</th>
-              <th>VP-II (₹ Cr)</th>
-              <th>THOP (₹ Cr)</th>
-              <th>Total Requisition (₹ Cr)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${LIS.FUNDING_SUMMARY.map((f) => `
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
               <tr>
-                <td><b>${f.item}</b></td>
-                <td>${f.bw ? inrCr(f.bw) : '—'}</td>
-                <td>${f.vp ? inrCr(f.vp) : '—'}</td>
-                <td>${f.thop ? inrCr(f.thop) : '—'}</td>
-                <td><b style="color:var(--danger);">${inrCr(f.total)}</b></td>
+                <th>Requisition Head</th>
+                <th>BW (₹ Cr)</th>
+                <th>VP-II (₹ Cr)</th>
+                <th>THOP (₹ Cr)</th>
+                <th>Total Requisition (₹ Cr)</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${LIS.FUNDING_SUMMARY.map((f) => `
+                <tr>
+                  <td><b>${f.item}</b></td>
+                  <td>${f.bw ? inrCr(f.bw) : '—'}</td>
+                  <td>${f.vp ? inrCr(f.vp) : '—'}</td>
+                  <td>${f.thop ? inrCr(f.thop) : '—'}</td>
+                  <td><b style="color:var(--danger);">${inrCr(f.total)}</b></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
   }
 
-  // ------------------------------------------------------------- Field Update Modal
+  // ------------------------------------------------------------- Render Measurement Log (MB) Tab
+  function renderLogs() {
+    const container = $('#view-logs');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>Field Measurement Register &amp; MB Audit Trail (${store.logs.length} Entries)</h3>
+            <p>Chronological record of cumulative physical quantities verified by field engineering officers.</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary btn-sm" id="btn-open-log-modal-tab">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              + Record New Entry
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Scheme</th>
+                <th>Component Description</th>
+                <th>Cumulative Measured</th>
+                <th>Measurement Ref (MB)</th>
+                <th>Reporting Officer</th>
+                <th>Site Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${store.logs.map((l) => `
+                <tr>
+                  <td><b>${l.date}</b></td>
+                  <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">${l.schemeId}</span></td>
+                  <td><b>${l.componentName}</b></td>
+                  <td><b style="color:var(--primary);font-size:14.5px;">${l.quantity} ${l.unit}</b></td>
+                  <td><code>${l.ref}</code></td>
+                  <td>${l.officer}</td>
+                  <td><small style="color:var(--text-muted);">${l.remarks}</small></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    $('#btn-open-log-modal-tab', container)?.addEventListener('click', () => {
+      openFieldUpdateModal();
+    });
+  }
+
+  // ------------------------------------------------------------- Field Update Modal Dialog
   function openFieldUpdateModal(preSelectedScheme = 'BW', preSelectedComponent = null) {
     const modal = $('#modal-field-update');
     if (!modal) return;
@@ -480,7 +676,7 @@
     const inpRef = $('#field-ref');
     const inpRemarks = $('#field-remarks');
 
-    // Populate schemes
+    // Populate schemes dropdown
     selScheme.innerHTML = store.schemes.map((s) => `
       <option value="${s.id}" ${s.id === preSelectedScheme ? 'selected' : ''}>${s.id} — ${s.name}</option>
     `).join('');
@@ -511,6 +707,7 @@
 
     inpDate.value = new Date().toISOString().split('T')[0];
     modal.classList.add('open');
+    inpQty.focus();
   }
 
   function closeFieldUpdateModal() {
@@ -536,20 +733,21 @@
       closeFieldUpdateModal();
       renderKPIs();
       if (currentTab === 'overview') renderOverview();
-      if (currentTab === 'scheme-detail' && activeSchemeId === schemeId) openSchemeDetail(schemeId);
+      else if (currentTab === 'scheme-detail' && activeSchemeId === schemeId) openSchemeDetail(schemeId);
+      else if (currentTab === 'logs') renderLogs();
     } catch (err) {
       alert('Error saving update: ' + err.message);
     }
   }
 
-  // ------------------------------------------------------------- Add Issue Modal
+  // ------------------------------------------------------------- Log New Issue
   function openAddIssueModal() {
     const title = prompt('Enter Issue Title:');
     if (!title) return;
     const scheme = prompt('Enter Scheme Code (BW, DBC, VP-II, THOP):', 'BW') || 'BW';
-    const category = prompt('Enter Category (Land, Power, Technical, Funding, Quality):', 'Technical') || 'Technical';
+    const category = prompt('Enter Category (Power, Land, Technical, Funding):', 'Power') || 'Power';
     const detail = prompt('Enter Issue Description:') || '';
-    const actionNeeded = prompt('Enter Required Action:') || '';
+    const actionNeeded = prompt('Enter Required Department Action:') || '';
     const cost = parseFloat(prompt('Estimated Financial Impact in ₹ Cr (0 if none):', '0')) || 0;
 
     store.addIssue({
@@ -565,7 +763,7 @@
     renderIssues();
   }
 
-  // ------------------------------------------------------------- Command Palette (Ctrl+K)
+  // ------------------------------------------------------------- Command Palette (Ctrl + K)
   function setupCommandPalette() {
     const modal = $('#modal-command-palette');
     const input = $('#palette-search-input');
@@ -606,7 +804,7 @@
 
       // Add Schemes
       store.schemes.forEach((s) => {
-        if (!q || s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q) || s.status.toLowerCase().includes(q)) {
+        if (!q || s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)) {
           items.push({
             type: 'Scheme',
             title: `${s.id} — ${s.name}`,
@@ -621,7 +819,7 @@
             items.push({
               type: 'Component',
               title: `${c.id} (${s.id}) — ${c.name}`,
-              sub: `Status: ${c.completed} / ${c.total} ${c.unit} (${c.stage})`,
+              sub: `Executed: ${c.completed} / ${c.total} ${c.unit} (${c.stage})`,
               action: () => { openSchemeDetail(s.id); closePalette(); }
             });
           }
@@ -641,12 +839,12 @@
       });
 
       results.innerHTML = items.slice(0, 10).map((it, idx) => `
-        <div class="palette-item" data-idx="${idx}">
+        <div class="palette-item" data-idx="${idx}" style="padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
           <div>
             <b>${it.title}</b>
             <p style="font-size:12px;color:var(--text-muted);">${it.sub}</p>
           </div>
-          <span class="status-pill neutral">${it.type}</span>
+          <span class="tag tag-neutral">${it.type}</span>
         </div>
       `).join('');
 
@@ -663,12 +861,7 @@
     currentTab = tabName;
 
     // Update Tab Buttons
-    $$('.tab-btn').forEach((b) => {
-      b.classList.toggle('active', b.dataset.tab === tabName);
-    });
-
-    // Update Bottom Nav
-    $$('.mobile-nav-btn').forEach((b) => {
+    $$('.view-tab-btn').forEach((b) => {
       b.classList.toggle('active', b.dataset.tab === tabName);
     });
 
@@ -686,6 +879,9 @@
     else if (tabName === 'issues') renderIssues();
     else if (tabName === 'tanks') renderTanks();
     else if (tabName === 'finance') renderFinance();
+    else if (tabName === 'logs') renderLogs();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ------------------------------------------------------------- App Initializer
@@ -694,14 +890,7 @@
     renderOverview();
 
     // Tab buttons event listeners
-    $$('.tab-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        setTab(btn.dataset.tab);
-      });
-    });
-
-    // Mobile nav buttons event listeners
-    $$('.mobile-nav-btn').forEach((btn) => {
+    $$('.view-tab-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         setTab(btn.dataset.tab);
       });
@@ -712,11 +901,11 @@
     $('#btn-cancel-modal-field')?.addEventListener('click', closeFieldUpdateModal);
     $('#btn-save-modal-field')?.addEventListener('click', handleSaveFieldUpdate);
 
-    // Hero buttons
-    $('#btn-hero-log')?.addEventListener('click', () => openFieldUpdateModal());
+    // Top action buttons
+    $('#btn-top-log')?.addEventListener('click', () => openFieldUpdateModal());
     $('#btn-export-excel')?.addEventListener('click', () => LIS.exportExcel());
     $('#btn-export-pdf')?.addEventListener('click', () => LIS.exportPDF());
-    $('#btn-print')?.addEventListener('click', () => LIS.printReport());
+    $('#btn-print')?.addEventListener('click', () => window.print());
 
     // Theme toggle
     $('#btn-theme-toggle')?.addEventListener('click', () => {

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>LIS Monitoring v2 — 4 Nos. Lift Irrigation Schemes | I&CAD Telangana</title>
-  <meta name="description" content="Executive & Field Construction Monitoring for 4 Nos. LIS Package (Bothalapalem-Wadapally, Dunnapothulagandi, Veerlapalem-II, Thopucherla), Irrigation Division No.3, Miryalaguda.">
+  <title>LIS Monitoring — 4 Nos. Lift Irrigation Schemes | I&CAD Telangana</title>
+  <meta name="description" content="Ultra-clean executive and field construction monitoring system for 4 Nos. Lift Irrigation Schemes (BW, DBC, VP-II, THOP), Irrigation Division No.3, Miryalaguda.">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,252 +25,247 @@
 </head>
 <body>
 
-  <!-- Navigation Bar -->
-  <header class="app-header">
-    <a href="#" class="brand-wrap">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-        </svg>
+  <!-- Top Clean Navigation Bar -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand-section">
+        <div class="brand-emblem" title="Irrigation & CAD Department, Government of Telangana">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>
+            4 Nos. LIS Monitoring System
+            <span class="pill">v2.0 Executive</span>
+          </h1>
+          <p>Irrigation Division No. 3, Miryalaguda · I &amp; CAD Department, Telangana</p>
+        </div>
       </div>
-      <div class="brand-titles">
-        <h1>
-          4 Nos. LIS Monitoring
-          <span class="badge">v2.0</span>
-        </h1>
-        <p>I &amp; CAD Department · Irrigation Division No.3, Miryalaguda</p>
+
+      <div class="top-actions">
+        <a href="../" class="btn btn-outline btn-sm" title="Go to Canal Crossing Design Generator">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+          Canal Crossing Tool
+        </a>
+
+        <button class="btn btn-outline btn-sm" id="btn-search-trigger" title="Search schemes, components, issues (Ctrl + K)">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+          </svg>
+          Quick Search <span class="tab-pill" style="margin-left:4px;font-size:10px;">Ctrl K</span>
+        </button>
+
+        <button class="btn btn-primary btn-sm" id="btn-top-log" title="Record field observation or MB measurement">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor">
+            <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+          </svg>
+          + Quick Record Entry
+        </button>
+
+        <button class="btn btn-outline btn-sm" id="btn-export-excel" title="Download formatted Excel workbook">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="16" y2="17"/>
+          </svg>
+          Excel
+        </button>
+
+        <button class="btn btn-outline btn-sm" id="btn-export-pdf" title="Generate executive PDF report">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+            <path d="M14 2v6h6"/>
+          </svg>
+          PDF
+        </button>
+
+        <button class="btn btn-outline btn-sm" id="btn-print" title="Print this view">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+          </svg>
+        </button>
+
+        <button class="btn btn-outline btn-sm" id="btn-theme-toggle" title="Toggle dark/light theme" aria-label="Toggle Theme">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+          </svg>
+        </button>
       </div>
-    </a>
-
-    <div class="nav-actions">
-      <a href="../" class="btn btn-secondary btn-sm" style="text-decoration:none;">← Canal Crossing Design</a>
-      <button class="search-trigger" id="btn-search-trigger" title="Quick Search (Ctrl + K)">
-        <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor">
-          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-        </svg>
-        <span>Search schemes, components, issues...</span>
-        <span class="kbd">Ctrl K</span>
-      </button>
-
-      <button class="btn btn-secondary btn-sm" id="btn-theme-toggle" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
-        </svg>
-      </button>
     </div>
   </header>
 
-  <!-- Hero Executive Summary Banner -->
-  <section class="hero-banner">
-    <div class="hero-content">
-      <div class="hero-top-row">
-        <div class="hero-title">
-          <h2>Executive Construction Monitoring &amp; Field Register</h2>
-          <p>Package of 4 Lift Irrigation Schemes (BW · DBC · VP-II · THOP) under Nagarjuna Sagar Left Bank Canal network, Nalgonda District.</p>
+  <!-- Metrics Strip: 5 Executive KPIs -->
+  <section class="metrics-strip">
+    <div class="metrics-inner">
+      <div class="metric-item">
+        <div class="metric-icon blue">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-
-        <div class="hero-buttons">
-          <button class="btn btn-primary" id="btn-hero-log">
-            <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
-              <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
-            </svg>
-            Record Field Measurement
-          </button>
-          <button class="btn btn-secondary" id="btn-export-excel" title="Download formatted Excel workbook">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="8" y1="13" x2="16" y2="13"/>
-              <line x1="8" y1="17" x2="16" y2="17"/>
-            </svg>
-            Export Excel
-          </button>
-          <button class="btn btn-secondary" id="btn-export-pdf" title="Generate executive PDF report">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-              <path d="M14 2v6h6"/>
-            </svg>
-            Export PDF
-          </button>
-          <button class="btn btn-secondary" id="btn-print" title="Print dashboard">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
-            </svg>
-            Print
-          </button>
+        <div class="metric-data">
+          <small>Total Beneficiary Ayacut</small>
+          <b id="kpi-ayacut">11,425 Ac</b>
         </div>
       </div>
 
-      <!-- Live KPI Grid -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Beneficiary Ayacut</div>
-          <div class="kpi-value" id="kpi-ayacut">11,425 Ac</div>
-          <div class="kpi-sub">Across 14 Villages &amp; 6 Tanks</div>
+      <div class="metric-item">
+        <div class="metric-icon green">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-label">Sanction Package Cost</div>
-          <div class="kpi-value" id="kpi-sanction">₹ 548.23 Cr</div>
-          <div class="kpi-sub">GO Rt 300 / CER-05 Approved</div>
+        <div class="metric-data">
+          <small>Sanction Package Cost</small>
+          <b id="kpi-sanction">₹ 548.23 Cr</b>
         </div>
+      </div>
 
-        <div class="kpi-card">
-          <div class="kpi-label">Supplemental Agreement</div>
-          <div class="kpi-value" id="kpi-supp">₹ 296.21 Cr</div>
-          <div class="kpi-sub">Agmt No. 03/2022-23 (27-08-2022)</div>
+      <div class="metric-item">
+        <div class="metric-icon cyan">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-label">Physical Progress</div>
-          <div class="kpi-value" id="kpi-progress">8.8 %</div>
-          <div class="kpi-sub">Substructure civil &amp; E&amp;M ready</div>
+        <div class="metric-data">
+          <small>Supplemental Agmt.</small>
+          <b id="kpi-supp">₹ 296.21 Cr</b>
         </div>
+      </div>
 
-        <div class="kpi-card">
-          <div class="kpi-label">Critical Action Items</div>
-          <div class="kpi-value" id="kpi-issues" style="color:var(--danger);">5 Urgent</div>
-          <div class="kpi-sub">Power deposits &amp; pipeline LA</div>
+      <div class="metric-item">
+        <div class="metric-icon amber">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="metric-data">
+          <small>Avg Physical Progress</small>
+          <b id="kpi-progress">8.8 %</b>
+        </div>
+      </div>
+
+      <div class="metric-item">
+        <div class="metric-icon red">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="metric-data">
+          <small>Critical Blockers</small>
+          <b id="kpi-issues" style="color:var(--danger);">5 Urgent</b>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Main Content Container -->
-  <main class="main-container">
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
 
-    <!-- Navigation Tabs Bar -->
-    <nav class="tabs-bar" role="tablist">
-      <div class="nav-tabs">
-        <button class="tab-btn active" data-tab="overview" role="tab">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-          Overview
-        </button>
-        <button class="tab-btn" data-tab="issues" role="tab">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          Priority Issues &amp; Bottlenecks
-        </button>
-        <button class="tab-btn" data-tab="tanks" role="tab">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.732V5a2 2 0 012-2h2a2 2 0 012 2v7.268A2 2 0 0117 14a2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 01-3-.732z" clip-rule="evenodd"/></svg>
-          Tank Network (6 Tanks)
-        </button>
-        <button class="tab-btn" data-tab="finance" role="tab">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-          Financials &amp; Liabilities
-        </button>
-      </div>
+    <!-- View Navigation Tabs -->
+    <nav class="view-tabs" role="tablist">
+      <button class="view-tab-btn active" data-tab="overview" role="tab">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        All 4 Schemes Showcase
+      </button>
 
-      <div class="tabs-right" style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:12px;color:var(--text-muted);">Division: <b>Irr. Div. 3, Miryalaguda</b></span>
-      </div>
+      <button class="view-tab-btn" data-tab="issues" role="tab">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        Urgent Bottlenecks <span class="tab-pill">7</span>
+      </button>
+
+      <button class="view-tab-btn" data-tab="tanks" role="tab">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.732V5a2 2 0 012-2h2a2 2 0 012 2v7.268A2 2 0 0117 14a2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 01-3-.732z" clip-rule="evenodd"/></svg>
+        6 Minor Tanks Network
+      </button>
+
+      <button class="view-tab-btn" data-tab="finance" role="tab">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+        Financials &amp; Liabilities
+      </button>
+
+      <button class="view-tab-btn" data-tab="logs" role="tab">
+        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        Measurement Log (MB)
+      </button>
     </nav>
 
-    <!-- Tab 1: Overview View -->
+    <!-- Tab View: Overview / 4 Schemes Showcase -->
     <div class="tab-view" id="view-overview"></div>
 
-    <!-- Tab 2: Scheme Detail View -->
+    <!-- Tab View: Scheme Drilldown Detail -->
     <div class="tab-view" id="view-scheme-detail" style="display:none;"></div>
 
-    <!-- Tab 3: Priority Issues View -->
+    <!-- Tab View: Priority Issues & Bottlenecks -->
     <div class="tab-view" id="view-issues" style="display:none;"></div>
 
-    <!-- Tab 4: Tank Network View -->
+    <!-- Tab View: 6 Minor Tanks Network -->
     <div class="tab-view" id="view-tanks" style="display:none;"></div>
 
-    <!-- Tab 5: Financials View -->
+    <!-- Tab View: Financials & Liabilities -->
     <div class="tab-view" id="view-finance" style="display:none;"></div>
+
+    <!-- Tab View: Measurement Log -->
+    <div class="tab-view" id="view-logs" style="display:none;"></div>
 
   </main>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="mobile-bottom-nav">
-    <div class="mobile-nav-items">
-      <button class="mobile-nav-btn active" data-tab="overview">
-        <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-        Overview
-      </button>
-      <button class="mobile-nav-btn" data-tab="issues">
-        <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-        Issues
-      </button>
-      <button class="mobile-nav-btn" data-tab="tanks">
-        <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.732V5a2 2 0 012-2h2a2 2 0 012 2v7.268A2 2 0 0117 14a2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 01-3-.732z" clip-rule="evenodd"/></svg>
-        Tanks
-      </button>
-      <button class="mobile-nav-btn" data-tab="finance">
-        <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-        Finance
-      </button>
-    </div>
-  </nav>
-
   <!-- Modal: Record Field Measurement -->
-  <div class="modal-backdrop" id="modal-field-update">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3>Record Field Measurement (AEE / DEE)</h3>
-        <button class="btn-close" id="btn-close-modal-field">&times;</button>
+  <div class="modal-overlay" id="modal-field-update">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>Record Field Measurement (MB Entry)</h3>
+        <button class="modal-close-btn" id="btn-close-modal-field" title="Close dialog">&times;</button>
       </div>
 
-      <div class="modal-body">
-        <div class="form-group">
+      <div class="modal-content">
+        <div class="form-field">
           <label>Select Scheme</label>
-          <select class="form-control" id="field-scheme"></select>
+          <select id="field-scheme"></select>
         </div>
 
-        <div class="form-group">
+        <div class="form-field">
           <label>Select Component</label>
-          <select class="form-control" id="field-component"></select>
+          <select id="field-component"></select>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>New Cumulative Measured Quantity <small>(<span id="field-unit">m</span>)</small></label>
-            <input type="number" step="0.001" class="form-control" id="field-qty" placeholder="Enter total to date">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-field">
+            <label>New Cumulative Quantity (<span id="field-unit">m</span>)</label>
+            <input type="number" step="0.001" id="field-qty" placeholder="Total executed to date">
           </div>
 
-          <div class="form-group">
-            <label>Date of Observation</label>
-            <input type="date" class="form-control" id="field-date">
+          <div class="form-field">
+            <label>Observation Date</label>
+            <input type="date" id="field-date">
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-field">
             <label>Reporting Officer Designation</label>
-            <input type="text" class="form-control" id="field-officer" value="AEE / Sub-Division">
+            <input type="text" id="field-officer" value="AEE / Sub-Division 3">
           </div>
 
-          <div class="form-group">
+          <div class="form-field">
             <label>Measurement Book / Record Ref</label>
-            <input type="text" class="form-control" id="field-ref" placeholder="e.g. MB No. 412/A, Page 45">
+            <input type="text" id="field-ref" placeholder="e.g. MB No. 412/A, Page 45">
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-field">
           <label>Site Observations &amp; Verification Remarks</label>
-          <textarea class="form-control" id="field-remarks" rows="3" placeholder="Enter verified physical status, water levels, or contractor execution pace..."></textarea>
+          <textarea id="field-remarks" rows="3" placeholder="Enter physical execution progress, contractor pace, shuttering or pour status..."></textarea>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-white" id="btn-cancel-modal-field">Cancel</button>
+      <div class="modal-foot">
+        <button class="btn btn-outline" id="btn-cancel-modal-field">Cancel</button>
         <button class="btn btn-primary" id="btn-save-modal-field">Save Measurement Entry</button>
       </div>
     </div>
   </div>
 
   <!-- Command Palette Modal (Ctrl + K) -->
-  <div class="modal-backdrop" id="modal-command-palette">
-    <div class="modal-dialog command-palette">
-      <div class="palette-input-wrap">
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" style="color:var(--text-muted);">
-          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-        </svg>
-        <input type="text" class="palette-input" id="palette-search-input" placeholder="Type a scheme name, component, or issue to jump...">
-        <button class="btn-close" id="btn-close-palette">&times;</button>
+  <div class="modal-overlay" id="modal-command-palette">
+    <div class="modal-window" style="max-width: 640px;">
+      <div class="modal-head" style="padding: 12px 16px;">
+        <input type="text" id="palette-search-input" placeholder="Type a scheme name, component, village, or issue to jump directly..." style="width:100%;border:none;background:transparent;font-size:15px;font-weight:600;outline:none;color:var(--text-main);">
+        <button class="modal-close-btn" id="btn-close-palette">&times;</button>
       </div>
-      <div class="palette-results" id="palette-results"></div>
+      <div class="modal-content" id="palette-results" style="padding:10px 16px;max-height:60vh;"></div>
     </div>
   </div>
 
