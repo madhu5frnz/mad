@@ -28,9 +28,9 @@
   // ------------------------------------------------------------- Render KPIs Strip
   function renderKPIs() {
     const schemes = store.schemes;
-    const totalAyacut = schemes.reduce((sum, s) => sum + (s.ayacutAcres || 0), 0);
-    const totalSanction = schemes.reduce((sum, s) => sum + s.sanction, 0);
-    const totalSupp = schemes.reduce((sum, s) => sum + (s.supp / 10000000), 0);
+    const totalAyacut = 23665;
+    const totalSanction = 548.23;
+    const totalSupp = 296.21;
     const avgProgress = Math.round((schemes.reduce((sum, s) => sum + s.progress, 0) / schemes.length) * 10) / 10;
     const urgentIssues = store.issues.filter((i) => i.priority === 'High' && i.status !== 'Resolved').length;
 
@@ -807,6 +807,84 @@
     const totalFundingNeeded = LIS.FUNDING_SUMMARY.reduce((acc, f) => acc + f.total, 0);
 
     container.innerHTML = `
+      <!-- Supplemental Agreement No. 03 Official Breakdown -->
+      <div class="card-section" style="margin-bottom:24px;">
+        <div class="card-section-header">
+          <div>
+            <h3>Supplemental Agreement No. 03/SE/ICHC/2026-27 (dt 27.08.2026) — 4 LIS</h3>
+            <p>Original Agreement: <b>21SE/ICHC/2021-22</b> for <b>Rs. 285,99,44,991</b> (≈ ₹285.99 Cr)</p>
+          </div>
+          <span class="tag tag-primary" style="font-size:14px;font-weight:800;">Net Agreement Value: ₹ 296.21 Cr</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:18px 20px;background:var(--bg-alt);border-bottom:1px solid var(--border);">
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Value at Estimate Rates</small>
+            <b style="font-size:18px;color:var(--text-main);font-family:var(--font-mono);">Rs. 2,84,95,45,051</b>
+            <span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">≈ ₹ 284.95 Crores</span>
+          </div>
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">T.P. @ 3.95% Excess</small>
+            <b style="font-size:18px;color:var(--warning);font-family:var(--font-mono);">Rs. 11,25,57,030</b>
+            <span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">≈ ₹ 11.26 Crores (+3.95%)</span>
+          </div>
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:2px solid var(--primary);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Net Supplemental Value</small>
+            <b style="font-size:18px;color:var(--primary);font-family:var(--font-mono);">Rs. 2,96,21,02,081</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">≈ ₹ 296.21 Crores</span>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th>Scheme Name</th>
+                <th>Scheme Code</th>
+                <th>Amount at Estimate Rates (Rs)</th>
+                <th>Share in ₹ Crores</th>
+                <th>Percentage of Estimate Scope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Bothalapalem–Wadapally LIS</b></td>
+                <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">BW</span></td>
+                <td><b style="font-family:var(--font-mono);">Rs. 1,07,45,75,978</b></td>
+                <td><b style="color:var(--primary);">₹ 107.46 Cr</b></td>
+                <td>37.71 %</td>
+              </tr>
+              <tr>
+                <td><b>Veerlapalem–II LIS</b></td>
+                <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">VP-II</span></td>
+                <td><b style="font-family:var(--font-mono);">Rs. 21,53,78,858</b></td>
+                <td><b style="color:var(--primary);">₹ 21.54 Cr</b></td>
+                <td>7.56 %</td>
+              </tr>
+              <tr>
+                <td><b>Dunnapothulagandi (DBC) LIS</b></td>
+                <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">DBC</span></td>
+                <td><b style="font-family:var(--font-mono);">Rs. 1,43,92,24,885</b></td>
+                <td><b style="color:var(--primary);">₹ 143.92 Cr</b></td>
+                <td>50.51 %</td>
+              </tr>
+              <tr>
+                <td><b>Thopucherla LIS (6 Tanks)</b></td>
+                <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">THOP</span></td>
+                <td><b style="font-family:var(--font-mono);">Rs. 12,03,65,330</b></td>
+                <td><b style="color:var(--primary);">₹ 12.04 Cr</b></td>
+                <td>4.22 %</td>
+              </tr>
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="2"><b>TOTAL AT ESTIMATE RATES</b></td>
+                <td><b style="color:var(--primary);font-size:15px;font-family:var(--font-mono);">Rs. 2,84,95,45,051</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">₹ 284.95 Cr</b></td>
+                <td><b>100.0 %</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       <div class="card-section">
         <div class="card-section-header">
           <div>

@@ -86,9 +86,9 @@
       origTs: 219.90,
       ecv: 118.295,
       origAgreement: 119.26,
-      suppAgreement: 179.42,
+      suppAgreement: 143.92,
       totalAgreementVal: 374.90,
-      supp: 1794200000,
+      supp: 1439224885,
       bill: 140000000.00,
       work: 14.00,
       fund: 35.02,
@@ -402,6 +402,24 @@
     { item: 'Substation Yard & Transformer Works', bw: 0.00, vp: 0.00, thop: 0.25, dbc: 0.00, total: 0.25 }
   ];
 
+  // ------------------------------------------------------------- Supplemental Agreement No. 03 Breakdown
+  const SUPPLEMENTAL_AGREEMENT_DETAILS = {
+    agreementNo: '03/SE/ICHC/2026-27',
+    agreementDate: '27.08.2026',
+    originalAgreementNo: '21SE/ICHC/2021-22',
+    originalAgreementVal: 2859944991, // Rs. 285,99,44,991 (≈ Rs. 285.99 Cr)
+    estimateRatesVal: 2849545051,     // Rs. 2,84,95,45,051 (≈ Rs. 284.95 Cr)
+    tenderPremiumPct: 3.95,
+    tenderPremiumVal: 112557030,      // Rs. 11,25,57,030 (≈ Rs. 11.26 Cr)
+    netAgreementVal: 2962102081,      // Rs. 2,96,21,02,081 (≈ Rs. 296.21 Cr)
+    schemes: [
+      { id: 'BW', name: 'Bothalapalem-Wadapally', amount: 1074575978, amountCr: 107.46 },
+      { id: 'VP-II', name: 'Veerlapalem-II', amount: 215378858, amountCr: 21.54 },
+      { id: 'DBC', name: 'Dunnapothulagandi (DBC)', amount: 1439224885, amountCr: 143.92 },
+      { id: 'THOP', name: 'Thopucherla', amount: 120365330, amountCr: 12.04 }
+    ]
+  };
+
   // ------------------------------------------------------------- Program Dates
   const PROGRAM_DATES = {
     agreementDate: '27 Aug 2022',
@@ -410,9 +428,9 @@
     targetCompletion: '23 Mar 2028',
     reportingDate: '03 Nov 2026',
     originalAgreementCr: 285.99,
-    supplementalAgreementCr: 320.45,
+    supplementalAgreementCr: 296.21,
     sanctionPackageCr: 548.23
   };
 
-  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES, AYACUT_SUMMARY });
+  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES, AYACUT_SUMMARY, SUPPLEMENTAL_AGREEMENT_DETAILS });
 })(typeof window !== 'undefined' ? window : globalThis);
