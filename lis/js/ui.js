@@ -586,22 +586,27 @@
       <div class="card-section">
         <div class="card-section-header">
           <div>
-            <h3>3. DBC LIS (Adavidevulapally M) — 12,239 Ac</h3>
-            <p>NSP Mudimanikyam Major Tail End Stabilisation: 6,300 Ac · New: 5,939 Ac</p>
+            <h3>3. Dunnapothulagandi–Balnepally–Champla Thanda LIS — 12,239 Ac</h3>
+            <p>Source: Haliya River near Chityala · Mudimanikyam Major Tail End: 6,300 Ac · New: 5,939 Ac</p>
           </div>
-          <span class="tag tag-primary">Total: 12,239 Ac</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="tag tag-warning">Target: July 2027</span>
+            <span class="tag tag-primary">Total: 12,239 Ac</span>
+          </div>
         </div>
-        <div style="padding:12px 20px;background:var(--warning-soft);border-bottom:1px solid var(--border);color:#92400e;font-size:12.5px;">
-          <b>Note:</b> The VE-I report recorded DBC new ayacut as 5,393 Ac; it is reconciled to <b>5,939 Ac</b> (+ 6,300 Ac stabilisation = 12,239 Ac). Individual village acre breakdown table will be finalized upon release of the sub-division statement.
+        <div style="padding:12px 20px;background:var(--bg-alt);border-bottom:1px solid var(--border);color:var(--text-body);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span><b>Agency:</b> M/s. Kaveri-Shantha–MEIL (JV) · <b>Agreement:</b> ₹119.26 Cr + Supp ₹179.42 Cr (Total ₹374.90 Cr)</span>
+          <span style="color:var(--danger);font-weight:700;">⚠️ TG TRANSCO Token No.2602014999 (₹31.42 Cr) pending release</span>
         </div>
         <div style="overflow-x:auto;">
           <table class="clean-table">
             <thead>
               <tr>
                 <th style="width:70px;">Sl No</th>
-                <th>Village Covered</th>
+                <th>Name of the Benefitted Village</th>
                 <th>Mandal</th>
-                <th>Ayacut Status</th>
+                <th>Total Beneficiary Ayacut (Acres)</th>
+                <th>Ayacut Share (%)</th>
               </tr>
             </thead>
             <tbody>
@@ -610,9 +615,15 @@
                   <td><b>${v.sl}</b></td>
                   <td><b>${v.name}</b></td>
                   <td>${v.mandal}</td>
-                  <td><span class="tag tag-neutral">Village Statement Pending</span></td>
+                  <td><b style="color:var(--primary);">${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
+                  <td><span class="tag tag-primary">${Math.round((v.ayacut / 12239) * 1000) / 10} %</span></td>
                 </tr>
               `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="3"><b>TOTAL DBC AYACUT (7 VILLAGES)</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">12,239 Acres</b></td>
+                <td><span class="tag tag-success">100.0 %</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
