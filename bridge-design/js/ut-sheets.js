@@ -158,7 +158,7 @@
     dw.text(392, 402, 'NOTES:', 2.4, 'TITLE');
     let ny = 396, k = 0;
     for (const n of notes) {
-      BD.wrapText(n, 100).forEach((ln, i) => { dw.text(i ? 396 : 392, ny, (i ? '' : `${++k}) `) + ln, 1.25, 'TEXT'); ny -= 2.6; });
+      BD.wrapText(n, 100).forEach((ln, i) => { dw.text(i ? 396 : 392, ny, `${i ? '' : `${++k}) `}${ln}`, 1.25, 'TEXT'); ny -= 2.6; });
     }
     let hy = ny - 5;
     dw.title(486, hy, `HYDRAULIC PARTICULARS OF THE CANAL @ KM ${p.chainage}`, 2.2);

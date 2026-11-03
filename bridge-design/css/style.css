@@ -260,12 +260,32 @@ button.primary svg { fill: currentColor; }
 .tabs button.active { background: var(--ink); color: var(--sheet); }
 .tab { display: flex; flex-direction: column; gap: 12px; }
 .tab[hidden] { display: none; }
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.paper-select-wrap { display: inline-flex; align-items: center; }
+.paper-select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--rule);
+  background: var(--sheet);
+  color: var(--ink);
+  font: 600 13px var(--f-body);
+  cursor: pointer;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.paper-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 button.dl { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, var(--rule)); color: var(--accent-2); }
 button.dl::before { content: ""; width: 14px; height: 14px; flex: none; background: currentColor;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 10l5 5 5-5M4 20h16'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 10l5 5 5-5M4 20h16'/%3E%3C/svg%3E") center / contain no-repeat; }
 button.dl:hover { background: var(--accent); color: var(--on-accent); }
+button.btn-print { background: var(--sheet); border-color: var(--rule); color: var(--ink); }
+button.btn-print::before { display: none; }
+button.btn-print svg { fill: currentColor; }
+button.btn-print:hover { background: var(--head); border-color: var(--ink-2); color: var(--ink); }
 
 /* documents */
 .report .doc { background: var(--sheet); border: 1px solid var(--rule); border-radius: 18px; padding: clamp(18px, 3vw, 32px); overflow-x: auto; box-shadow: var(--shadow); }
@@ -337,4 +357,77 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  @page {
+    margin: 8mm;
+    size: auto;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10pt !important;
+  }
+  .nav, .hero, .how, .basis, .inputs, .tabs, .toolbar, .zoom, .foot, .toast, #status, #dwg-hint {
+    display: none !important;
+  }
+  .work {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .output {
+    display: block !important;
+    width: 100% !important;
+  }
+  .tab:not([hidden]) {
+    display: block !important;
+  }
+  .tab[hidden] {
+    display: none !important;
+  }
+  /* Drawings print styles */
+  .sheets {
+    display: block !important;
+    overflow: visible !important;
+  }
+  .sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 0 20mm 0 !important;
+    width: 100% !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  .sheet:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+    margin-bottom: 0 !important;
+  }
+  .sheet svg {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 95vh !important;
+  }
+  .sheet figcaption {
+    display: none !important;
+  }
+  /* Report and Estimate table print styles */
+  .report .doc {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
 }

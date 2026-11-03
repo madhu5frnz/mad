@@ -545,9 +545,41 @@
       save(RSTORE, rates); setTimeout(run, 0);
     });
     $('#btn-rates-reset').addEventListener('click', () => { rates = {}; save(RSTORE, rates); run(); });
+    const getDwgSize = () => ($('#sel-paper-size') && $('#sel-paper-size').value) || 'A2';
+    const selDwgSize = $('#sel-paper-size');
+    if (selDwgSize) {
+      selDwgSize.addEventListener('change', () => {
+        $('#btn-pdf-dwg').textContent = `Download PDF (${selDwgSize.value})`;
+      });
+      $('#btn-pdf-dwg').textContent = `Download PDF (${selDwgSize.value})`;
+    }
+
     $('#btn-pdf-report').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.reportPDF(cur), `${fileBase()}_Design.pdf`), 'Design report PDF'));
+    if ($('#btn-print-report')) {
+      $('#btn-print-report').addEventListener('click', exporter([hasPDF], async () => {
+        BD.printBlob(BD.reportPDF(cur));
+      }, 'Print Report'));
+    }
+
     $('#btn-pdf-est').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.estimatePDF(cur, est), `${fileBase()}_Estimate.pdf`), 'Estimate PDF'));
-    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => BD.saveBlob(BD.drawingsPDF(sheets()), `${fileBase()}_Drawings.pdf`), 'Drawings PDF'));
+    if ($('#btn-print-est')) {
+      $('#btn-print-est').addEventListener('click', exporter([hasPDF], async () => {
+        BD.printBlob(BD.estimatePDF(cur, est));
+      }, 'Print Estimate'));
+    }
+
+    $('#btn-pdf-dwg').addEventListener('click', exporter([hasPDF], () => {
+      const sz = getDwgSize();
+      return BD.saveBlob(BD.drawingsPDF(sheets(), sz), `${fileBase()}_Drawings_${sz}.pdf`);
+    }, 'Drawings PDF'));
+
+    if ($('#btn-print-dwg')) {
+      $('#btn-print-dwg').addEventListener('click', exporter([hasPDF], async () => {
+        const sz = getDwgSize();
+        const blob = BD.drawingsPDF(sheets(), sz);
+        BD.printBlob(blob);
+      }, 'Print Drawings'));
+    }
     $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await (mode === 'ut' ? BD.utDxfZip : BD.dxfZip)(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
     $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
     $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));

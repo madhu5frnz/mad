@@ -34,41 +34,99 @@
   const hex6 = (c) => (c.length === 4 ? '#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3] : c);
   const latin = (s) => String(s).replace(/[φ]/g, 'dia').replace(/[≥]/g, '>=').replace(/[≤]/g, '<=').replace(/[–—]/g, '-').replace(/[₹]/g, 'Rs').replace(/[^\x00-\xff]/g, '?');
 
-  function drawDwg(doc, dw) {
-    const H = dw.h;
+  const PAPER_SIZES = {
+    A0: { w: 1189, h: 841, label: 'A0 (1189 × 841 mm)' },
+    A1: { w: 841, h: 594, label: 'A1 (841 × 594 mm)' },
+    A2: { w: 594, h: 420, label: 'A2 (594 × 420 mm)' },
+    A3: { w: 420, h: 297, label: 'A3 (420 × 297 mm)' },
+    A4: { w: 297, h: 210, label: 'A4 (297 × 210 mm)' },
+  };
+
+  function drawDwg(doc, dw, scale = 1, ox = 0, oy = 0, pageH = dw.h) {
+    const H = pageH;
     for (const e of dw.ents) {
       const [, col, lt] = BD.LAYERS[e.layer] || BD.LAYERS.OUTLINE;
       const c = rgb(hex6(col));
       doc.setDrawColor(...c); doc.setFillColor(...c); doc.setTextColor(...c);
-      const sw = e.w != null ? e.w : e.layer === 'OUTLINE' || e.layer === 'BORDER' ? 0.3 : e.layer === 'REBAR' ? 0.35 : 0.18;
+      const baseSw = e.w != null ? e.w : e.layer === 'OUTLINE' || e.layer === 'BORDER' ? 0.3 : e.layer === 'REBAR' ? 0.35 : 0.18;
+      const sw = baseSw * scale;
       doc.setLineWidth(sw);
-      doc.setLineDashPattern(lt === 'DASHED' ? [2, 1] : lt === 'CENTER' ? [6, 1.2, 1.2, 1.2] : [], 0);
-      if (e.t === 'line') doc.line(e.x1, H - e.y1, e.x2, H - e.y2);
-      else if (e.t === 'poly') {
+      const dashPat = lt === 'DASHED' ? [2 * scale, 1 * scale] : lt === 'CENTER' ? [6 * scale, 1.2 * scale, 1.2 * scale, 1.2 * scale] : [];
+      doc.setLineDashPattern(dashPat, 0);
+      if (e.t === 'line') {
+        doc.line(ox + e.x1 * scale, H - (oy + e.y1 * scale), ox + e.x2 * scale, H - (oy + e.y2 * scale));
+      } else if (e.t === 'poly') {
         const pts = e.pts;
         const d = [];
-        for (let i = 1; i < pts.length; i++) d.push([pts[i][0] - pts[i - 1][0], -(pts[i][1] - pts[i - 1][1])]);
-        doc.lines(d, pts[0][0], H - pts[0][1], [1, 1], e.fill ? 'FD' : 'S', !!e.closed);
-      } else if (e.t === 'circle') doc.circle(e.x, H - e.y, e.r, e.fill ? 'F' : 'S');
-      else if (e.t === 'text') {
+        for (let i = 1; i < pts.length; i++) {
+          d.push([(pts[i][0] - pts[i - 1][0]) * scale, -((pts[i][1] - pts[i - 1][1]) * scale)]);
+        }
+        doc.lines(d, ox + pts[0][0] * scale, H - (oy + pts[0][1] * scale), [1, 1], e.fill ? 'FD' : 'S', !!e.closed);
+      } else if (e.t === 'circle') {
+        doc.circle(ox + e.x * scale, H - (oy + e.y * scale), e.r * scale, e.fill ? 'F' : 'S');
+      } else if (e.t === 'text') {
         const s = latin(e.s);
         doc.setFont('helvetica', e.bold ? 'bold' : 'normal');
-        doc.setFontSize(e.h * 1.4 * 2.8346);
+        doc.setFontSize(e.h * scale * 1.4 * 2.8346);
         const w = doc.getTextWidth(s);
         const off = e.anchor === 'middle' ? -w / 2 : e.anchor === 'end' ? -w : 0;
         const a = ((e.rot || 0) * Math.PI) / 180;
-        doc.text(s, e.x + off * Math.cos(a), H - e.y - off * Math.sin(a), { angle: e.rot || 0 });
+        doc.text(s, ox + e.x * scale + off * Math.cos(a), H - (oy + e.y * scale) - off * Math.sin(a), { angle: e.rot || 0 });
       }
     }
     doc.setLineDashPattern([], 0);
   }
 
-  function drawingsPDF(dws) {
-    const { jsPDF } = g.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [dws[0].w, dws[0].h], compress: true });
-    dws.forEach((dw, i) => { if (i) doc.addPage([dw.w, dw.h], 'landscape'); drawDwg(doc, dw); });
+  function drawingsPDF(dws, sizeKey = 'A2') {
+    const jsPDF = (g.jspdf && g.jspdf.jsPDF) || g.jsPDF || (typeof jspdf !== 'undefined' ? jspdf.jsPDF : null);
+    const key = String(sizeKey || 'A2').toUpperCase();
+    const target = PAPER_SIZES[key] || PAPER_SIZES.A2;
+    const baseW = (dws[0] && dws[0].w) || 594;
+    const baseH = (dws[0] && dws[0].h) || 420;
+    const scale = Math.min(target.w / baseW, target.h / baseH);
+    const ox = (target.w - baseW * scale) / 2;
+    const oy = (target.h - baseH * scale) / 2;
+
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: [target.w, target.h],
+      compress: true
+    });
+
+    dws.forEach((dw, i) => {
+      if (i) doc.addPage([target.w, target.h], 'landscape');
+      drawDwg(doc, dw, scale, ox, oy, target.h);
+    });
     return doc.output('blob');
   }
+
+  BD.printBlob = function (blob) {
+    const url = URL.createObjectURL(blob);
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      setTimeout(() => {
+        try {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch (e) {
+          window.open(url, '_blank');
+        }
+        setTimeout(() => {
+          iframe.remove();
+          URL.revokeObjectURL(url);
+        }, 60000);
+      }, 500);
+    };
+  };
 
   const BLUE = [29, 78, 216], OK = [10, 122, 47], BAD = [192, 20, 43], INP = [255, 248, 197], HEAD = [238, 242, 248];
 
@@ -194,5 +252,5 @@
     return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
   }
 
-  Object.assign(BD, { drawingsPDF, reportPDF, estimatePDF, dxfZip });
+  Object.assign(BD, { drawingsPDF, reportPDF, estimatePDF, dxfZip, PAPER_SIZES });
 })(typeof window !== 'undefined' ? window : globalThis);
