@@ -364,17 +364,21 @@
             <table class="clean-table">
               <thead>
                 <tr>
+                  <th>Sl No</th>
                   <th>Village Name</th>
+                  <th>Mandal</th>
                   <th>Beneficiary Ayacut (Acres)</th>
                   <th>Ayacut Share (%)</th>
                 </tr>
               </thead>
               <tbody>
-                ${s.villages.map((v) => `
+                ${s.villages.map((v, idx) => `
                   <tr>
+                    <td><b>${v.sl || (idx + 1)}</b></td>
                     <td><b>${v.name}</b></td>
-                    <td><b>${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
-                    <td><span class="tag tag-primary">${Math.round((v.ayacut / s.ayacutAcres) * 1000) / 10} %</span></td>
+                    <td>${v.mandal || s.mandals.join(', ')}</td>
+                    <td><b>${v.ayacut !== null && v.ayacut !== undefined ? v.ayacut.toLocaleString('en-IN') + ' Acres' : '<span class="tag tag-neutral">Statement Pending</span>'}</b></td>
+                    <td>${v.ayacut !== null && v.ayacut !== undefined ? `<span class="tag tag-primary">${Math.round((v.ayacut / s.ayacutAcres) * 1000) / 10} %</span>` : '—'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -398,6 +402,265 @@
         openFieldUpdateModal(s.id, btn.dataset.compId);
       });
     });
+  }
+
+  // ------------------------------------------------------------- Render Ayacut & Village Network Tab
+  function renderAyacut() {
+    const container = $('#view-ayacut');
+    if (!container) return;
+
+    const bw = store.schemes.find((s) => s.id === 'BW');
+    const vp = store.schemes.find((s) => s.id === 'VP-II');
+    const dbc = store.schemes.find((s) => s.id === 'DBC');
+    const thop = store.schemes.find((s) => s.id === 'THOP');
+
+    container.innerHTML = `
+      <!-- Executive Summary Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px;">
+        <div style="background:var(--bg-card);border:2px solid var(--primary);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);">
+          <small style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Package Grand Total</small>
+          <div style="font-size:28px;font-weight:800;color:var(--primary);font-family:var(--font-mono);margin:4px 0;">23,665 Acres</div>
+          <p style="font-size:13px;color:var(--text-body);">Full Command Coverage across 4 Nos. LIS Package</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);">
+          <small style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">New Created Ayacut</small>
+          <div style="font-size:28px;font-weight:800;color:var(--success);font-family:var(--font-mono);margin:4px 0;">11,839 Acres</div>
+          <p style="font-size:13px;color:var(--text-body);">BW (3,400) + VP-II (2,500) + DBC (5,939)</p>
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);">
+          <small style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Stabilisation Ayacut</small>
+          <div style="font-size:28px;font-weight:800;color:var(--water);font-family:var(--font-mono);margin:4px 0;">11,826 Acres</div>
+          <p style="font-size:13px;color:var(--text-body);">BW (5,210) + DBC Tail End (6,300) + 6 Tanks (316)</p>
+        </div>
+      </div>
+
+      <!-- Master Package Table -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>4 LIS Package — Scheme Ayacut Reconciliation</h3>
+            <p>Official sanctioned breakdown between newly created ayacut and existing system stabilisation.</p>
+          </div>
+          <span class="tag tag-primary" style="font-size:13px;font-weight:700;">Grand Total: 23,665 Ac</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th>Scheme Name</th>
+                <th>Mandal Jurisdiction</th>
+                <th>New Ayacut (Ac)</th>
+                <th>Stabilisation Ayacut (Ac)</th>
+                <th>Total Ayacut (Ac)</th>
+                <th>Villages / Outlets</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Bothalapalem–Wadapally LIS (BW)</b></td>
+                <td>Damaracherla M</td>
+                <td><b style="color:var(--success);">3,400 Ac</b></td>
+                <td><b style="color:var(--water);">5,210 Ac</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">8,610 Ac</b></td>
+                <td>7 Villages</td>
+              </tr>
+              <tr>
+                <td><b>Veerlapalem–II LIS (VP-II)</b></td>
+                <td>Damaracherla &amp; Adavidevulapally M</td>
+                <td><b style="color:var(--success);">2,500 Ac</b></td>
+                <td>—</td>
+                <td><b style="color:var(--primary);font-size:15px;">2,500 Ac</b></td>
+                <td>3 Villages (All New)</td>
+              </tr>
+              <tr>
+                <td><b>DBC LIS (Dunnapothulagandi)</b></td>
+                <td>Adavidevulapally M</td>
+                <td><b style="color:var(--success);">5,939 Ac</b> <small style="color:var(--text-muted);">(VE-I report 5,393 corrected)</small></td>
+                <td><b style="color:var(--water);">6,300 Ac</b> <small style="color:var(--text-muted);">(Mudimanikyam Major tail end)</small></td>
+                <td><b style="color:var(--primary);font-size:15px;">12,239 Ac</b></td>
+                <td>8 Villages</td>
+              </tr>
+              <tr>
+                <td><b>Thopucherla LIS (THOP)</b></td>
+                <td>Madgulapally M</td>
+                <td>—</td>
+                <td><b style="color:var(--water);">315.98 Ac</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">315.98 Ac</b></td>
+                <td>6 Minor Tanks (39.50 Mcft)</td>
+              </tr>
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="2"><b>PACKAGE TOTAL (4 Nos. LIS)</b></td>
+                <td><b style="color:var(--success);font-size:16px;">11,839 Ac</b></td>
+                <td><b style="color:var(--water);font-size:16px;">11,826 Ac</b></td>
+                <td><b style="color:var(--primary);font-size:17px;">23,665 Ac</b></td>
+                <td><b>14 Villages &amp; 6 Tanks</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 1. Bothalapalem-Wadapally Village Breakdown -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>1. Bothalapalem–Wadapally LIS (Damaracherla M) — 8,610 Ac</h3>
+            <p>Stabilisation: 5,210 Ac · New: 3,400 Ac</p>
+          </div>
+          <span class="tag tag-primary">Total: 8,610 Ac</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Sl No</th>
+                <th>Village Name</th>
+                <th>Mandal</th>
+                <th>Beneficiary Ayacut (Acres)</th>
+                <th>Ayacut Share (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(bw?.villages || []).map((v) => `
+                <tr>
+                  <td><b>${v.sl}</b></td>
+                  <td><b>${v.name}</b></td>
+                  <td>Damaracherla</td>
+                  <td><b style="color:var(--primary);">${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
+                  <td><span class="tag tag-primary">${Math.round((v.ayacut / 8610) * 1000) / 10} %</span></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="3"><b>TOTAL BW AYACUT</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">8,610 Acres</b></td>
+                <td><span class="tag tag-success">100.0 %</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Veerlapalem-II Village Breakdown -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>2. Veerlapalem–II LIS — 2,500 Ac (All New)</h3>
+            <p>3 Beneficiary Villages in Damaracherla &amp; Adavidevulapally Mandals.</p>
+          </div>
+          <span class="tag tag-primary">Total: 2,500 Ac</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Sl No</th>
+                <th>Village Name</th>
+                <th>Mandal</th>
+                <th>Beneficiary Ayacut (Acres)</th>
+                <th>Ayacut Share (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(vp?.villages || []).map((v) => `
+                <tr>
+                  <td><b>${v.sl}</b></td>
+                  <td><b>${v.name}</b></td>
+                  <td>${v.mandal}</td>
+                  <td><b style="color:var(--primary);">${v.ayacut.toLocaleString('en-IN')} Acres</b></td>
+                  <td><span class="tag tag-primary">${Math.round((v.ayacut / 2500) * 1000) / 10} %</span></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="3"><b>TOTAL VP-II AYACUT</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">2,500 Acres</b></td>
+                <td><span class="tag tag-success">100.0 %</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. DBC LIS Village Statement -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>3. DBC LIS (Adavidevulapally M) — 12,239 Ac</h3>
+            <p>NSP Mudimanikyam Major Tail End Stabilisation: 6,300 Ac · New: 5,939 Ac</p>
+          </div>
+          <span class="tag tag-primary">Total: 12,239 Ac</span>
+        </div>
+        <div style="padding:12px 20px;background:var(--warning-soft);border-bottom:1px solid var(--border);color:#92400e;font-size:12.5px;">
+          <b>Note:</b> The VE-I report recorded DBC new ayacut as 5,393 Ac; it is reconciled to <b>5,939 Ac</b> (+ 6,300 Ac stabilisation = 12,239 Ac). Individual village acre breakdown table will be finalized upon release of the sub-division statement.
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Sl No</th>
+                <th>Village Covered</th>
+                <th>Mandal</th>
+                <th>Ayacut Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(dbc?.villages || []).map((v) => `
+                <tr>
+                  <td><b>${v.sl}</b></td>
+                  <td><b>${v.name}</b></td>
+                  <td>${v.mandal}</td>
+                  <td><span class="tag tag-neutral">Village Statement Pending</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Thopucherla Minor Tanks Breakdown -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>4. Thopucherla LIS (Madgulapally M) — 315.98 Ac (Tank Stabilisation)</h3>
+            <p>Cascading network of 6 Nos. Minor Irrigation Tanks with total storage capacity 39.50 Mcft.</p>
+          </div>
+          <span class="tag tag-primary">Total: 315.98 Ac</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Sl No</th>
+                <th>Tank Name</th>
+                <th>Village</th>
+                <th>Beneficiary Ayacut (Acres)</th>
+                <th>Storage Capacity (Mcft)</th>
+                <th>Inlet Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${LIS.TANKS.map((t) => `
+                <tr>
+                  <td><b>${t.sl}</b></td>
+                  <td><b>${t.name}</b></td>
+                  <td>${t.village}</td>
+                  <td><b style="color:var(--primary);font-size:14.5px;">${t.ayacutAc} Acres</b></td>
+                  <td><b style="font-family:var(--font-mono);">${t.capacityMcft} Mcft</b></td>
+                  <td><span class="tag tag-success">${t.status}</span></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="3"><b>TOTAL THOPUCHERLA 6 TANKS</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">315.98 Acres</b></td>
+                <td><b style="color:var(--water);font-size:15px;">39.50 Mcft</b></td>
+                <td><span class="tag tag-success">100% Ready</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
   }
 
   // ------------------------------------------------------------- Render Bottlenecks Tab
@@ -876,6 +1139,7 @@
 
     // Render content
     if (tabName === 'overview') renderOverview();
+    else if (tabName === 'ayacut') renderAyacut();
     else if (tabName === 'issues') renderIssues();
     else if (tabName === 'tanks') renderTanks();
     else if (tabName === 'finance') renderFinance();

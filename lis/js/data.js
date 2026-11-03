@@ -28,8 +28,10 @@
       bill: 133023844.10,
       work: 11.0,
       fund: 30.78,
-      ayacut: '8,610 Acres',
+      ayacut: '8,610 Acres (New 3,400 + Stab. 5,210)',
       ayacutAcres: 8610,
+      newAyacut: 3400,
+      stabAyacut: 5210,
       water: '0.95 TMC',
       discharge: '5.10 cumecs (180.1 cusecs)',
       head: '103.00 m Static Head',
@@ -43,20 +45,20 @@
       location: 'Bothalapalem · Wadapally',
       mandals: ['Damaracherla'],
       status: 'Civil work in progress; Land acquisition & TGSPDCL deposit pending',
-      summary: 'Lifts water from Krishna River at Wadapally to irrigate 8,610 acres across 7 villages. Approach channel and pump house excavation completed; walls to +55.00 m against required pump floor level +71.20 m.',
+      summary: 'Lifts water from Krishna River at Wadapally to irrigate 8,610 acres (3,400 Ac new + 5,210 Ac stabilisation) across 7 villages in Damaracherla mandal. Approach channel & pump house excavation completed; walls to +55.00 m against pump floor +71.20 m.',
       civilStatus: 'PH & forebay excavation complete. PH walls up to +55.00 m (floor +71.20 m). Forebay right wall up to +47.20 m; left wall in progress.',
       channelProgress: '250 / 330 m (75.8%)',
       pipelineProgress: '0 / 11,045 m (Corridor pending LA)',
       powerStatus: 'TGSPDCL power line deposit ₹12.78 Cr pending sanction/release.',
       landStatus: 'Required: 39-35.70 Ac-Gts for PH/Channel/PM; 22-00.70 Ac-Gts for gravity. PN completed; PD & compensation ₹7.00 Cr pending.',
       villages: [
-        { name: 'Bothalapalem', ayacut: 1498 },
-        { name: 'Rajagattu', ayacut: 804 },
-        { name: 'Damaracherla', ayacut: 1511 },
-        { name: 'Narsapur', ayacut: 534 },
-        { name: 'Tallaveerappagudem', ayacut: 1006 },
-        { name: 'Kothapally', ayacut: 395 },
-        { name: 'Wadapally', ayacut: 2862 }
+        { sl: 1, name: 'Bothalapalem', ayacut: 1498, mandal: 'Damaracherla' },
+        { sl: 2, name: 'Rajagattu', ayacut: 804, mandal: 'Damaracherla' },
+        { sl: 3, name: 'Damaracherla', ayacut: 1511, mandal: 'Damaracherla' },
+        { sl: 4, name: 'Narsapur', ayacut: 534, mandal: 'Damaracherla' },
+        { sl: 5, name: 'Tallaveerappagudem', ayacut: 1006, mandal: 'Damaracherla' },
+        { sl: 6, name: 'Kothapally', ayacut: 395, mandal: 'Damaracherla' },
+        { sl: 7, name: 'Wadapally', ayacut: 2862, mandal: 'Damaracherla' }
       ],
       components: [
         { id: 'BW-C-01', name: 'Approach Channel Excavation & Lining', unit: 'm', total: 330, completed: 250, stage: 'In Progress', status: '75.8%' },
@@ -88,8 +90,10 @@
       bill: 135113711.60,
       work: 13.51,
       fund: 18.50,
-      ayacut: '5,939 Acres (reconciled)',
-      ayacutAcres: 5939,
+      ayacut: '12,239 Acres (New 5,939 + NSP Stab. 6,300)',
+      ayacutAcres: 12239,
+      newAyacut: 5939,
+      stabAyacut: 6300,
       water: '1.20 TMC',
       discharge: '7.30 cumecs (257.8 cusecs)',
       head: '102.00 m Pump Duty',
@@ -100,19 +104,24 @@
       pipeDia: '1900 mm MS Pipe',
       delivery: '+148.00 m Delivery Chamber',
       lwl: '+55.00 m (Krishna foreshore)',
-      location: 'Krishna Intake · Chityal',
-      mandals: ['Chityal', 'Narketpally'],
+      location: 'Krishna Intake · Adavidevulapally',
+      mandals: ['Adavidevulapally'],
       status: 'Engineering drawing reconciliation & sump level compliance in review',
-      summary: 'Highest-discharge scheme in package (7.30 cumecs) powered by two 5.6 MW heavy VT pumps. Sump bed level adjustment to +59.40 m and CCW rotation compliance verified with Advisor guidelines.',
+      summary: 'Highest-discharge scheme in package (7.30 cumecs) covering 12,239 Acres (NSP Mudimanikyam Major tail end stabilisation 6,300 Ac + New 5,939 Ac; reconciled from VE-I report 5,393 Ac) across 8 villages in Adavidevulapally mandal.',
       civilStatus: 'Approach channel: bed width 6 m, slope 0.5:1, length levelled 0.340 km. Pump house excavation and sump bed +59.40 m under execution.',
       channelProgress: '290 / 340 m (85.3%)',
       pipelineProgress: '0 / 8,250 m (1,900 mm MS scheduled)',
       powerStatus: '11 kV switchyard: 2 × 1,500 A incomers from 20 MVA transformer. Field setup scheduled.',
       landStatus: 'VE-I provision ₹7.40 Cr. Corridors earmarked for acquisition.',
       villages: [
-        { name: 'Chityal', ayacut: 2450 },
-        { name: 'Vannekanth', ayacut: 1840 },
-        { name: 'Chinna Kaparthy', ayacut: 1649 }
+        { sl: 1, name: 'Ulsaipalem', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 2, name: 'Molkacherla', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 3, name: 'Balnepally', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 4, name: 'Chityala', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 5, name: 'Adavidevulapally', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 6, name: 'Champlathanda', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 7, name: 'Kotha Nandikonda', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' },
+        { sl: 8, name: 'Jilakarakunta Thanda', mandal: 'Adavidevulapally', ayacut: null, status: 'Statement Pending' }
       ],
       components: [
         { id: 'DBC-C-01', name: 'Approach Channel Levelled Section', unit: 'm', total: 340, completed: 290, stage: 'In Progress', status: '85.3% formed' },
@@ -144,8 +153,10 @@
       bill: 34332807.70,
       work: 3.32,
       fund: 7.46,
-      ayacut: '2,500 Acres',
+      ayacut: '2,500 Acres (All New)',
       ayacutAcres: 2500,
+      newAyacut: 2500,
+      stabAyacut: 0,
       water: '0.207 TMC',
       discharge: '0.85 cumecs (30.0 cusecs)',
       head: '94.00 m Static Head',
@@ -157,18 +168,18 @@
       delivery: '+125.20 m Delivery Cistern',
       lwl: '+47.20 m brief / +46.12 m GA',
       location: 'Veerlapalem · Adavidevulapally',
-      mandals: ['Adavidevulapally'],
+      mandals: ['Damaracherla', 'Adavidevulapally'],
       status: 'Pump house raft ready; Factory inspections completed (WPIL & CG Power)',
-      summary: 'Irrigates 2,500 acres in Veerlapalem, Mudimanikyam, and Adavidevulapally. Pumps and motors successfully inspected at WPIL and CG Power Bhopal works with conditional factory releases.',
+      summary: 'Irrigates 2,500 acres (all new) across Veerlapalem (Damaracherla M), Mudimanikyam, and Adavidevulapally. Pumps and motors successfully inspected at WPIL and CG Power Bhopal works with conditional factory releases.',
       civilStatus: 'PH excavation complete and raft finalised. Walls up to +45.50 m against required +68.00 m. Forebay design approved and foundation ready.',
       channelProgress: '120 / 150 m (80.0%)',
       pipelineProgress: '0 / 6,050 m (Corridor pending LA)',
       powerStatus: 'TGSPDCL deposit ₹3.78 Cr pending release.',
       landStatus: 'PH/channel/PM: 16-31.00 Ac-Gts; gravity: 08-00.00 Ac-Gts. PN complete; ₹0.36 Cr required for payment awards.',
       villages: [
-        { name: 'Veerlapalem', ayacut: 1063 },
-        { name: 'Mudimanikyam', ayacut: 1017 },
-        { name: 'Adavidevulapally', ayacut: 420 }
+        { sl: 1, name: 'Veerlapalem', mandal: 'Damaracherla', ayacut: 1063 },
+        { sl: 2, name: 'Mudimanikyam', mandal: 'Adavidevulapally', ayacut: 1017 },
+        { sl: 3, name: 'Adavidevulapally', mandal: 'Adavidevulapally', ayacut: 420 }
       ],
       components: [
         { id: 'VP-C-01', name: 'Approach Channel (150 m total)', unit: 'm', total: 150, completed: 120, stage: 'Near Complete', status: '30m cross bund left' },
@@ -200,8 +211,10 @@
       bill: 6355435.20,
       work: 0.80,
       fund: 3.05,
-      ayacut: '315.98 Acres (6 Minor Irrigation Tanks)',
-      ayacutAcres: 316,
+      ayacut: '315.98 Acres (6 Tanks Stabilisation)',
+      ayacutAcres: 315.98,
+      newAyacut: 0,
+      stabAyacut: 315.98,
       water: '0.022 TMC',
       discharge: '0.37 cumecs (13.1 cusecs)',
       head: '31.82 m Static Head',
@@ -215,17 +228,19 @@
       location: 'L-14 Canal · Madgulapally',
       mandals: ['Madgulapally'],
       status: 'Pump house walls to GL (+156.40 m); 6 tanks feeding network ready',
-      summary: 'Feeds water from L-14 Canal into 6 cascading minor irrigation tanks in Madgulapally mandal. Zero private land acquisition needed (entirely within departmental L-14 canal land).',
+      summary: 'Feeds water from L-14 Canal into 6 cascading minor irrigation tanks (total 315.98 Acres stabilisation, 39.50 Mcft capacity) in Madgulapally mandal. Zero private land acquisition needed (100% within departmental L-14 canal land).',
       civilStatus: 'PH and forebay excavation complete. Raft complete; PH walls reached GL (+156.40 m); forebay walls to +156.52 m. Above-GL civil drawings submitted.',
       channelProgress: 'Direct off-take from L-14 canal',
       pipelineProgress: '0 / 5,881 m (Surge analysis being finalized)',
       powerStatus: 'Substation & transformer yard ₹0.25 Cr + pump sets ₹2.00 Cr required.',
       landStatus: '0.00 Acres required — 100% inside departmental L-14 LIS boundary.',
       villages: [
-        { name: 'Thopucherla', ayacut: 191 },
-        { name: 'Puchakayalagudem', ayacut: 30 },
-        { name: 'Ganapathivarigudem', ayacut: 37 },
-        { name: 'Bommakal', ayacut: 58 }
+        { sl: 1, name: 'Chinna Cheruvu', tank: 'Chinna Cheruvu', village: 'Thopucherla', ayacut: 134.68, capacityMcft: 16.84, mandal: 'Madgulapally' },
+        { sl: 2, name: 'Pedda Cheruvu', tank: 'Pedda Cheruvu', village: 'Thopucherla', ayacut: 56.25, capacityMcft: 7.03, mandal: 'Madgulapally' },
+        { sl: 3, name: 'Balapuvani Kunta', tank: 'Balapuvani Kunta', village: 'Thopucherla', ayacut: 20.00, capacityMcft: 2.50, mandal: 'Madgulapally' },
+        { sl: 4, name: 'Oora Cheruvu', tank: 'Oora Cheruvu', village: 'Puchakayalagudem', ayacut: 30.35, capacityMcft: 3.79, mandal: 'Madgulapally' },
+        { sl: 5, name: 'Voora Kunta', tank: 'Voora Kunta', village: 'Ganapathivarigudem', ayacut: 37.35, capacityMcft: 4.67, mandal: 'Madgulapally' },
+        { sl: 6, name: 'Patha Bommakal Cheruvu', tank: 'Patha Bommakal Cheruvu', village: 'Bommakal', ayacut: 37.35, capacityMcft: 4.67, mandal: 'Madgulapally' }
       ],
       tanksList: ['Chinna Cheruvu', 'Pedda Cheruvu', 'Balapuvani Kunta', 'Oora Cheruvu', 'Voora Kunta', 'Patha Bommakal Cheruvu'],
       components: [
@@ -239,15 +254,28 @@
     }
   ];
 
-  // ------------------------------------------------------------- 6 Minor Tanks
+  // ------------------------------------------------------------- 6 Minor Tanks (Thopucherla Network)
   const TANKS = [
-    { name: 'Chinna Cheruvu', village: 'Thopucherla', capacityMcft: 134.68, ayacutAc: 16.84, status: 'Ready for inlet', fillPct: 40 },
-    { name: 'Pedda Cheruvu', village: 'Thopucherla', capacityMcft: 56.25, ayacutAc: 7.03, status: 'Bund strengthening needed', fillPct: 25 },
-    { name: 'Balapuvani Kunta', village: 'Thopucherla', capacityMcft: 20.00, ayacutAc: 2.50, status: 'Ready for inlet', fillPct: 60 },
-    { name: 'Oora Cheruvu', village: 'Puchakayalagudem', capacityMcft: 30.35, ayacutAc: 3.79, status: 'Inlet trench marked', fillPct: 30 },
-    { name: 'Voora Kunta', village: 'Ganapathivarigudem', capacityMcft: 37.35, ayacutAc: 4.67, status: 'Ready for inlet', fillPct: 50 },
-    { name: 'Patha Bommakal Cheruvu', village: 'Bommakal', capacityMcft: 37.35, ayacutAc: 4.67, status: 'Weir check completed', fillPct: 35 }
+    { sl: 1, name: 'Chinna Cheruvu', village: 'Thopucherla', ayacutAc: 134.68, capacityMcft: 16.84, status: 'Ready for inlet', fillPct: 40 },
+    { sl: 2, name: 'Pedda Cheruvu', village: 'Thopucherla', ayacutAc: 56.25, capacityMcft: 7.03, status: 'Bund strengthening needed', fillPct: 25 },
+    { sl: 3, name: 'Balapuvani Kunta', village: 'Thopucherla', ayacutAc: 20.00, capacityMcft: 2.50, status: 'Ready for inlet', fillPct: 60 },
+    { sl: 4, name: 'Oora Cheruvu', village: 'Puchakayalagudem', ayacutAc: 30.35, capacityMcft: 3.79, status: 'Inlet trench marked', fillPct: 30 },
+    { sl: 5, name: 'Voora Kunta', village: 'Ganapathivarigudem', ayacutAc: 37.35, capacityMcft: 4.67, status: 'Ready for inlet', fillPct: 50 },
+    { sl: 6, name: 'Patha Bommakal Cheruvu', village: 'Bommakal', ayacutAc: 37.35, capacityMcft: 4.67, status: 'Weir check completed', fillPct: 35 }
   ];
+
+  // ------------------------------------------------------------- Authoritative 4 LIS Ayacut Package Summary
+  const AYACUT_SUMMARY = {
+    grandTotal: 23665,
+    totalNew: 11839,
+    totalStab: 11826,
+    schemes: [
+      { id: 'BW', name: 'Bothalapalem-Wadapally LIS', mandal: 'Damaracherla M', newAc: 3400, stabAc: 5210, totalAc: 8610, villagesCount: 7, notes: '7 Villages in Damaracherla M' },
+      { id: 'VP-II', name: 'Veerlapalem-II LIS', mandal: 'Damaracherla & Adavidevulapally M', newAc: 2500, stabAc: 0, totalAc: 2500, villagesCount: 3, notes: 'All New (3 Villages)' },
+      { id: 'DBC', name: 'DBC LIS', mandal: 'Adavidevulapally M', newAc: 5939, stabAc: 6300, totalAc: 12239, villagesCount: 8, notes: 'NSP Mudimanikyam Major tail end (8 Villages)' },
+      { id: 'THOP', name: 'Thopucherla LIS', mandal: 'Madgulapally M', newAc: 0, stabAc: 315.98, totalAc: 315.98, villagesCount: 6, notes: '6 Minor Irrigation Tanks (39.50 Mcft capacity)' }
+    ]
+  };
 
   // ------------------------------------------------------------- Priority Issues
   const ISSUES = [
@@ -365,5 +393,5 @@
     sanctionPackageCr: 548.23
   };
 
-  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES });
+  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES, AYACUT_SUMMARY });
 })(typeof window !== 'undefined' ? window : globalThis);
