@@ -410,7 +410,7 @@
     targetCompletion: '23 Mar 2028',
     reportingDate: '03 Nov 2026',
     originalAgreementCr: 285.99,
-    supplementalAgreementCr: 296.21,
+    supplementalAgreementCr: 320.45,
     sanctionPackageCr: 548.23
   };
 
