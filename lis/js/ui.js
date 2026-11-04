@@ -265,8 +265,8 @@
           <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Pumps & Motors</small><b style="font-size:14px;color:var(--text-main);">${s.pumps}</b></div>
           <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Pressure Main</small><b style="font-size:14px;color:var(--text-main);">${s.main}</b></div>
           <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Delivery Cistern</small><b style="font-size:14px;color:var(--text-main);">${s.delivery}</b></div>
-          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Sanction Package</small><b style="font-size:14px;color:var(--text-main);">${inrCr(s.sanction)}</b></div>
           <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Supp. Agreement</small><b style="font-size:14px;color:var(--text-main);">${inrCr(s.supp / 10000000)}</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Price Escalation (Part-III LS)</small><b style="font-size:14px;color:var(--primary);">${s.priceEscalationCr ? inrCr(s.priceEscalationCr) : '—'}</b></div>
         </div>
 
         <!-- 3 Narrative Status Cards -->
@@ -885,11 +885,85 @@
           </table>
         </div>
       </div>
+
+      <!-- Variation Estimate-I / Revised TS — Part-III Lumpsum Price Escalation -->
+      <div class="card-section" style="margin-bottom:24px;">
+        <div class="card-section-header">
+          <div>
+            <h3>Variation Estimate-I / Revised TS — Part-III Lumpsum Price Escalation (Total: Rs. 8.84 Cr)</h3>
+            <p>Sanctioned exclusively under Part-III Lumpsum of Revised TS (₹548.23 Cr) · Excluded from Supplemental Agreement</p>
+          </div>
+          <span class="tag tag-warning" style="font-size:13.5px;font-weight:800;">Total Escalation: ₹ 8.84 Cr</span>
+        </div>
+
+        <div style="padding:14px 20px;background:#fefce8;border-left:4px solid var(--warning);border-bottom:1px solid var(--border);color:var(--text-main);font-size:13px;line-height:1.5;">
+          <b>Official Accounting Principle:</b> Price escalation is <b>NOT</b> part of the Supplemental Agreement (<code>03/SE/ICHC/2026-27</code>, Rs 296.21 Cr) — the <b>242 Schedule-A items have zero escalation item</b>.<br>
+          Price escalation is provided <b>only</b> in the Variation Estimate-I / Revised TS (Rs 548.23 Cr) under <b>Part-III Lumpsum</b>.
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;padding:18px 20px;background:var(--bg-alt);border-bottom:1px solid var(--border);">
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">BW LIS (40% Share)</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 3,53,68,359.18</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">₹ 3.54 Crores</span>
+          </div>
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">DBC LIS (40% Share)</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 3,53,68,359.18</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">₹ 3.54 Crores</span>
+          </div>
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Veerlapalem–II (10% Share)</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 88,42,089.79</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">₹ 0.88 Crores</span>
+          </div>
+          <div style="background:var(--bg-card);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);">
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Thopucherla (10% Share)</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 88,42,089.79</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">₹ 0.88 Crores</span>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th>Scheme Name</th>
+                <th>Scheme Code</th>
+                <th>Part-III Lumpsum Escalation Amount (Rs)</th>
+                <th>Share (₹ Cr)</th>
+                <th>Allocation (%)</th>
+                <th>Contractual Accounting Provision</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(LIS.PRICE_ESCALATION?.schemes || []).map((pe) => `
+                <tr>
+                  <td><b>${pe.name}</b></td>
+                  <td><span class="scheme-code-badge" style="font-size:11.5px;padding:2px 7px;">${pe.id}</span></td>
+                  <td><b style="font-family:var(--font-mono);">Rs. ${pe.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b></td>
+                  <td><b style="color:var(--primary);">₹ ${pe.amountCr.toFixed(2)} Cr</b></td>
+                  <td><span class="tag tag-primary">${pe.sharePct.toFixed(1)} %</span></td>
+                  <td><small style="color:var(--text-muted);">Revised TS Part-III LS (0 in Supp Agmt 242 items)</small></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="2"><b>TOTAL PRICE ESCALATION (PART-III LUMPSUM)</b></td>
+                <td><b style="color:var(--primary);font-size:15px;font-family:var(--font-mono);">Rs. ${LIS.PRICE_ESCALATION.totalExact.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b></td>
+                <td><b style="color:var(--primary);font-size:15px;">₹ ${LIS.PRICE_ESCALATION.total.toFixed(2)} Cr</b></td>
+                <td><span class="tag tag-success">100.0 %</span></td>
+                <td><b>Sanctioned in Revised TS ₹548.23 Cr</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card-section">
         <div class="card-section-header">
           <div>
             <h3>Agreement &amp; Sanction Financial Comparison (Package Total: ₹548.23 Cr)</h3>
-            <p>Original agreement vs Supplemental agreement vs Total Recorded Work Done.</p>
+            <p>Original agreement vs Supplemental agreement vs Price Escalation vs Total Recorded Work Done.</p>
           </div>
         </div>
         <div style="overflow-x:auto;">
@@ -901,6 +975,7 @@
                 <th>Tech. Sanction (₹ Cr)</th>
                 <th>Orig. Agreement (₹ Cr)</th>
                 <th>Supp. Agreement (₹ Cr)</th>
+                <th>Price Escalation (Part-III LS)</th>
                 <th>Cumulative Bill (₹ Cr)</th>
                 <th>Measured Work Done (₹ Cr)</th>
               </tr>
@@ -913,6 +988,7 @@
                   <td>${inrCr(s.ts)}</td>
                   <td>${inrCr(s.ecv)}</td>
                   <td><b style="color:var(--primary);">${inrCr(s.supp / 10000000)}</b></td>
+                  <td><b style="color:var(--warning);">${s.priceEscalationCr ? inrCr(s.priceEscalationCr) : '—'}</b></td>
                   <td>${inrCr(s.bill / 10000000)}</td>
                   <td><b>${inrCr(s.work)}</b></td>
                 </tr>
@@ -937,6 +1013,7 @@
                 <th>Requisition Head</th>
                 <th>BW (₹ Cr)</th>
                 <th>VP-II (₹ Cr)</th>
+                <th>DBC (₹ Cr)</th>
                 <th>THOP (₹ Cr)</th>
                 <th>Total Requisition (₹ Cr)</th>
               </tr>
@@ -947,6 +1024,7 @@
                   <td><b>${f.item}</b></td>
                   <td>${f.bw ? inrCr(f.bw) : '—'}</td>
                   <td>${f.vp ? inrCr(f.vp) : '—'}</td>
+                  <td>${f.dbc ? inrCr(f.dbc) : '—'}</td>
                   <td>${f.thop ? inrCr(f.thop) : '—'}</td>
                   <td><b style="color:var(--danger);">${inrCr(f.total)}</b></td>
                 </tr>

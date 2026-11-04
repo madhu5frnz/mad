@@ -25,6 +25,8 @@
       ve: 140.37,
       vels: 57.78,
       supp: 1074575978,
+      priceEscalation: 35368359.18,
+      priceEscalationCr: 3.54,
       bill: 133023844.10,
       work: 11.0,
       fund: 30.78,
@@ -89,6 +91,8 @@
       suppAgreement: 143.92,
       totalAgreementVal: 374.90,
       supp: 1439224885,
+      priceEscalation: 35368359.18,
+      priceEscalationCr: 3.54,
       bill: 140000000.00,
       work: 14.00,
       fund: 35.02,
@@ -157,6 +161,8 @@
       ve: 30.68,
       vels: 13.85,
       supp: 215378858,
+      priceEscalation: 8842089.79,
+      priceEscalationCr: 0.88,
       bill: 34332807.70,
       work: 3.32,
       fund: 7.46,
@@ -215,6 +221,8 @@
       ve: 14.40,
       vels: 4.08,
       supp: 120365330,
+      priceEscalation: 8842089.79,
+      priceEscalationCr: 0.88,
       bill: 6355435.20,
       work: 0.80,
       fund: 3.05,
@@ -420,6 +428,20 @@
     ]
   };
 
+  // ------------------------------------------------------------- Price Escalation (VE-I / Revised TS Part-III Lumpsum)
+  const PRICE_ESCALATION = {
+    total: 8.84, // Rs 8.84 Cr
+    totalExact: 88420897.94,
+    source: 'Variation Estimate-I / Revised TS (Rs 548.23 Cr) under Part-III Lumpsum',
+    note: 'Price escalation is NOT part of Supplemental Agreement (03/SE/ICHC/2026-27, Rs 296.21 Cr) — the 242 Schedule-A items have no escalation item. Provided only in Variation Estimate-I / Revised TS (Rs 548.23 Cr) under Part-III Lumpsum.',
+    schemes: [
+      { id: 'BW', name: 'Bothalapalem–Wadapally LIS', amount: 35368359.18, amountCr: 3.54, sharePct: 40.0 },
+      { id: 'DBC', name: 'Dunnapothulagandi (DBC) LIS', amount: 35368359.18, amountCr: 3.54, sharePct: 40.0 },
+      { id: 'VP-II', name: 'Veerlapalem–II LIS', amount: 8842089.79, amountCr: 0.88, sharePct: 10.0 },
+      { id: 'THOP', name: 'Thopucherla LIS', amount: 8842089.79, amountCr: 0.88, sharePct: 10.0 }
+    ]
+  };
+
   // ------------------------------------------------------------- Program Dates
   const PROGRAM_DATES = {
     agreementDate: '27 Aug 2022',
@@ -432,5 +454,5 @@
     sanctionPackageCr: 548.23
   };
 
-  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES, AYACUT_SUMMARY, SUPPLEMENTAL_AGREEMENT_DETAILS });
+  Object.assign(LIS, { SCHEMES, TANKS, ISSUES, FUNDING_SUMMARY, PROGRAM_DATES, AYACUT_SUMMARY, SUPPLEMENTAL_AGREEMENT_DETAILS, PRICE_ESCALATION });
 })(typeof window !== 'undefined' ? window : globalThis);
