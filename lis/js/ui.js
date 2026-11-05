@@ -295,6 +295,46 @@
             <p style="font-size:12.5px;margin-top:6px;color:var(--text-body);line-height:1.45;">${s.powerStatus} ${s.landStatus}</p>
           </div>
         </div>
+
+        ${s.kmlFiles && s.kmlFiles.length > 0 ? `
+          <div style="margin-top:16px;background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:var(--radius-md);padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+              <div>
+                <b style="font-size:14px;color:var(--text-main);display:flex;align-items:center;gap:8px;">
+                  <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                  GIS Alignment &amp; Land Acquisition Survey Files (KML)
+                </b>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:3px;">Field alignment coordinates, chainage marks (0 to 8.2 km), 3.5m offset corridor, and 30 Land Acquisition survey numbers.</p>
+              </div>
+              <span class="tag tag-primary">3 Survey KMLs Loaded</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:14px;">
+              ${s.kmlFiles.map(kf => `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--bg-alt);border-radius:6px;border:1px solid var(--border);">
+                  <div style="overflow:hidden;">
+                    <b style="display:block;font-size:12.5px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${kf.name}</b>
+                    <small style="font-size:11px;color:var(--text-muted);display:block;">${kf.desc} · <b>${kf.size}</b></small>
+                  </div>
+                  <a href="${kf.path}" download="${kf.file}" class="btn btn-outline btn-sm" style="flex-shrink:0;padding:4px 9px;font-size:11.5px;">
+                    ⬇ Download
+                  </a>
+                </div>
+              `).join('')}
+            </div>
+
+            ${s.surveyNumbers && s.surveyNumbers.length > 0 ? `
+              <div>
+                <small style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">
+                  Pipeline Corridor Survey Numbers (${s.surveyNumbers.length} Nos across Chityala, Molkacherla, Balnepally, Adavidevulapally):
+                </small>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  ${s.surveyNumbers.map(sn => `<span class="tag tag-neutral" style="font-family:var(--font-mono);font-size:11px;padding:2px 6px;">Sy.No ${sn}</span>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
       </div>
 
       <!-- Component Execution Table -->

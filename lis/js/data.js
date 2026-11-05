@@ -125,6 +125,15 @@
       pipelineProgress: '0 / 8,150 m (1,900 mm MS to be laid after LA compensation distribution)',
       powerStatus: 'Substation amount towards TG TRANSCO Deposit: bill pending vide Token No. 2602014999 Dt. 21.11.2025 for Rs. 31.42 Crores.',
       landStatus: 'Required for PH/channel/PM/DC: 36-11.50 Acres covering Chityala, Molkacherla, Balnepally, and Adavidevulapally. Award passed for 36-11.5 Acres; Rs. 3.60 Cr credited to LAO Account; distribution in progress. Forest Land: NIL.',
+      kmlFiles: [
+        { name: 'DBC LIS Pressure Main Alignment (0 to 8.2 km)', file: 'DBC_LIS_Pressure_Main.kml', path: 'kml/DBC_LIS_Pressure_Main.kml', size: '917 KB', desc: 'Full 8.200 km centerline, 3.5m offset corridor, 270 chainage marks, and traverse stations (ST1–ST9)' },
+        { name: '4 Villages Land Acquisition Survey (36-11.5 Ac)', file: '4_Villages_LA.kml', path: 'kml/4_Villages_LA.kml', size: '805 KB', desc: '30 Survey numbers, corridor boundaries across Chityala, Molkacherla, Balnepally & Adavidevulapally' },
+        { name: 'Chityala Village Intake & Head Reach Survey', file: 'Chityala.kml', path: 'kml/Chityala.kml', size: '130 KB', desc: 'Detailed micro-survey (Ch. 700 to 1450 M) at Haliya river off-take from chityala.dwg' }
+      ],
+      surveyNumbers: [
+        '462', '462/27', '488', '489', '490', '491', '492', '499', '500', '501', '502', '505', '506', '507',
+        '03', '04', '157', '159', '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', '658', '19'
+      ],
       villages: [
         { sl: 1, name: 'Ulsaipalem', mandal: 'Adavidevulapally', ayacut: 2444 },
         { sl: 2, name: 'Molkacherla', mandal: 'Adavidevulapally', ayacut: 1441 },
