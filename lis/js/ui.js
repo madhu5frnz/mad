@@ -123,6 +123,17 @@
             </div>
           </div>
 
+          ${s.id === 'DBC' ? `
+            <div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <span style="font-size:12px;font-weight:700;color:#166534;display:flex;align-items:center;gap:6px;">
+                🗺️ 3 GIS Survey Files Available (8.2 km PM &amp; 30 Sy.Nos LA)
+              </span>
+              <button class="btn btn-outline btn-sm btn-goto-gis-tab" style="font-size:11px;padding:3px 8px;border-color:#16a34a;color:#166534;background:#fff;">
+                View KML Files →
+              </button>
+            </div>
+          ` : ''}
+
           <div class="scheme-card-buttons">
             <button class="btn btn-outline btn-sm btn-open-scheme" data-scheme-id="${s.id}">
               <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
@@ -211,6 +222,13 @@
     $$('.scheme-box', container).forEach((box) => {
       box.addEventListener('click', () => {
         openSchemeDetail(box.dataset.schemeId);
+      });
+    });
+
+    $$('.btn-goto-gis-tab', container).forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setTab('gis');
       });
     });
 
@@ -1076,6 +1094,104 @@
     `;
   }
 
+  // ------------------------------------------------------------- Render GIS & KML Surveys Tab
+  function renderGis() {
+    const container = $('#view-gis');
+    if (!container) return;
+
+    const dbc = store.schemes.find((s) => s.id === 'DBC');
+    const kmlList = dbc?.kmlFiles || [];
+    const syNos = dbc?.surveyNumbers || [];
+
+    container.innerHTML = `
+      <div class="card-section" style="padding:22px;margin-bottom:20px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span class="scheme-code-badge" style="font-size:15px;padding:5px 12px;">DBC LIS</span>
+              <h2 style="font-size:22px;font-weight:800;color:var(--text-main);">Dunnapothulagandi Lift Irrigation Scheme — GIS Alignment &amp; Land Acquisition (KML)</h2>
+              <span class="tag tag-primary">3 Files Available</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:13.5px;margin-top:6px;max-width:960px;">
+              Comprehensive spatial survey data covering the 8.200 km Pressure Main corridor (1,900 mm MS Pipe), 270 chainage stations (0 to 8,200 M), 3.5m offset working corridor (7.0m ROW), and 30 Land Acquisition survey numbers across Chityala, Molkacherla, Balnepally, and Adavidevulapally (Adavidevulapally Mandal).
+            </p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline btn-sm" onclick="alert('Open these .kml files in Google Earth, Google Maps, AutoCAD Civil 3D, or QGIS.')">
+              ℹ️ How to View Files
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Total Corridor Length</small><b style="font-size:15px;color:var(--text-main);">8.200 km (0 to 8,200 M)</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Chainage Frequency</small><b style="font-size:15px;color:var(--text-main);">Every 50 Meters (270 Marks)</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Working Corridor ROW</small><b style="font-size:15px;color:var(--text-main);">3.5 m Offset (7.0 m Total)</b></div>
+          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">LA Sanction Award</small><b style="font-size:15px;color:var(--text-main);">36-11.50 Acres (₹3.60 Cr)</b></div>
+        </div>
+      </div>
+
+      <!-- 3 Downloadable KML Cards -->
+      <div class="card-section" style="margin-bottom:20px;">
+        <div class="card-section-header">
+          <div>
+            <h3>DBC Spatial Alignment &amp; Cadastral Survey Files</h3>
+            <p>Click below to download KML files for viewing in Google Earth, AutoCAD Civil 3D, or GPS devices.</p>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:20px;">
+          ${kmlList.map((kf) => `
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <span class="tag tag-primary">KML Format</span>
+                  <b style="font-size:12px;color:var(--text-muted);">${kf.size}</b>
+                </div>
+                <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:6px;">${kf.name}</h4>
+                <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;">${kf.desc}</p>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
+                <code style="font-size:11px;">${kf.file}</code>
+                <a href="${kf.path}" download="${kf.file}" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                  Download KML
+                </a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Survey Numbers & Cadastral Corridor Reference -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>Land Acquisition Corridor Survey Numbers (${syNos.length} Nos)</h3>
+            <p>Cadastral survey numbers intersecting the 36-11.50 Acres corridor across 4 villages.</p>
+          </div>
+          <span class="tag tag-warning">Award Passed: 36-11.50 Ac</span>
+        </div>
+
+        <div style="padding:16px 20px;">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+            ${syNos.map(sn => `
+              <div style="padding:6px 12px;background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--primary);">
+                Sy. No. ${sn}
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="padding:14px;background:#f8fafc;border-radius:var(--radius-md);border:1px solid var(--border);font-size:12.5px;color:var(--text-body);line-height:1.5;">
+            <b>Villages Covered:</b> 1. Chityala · 2. Molkacherla · 3. Balnepally (Bailapally) · 4. Adavidevulapally (all in Adavidevulapally Mandal).<br>
+            <b>Compensation Status:</b> Award passed for 36-11.50 Acres; Rs. 3.60 Crores credited to LAO Account; distribution to patta-holders in active progress.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // ------------------------------------------------------------- Render Measurement Log (MB) Tab
   function renderLogs() {
     const container = $('#view-logs');
@@ -1350,6 +1466,7 @@
     else if (tabName === 'issues') renderIssues();
     else if (tabName === 'tanks') renderTanks();
     else if (tabName === 'finance') renderFinance();
+    else if (tabName === 'gis') renderGis();
     else if (tabName === 'logs') renderLogs();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
