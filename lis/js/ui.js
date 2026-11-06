@@ -123,6 +123,22 @@
             </div>
           </div>
 
+          ${(() => {
+            const emhm = LIS.EM_HM_DATA?.abstract?.find(a => a.id === s.id);
+            if (!emhm) return '';
+            return `
+              <div style="margin-top:8px;padding:6px 10px;background:var(--bg-alt);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11.5px;">
+                <span style="color:var(--text-muted);">
+                  ⚙️ <b>EM &amp; HM:</b> ${emhm.totalItems} Items (₹ ${emhm.boqCr} Cr)
+                </span>
+                <span style="display:flex;gap:4px;align-items:center;">
+                  <span class="tag tag-success" style="font-size:10px;padding:1px 5px;">${emhm.approved} Approved</span>
+                  <a href="javascript:void(0)" class="btn-goto-emhm-scheme" data-scheme="${s.id}" style="color:var(--primary);font-weight:700;text-decoration:none;margin-left:4px;">Check List →</a>
+                </span>
+              </div>
+            `;
+          })()}
+
           ${s.id === 'DBC' ? `
             <div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
               <span style="font-size:12px;font-weight:700;color:#166534;display:flex;align-items:center;gap:6px;">
@@ -229,6 +245,14 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         setTab('gis');
+      });
+    });
+
+    $$('.btn-goto-emhm-scheme', container).forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emhmFilterScheme = link.dataset.scheme;
+        setTab('emhm');
       });
     });
 
@@ -1192,6 +1216,291 @@
     `;
   }
 
+  // ------------------------------------------------------------- Render EM & HM Components Check List Tab
+  let emhmFilterScheme = 'ALL';
+  let emhmFilterStatus = 'ALL';
+  let emhmSearchQuery = '';
+
+  function renderEmHm() {
+    const container = $('#view-emhm');
+    if (!container) return;
+
+    const data = LIS.EM_HM_DATA;
+    if (!data) {
+      container.innerHTML = '<div class="card-section"><p>EM &amp; HM Data not loaded.</p></div>';
+      return;
+    }
+
+    const { abstract, totalAbstract, schemes } = data;
+
+    // Filter items based on current selection
+    let filteredItems = [];
+    const schemeKeys = emhmFilterScheme === 'ALL' ? Object.keys(schemes) : [emhmFilterScheme];
+    schemeKeys.forEach((key) => {
+      const sch = schemes[key];
+      if (sch && sch.items) {
+        sch.items.forEach((it) => {
+          filteredItems.push({ ...it, schemeId: key, schemeName: sch.name });
+        });
+      }
+    });
+
+    if (emhmFilterStatus !== 'ALL') {
+      filteredItems = filteredItems.filter((it) => it.statusType === emhmFilterStatus);
+    }
+
+    if (emhmSearchQuery) {
+      const q = emhmSearchQuery.toLowerCase();
+      filteredItems = filteredItems.filter((it) =>
+        (it.description && it.description.toLowerCase().includes(q)) ||
+        (it.category && it.category.toLowerCase().includes(q)) ||
+        (it.agmtRef && it.agmtRef.toLowerCase().includes(q)) ||
+        (it.drawingStatus && it.drawingStatus.toLowerCase().includes(q)) ||
+        (it.remarks && it.remarks.toLowerCase().includes(q))
+      );
+    }
+
+    const filteredTotalAmount = filteredItems.reduce((acc, it) => acc + (it.amount || 0), 0);
+
+    container.innerHTML = `
+      <!-- Header Banner -->
+      <div class="card-section" style="padding:22px;margin-bottom:20px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span class="scheme-code-badge" style="font-size:15px;padding:5px 12px;">EM &amp; HM</span>
+              <h2 style="font-size:22px;font-weight:800;color:var(--text-main);">4 Nos. LIS Package — EM &amp; HM Components Check List</h2>
+              <span class="tag tag-success">Status: 04.11.2026</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:13px;margin-top:6px;max-width:960px;">
+              <b>Agt No. 21SE/ICHC/2021-22 dt 24.03.2022</b> &amp; <b>Suppl. Agt No. 03/SE/ICHC/2026-27 dt 27.08.2026</b> — M/s. Kaveri-Shantha-MEIL (JV).<br>
+              Comprehensive tracking of drawings submission, advisor approvals, pump &amp; motor manufacturing, inspections, and client bill payments.
+            </p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <a href="data/em_hm_checklist.csv" download="4LIS_EM_HM_Checklist_04Nov2026.csv" class="btn btn-outline btn-sm">
+              ⬇ Download Official CSV
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 Summary KPI Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Total EM &amp; HM BOQ Scope</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 81,04,23,024</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">≈ ₹ 81.04 Cr (111 Items)</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Drawings Approved</small>
+            <b style="font-size:17px;color:var(--success);font-family:var(--font-mono);">${totalAbstract.approved} Items</b>
+            <span style="display:block;font-size:12px;color:var(--success);font-weight:700;margin-top:2px;">KBL, WEG &amp; WPIL units</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Drawings Submitted</small>
+            <b style="font-size:17px;color:var(--warning);font-family:var(--font-mono);">${totalAbstract.submitted} Items</b>
+            <span style="display:block;font-size:12px;color:var(--warning);margin-top:2px;">FCMA Soft Starters under review</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">In Finalisation / Enquiry</small>
+            <b style="font-size:17px;color:var(--text-muted);font-family:var(--font-mono);">${totalAbstract.notUpdated} Items</b>
+            <span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">Panels, cables, valves &amp; surge</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Abstract Table -->
+      <div class="card-section" style="margin-bottom:20px;">
+        <div class="card-section-header">
+          <div>
+            <h3>EM &amp; HM Components Check List : Abstract (4 Schemes)</h3>
+            <p>Official summary of drawings approvals and BOQ values across all 4 lift irrigation schemes.</p>
+          </div>
+          <span class="tag tag-primary">Total: ₹ 81.04 Cr</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:60px;">S.No</th>
+                <th>Name of LIS</th>
+                <th>Total Items</th>
+                <th>Drawings Approved</th>
+                <th>Drawings Submitted</th>
+                <th>Under Finalisation / Pending</th>
+                <th>Supplied</th>
+                <th>Bill Received</th>
+                <th>Bill Claimed</th>
+                <th>BOQ Amount (Rs)</th>
+                <th>BOQ (₹ Cr)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${abstract.map((a) => `
+                <tr>
+                  <td><b>${a.sNo}</b></td>
+                  <td>
+                    <a href="javascript:void(0)" class="btn-filter-scheme-table" data-scheme="${a.id}" style="font-weight:700;color:var(--primary);text-decoration:none;">
+                      ${a.name} (${a.id})
+                    </a>
+                  </td>
+                  <td><b>${a.totalItems}</b></td>
+                  <td><span class="tag tag-success" style="font-weight:700;">${a.approved}</span></td>
+                  <td><span class="tag ${a.submitted > 0 ? 'tag-warning' : 'tag-neutral'}">${a.submitted}</span></td>
+                  <td>${a.notUpdated}</td>
+                  <td>${a.supplied}</td>
+                  <td>${a.billReceived}</td>
+                  <td>${a.billClaimed}</td>
+                  <td><code style="font-weight:700;">Rs. ${a.boqAmount.toLocaleString('en-IN')}</code></td>
+                  <td><b style="color:var(--primary);">₹ ${a.boqCr.toFixed(2)} Cr</b></td>
+                </tr>
+              `).join('')}
+              <tr style="background:var(--bg-alt);font-weight:800;">
+                <td colspan="2"><b>TOTAL (4 LIS PACKAGE)</b></td>
+                <td><b>${totalAbstract.totalItems}</b></td>
+                <td><span class="tag tag-success" style="font-weight:800;font-size:12px;">${totalAbstract.approved}</span></td>
+                <td><span class="tag tag-warning" style="font-weight:800;font-size:12px;">${totalAbstract.submitted}</span></td>
+                <td><b>${totalAbstract.notUpdated}</b></td>
+                <td>${totalAbstract.supplied}</td>
+                <td>${totalAbstract.billReceived}</td>
+                <td>${totalAbstract.billClaimed}</td>
+                <td><code style="font-size:14px;color:var(--primary);">Rs. ${totalAbstract.boqAmount.toLocaleString('en-IN')}</code></td>
+                <td><b style="font-size:15px;color:var(--primary);">₹ ${totalAbstract.boqCr.toFixed(2)} Cr</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detailed Components Register with Interactive Filters -->
+      <div class="card-section">
+        <div class="card-section-header">
+          <div>
+            <h3>Detailed Components Register (${filteredItems.length} of 111 Items Showing)</h3>
+            <p>Scope, BOQ reference, rate, drawing approval status, and advisor letter remarks.</p>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--primary);">
+            Showing Value: ₹ ${(filteredTotalAmount / 10000000).toFixed(2)} Cr
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div style="padding:14px 20px;background:var(--bg-alt);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+            <small style="font-weight:700;color:var(--text-muted);margin-right:4px;">Scheme:</small>
+            <button class="btn btn-sm btn-emhm-scheme ${emhmFilterScheme === 'ALL' ? 'btn-primary' : 'btn-outline'}" data-scheme="ALL">All (111)</button>
+            <button class="btn btn-sm btn-emhm-scheme ${emhmFilterScheme === 'BW' ? 'btn-primary' : 'btn-outline'}" data-scheme="BW">BW (33)</button>
+            <button class="btn btn-sm btn-emhm-scheme ${emhmFilterScheme === 'VP-II' ? 'btn-primary' : 'btn-outline'}" data-scheme="VP-II">VP-II (26)</button>
+            <button class="btn btn-sm btn-emhm-scheme ${emhmFilterScheme === 'DBC' ? 'btn-primary' : 'btn-outline'}" data-scheme="DBC">DBC (33)</button>
+            <button class="btn btn-sm btn-emhm-scheme ${emhmFilterScheme === 'THOP' ? 'btn-primary' : 'btn-outline'}" data-scheme="THOP">THOP (19)</button>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+            <small style="font-weight:700;color:var(--text-muted);margin-right:4px;">Status:</small>
+            <button class="btn btn-sm btn-emhm-status ${emhmFilterStatus === 'ALL' ? 'btn-primary' : 'btn-outline'}" data-status="ALL">All</button>
+            <button class="btn btn-sm btn-emhm-status ${emhmFilterStatus === 'approved' ? 'btn-primary' : 'btn-outline'}" data-status="approved">Approved (10)</button>
+            <button class="btn btn-sm btn-emhm-status ${emhmFilterStatus === 'submitted' ? 'btn-primary' : 'btn-outline'}" data-status="submitted">Submitted (3)</button>
+            <button class="btn btn-sm btn-emhm-status ${emhmFilterStatus === 'finalisation' ? 'btn-primary' : 'btn-outline'}" data-status="finalisation">Under Finalisation</button>
+            <button class="btn btn-sm btn-emhm-status ${emhmFilterStatus === 'enquiry' ? 'btn-primary' : 'btn-outline'}" data-status="enquiry">Enquiries</button>
+          </div>
+
+          <div style="min-width:240px;flex:1;max-width:320px;">
+            <input type="text" id="emhm-search-box" value="${emhmSearchQuery}" placeholder="Search equipment, make, drawing..." style="width:100%;padding:6px 12px;font-size:12.5px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card);color:var(--text-main);">
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto;">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:50px;">S.No</th>
+                <th>Scheme</th>
+                <th>Category</th>
+                <th>Description of Equipment / Work</th>
+                <th>Qty</th>
+                <th>Unit</th>
+                <th>Agmt Ref</th>
+                <th>Rate (Rs)</th>
+                <th>Amount (Rs)</th>
+                <th>Amount (₹ Cr)</th>
+                <th>Status of Drawings</th>
+                <th>Manufactured &amp; Supplied</th>
+                <th>Remarks / Technical Clarifications</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredItems.length === 0 ? `
+                <tr><td colspan="13" style="text-align:center;padding:24px;color:var(--text-muted);">No items match the selected filter or search query.</td></tr>
+              ` : filteredItems.map((it) => {
+                let badgeClass = 'tag-neutral';
+                if (it.statusType === 'approved') badgeClass = 'tag-success';
+                else if (it.statusType === 'submitted') badgeClass = 'tag-warning';
+                else if (it.statusType === 'enquiry') badgeClass = 'tag-neutral';
+
+                return `
+                  <tr>
+                    <td><b>${it.sl}</b></td>
+                    <td><span class="scheme-code-badge" style="font-size:11px;padding:2px 6px;">${it.schemeId}</span></td>
+                    <td style="font-size:11.5px;color:var(--text-muted);">${it.category}</td>
+                    <td style="max-width:280px;">
+                      <b>${it.description}</b>
+                    </td>
+                    <td><b>${it.qty}</b></td>
+                    <td>${it.unit}</td>
+                    <td><code style="font-size:11px;">${it.agmtRef}</code></td>
+                    <td style="font-family:var(--font-mono);font-size:12px;">${it.rate.toLocaleString('en-IN')}</td>
+                    <td style="font-family:var(--font-mono);font-size:12px;font-weight:700;">${it.amount.toLocaleString('en-IN')}</td>
+                    <td><b style="color:var(--primary);font-size:12.5px;">₹ ${it.amountCr.toFixed(2)} Cr</b></td>
+                    <td><span class="tag ${badgeClass}" style="font-size:11px;font-weight:700;">${it.drawingStatus}</span></td>
+                    <td>${it.suppliedStatus || '—'}</td>
+                    <td style="max-width:260px;font-size:11.5px;color:var(--text-body);line-height:1.4;">${it.remarks || '—'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    // Event handlers
+    $$('.btn-emhm-scheme', container).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        emhmFilterScheme = btn.dataset.scheme;
+        renderEmHm();
+      });
+    });
+
+    $$('.btn-emhm-status', container).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        emhmFilterStatus = btn.dataset.status;
+        renderEmHm();
+      });
+    });
+
+    $$('.btn-filter-scheme-table', container).forEach((link) => {
+      link.addEventListener('click', () => {
+        emhmFilterScheme = link.dataset.scheme;
+        renderEmHm();
+      });
+    });
+
+    const searchBox = $('#emhm-search-box', container);
+    if (searchBox) {
+      searchBox.addEventListener('input', (e) => {
+        emhmSearchQuery = e.target.value;
+        renderEmHm();
+        const box = $('#emhm-search-box');
+        if (box) {
+          box.focus();
+          box.selectionStart = box.selectionEnd = box.value.length;
+        }
+      });
+    }
+  }
+
   // ------------------------------------------------------------- Render Measurement Log (MB) Tab
   function renderLogs() {
     const container = $('#view-logs');
@@ -1424,6 +1733,27 @@
         }
       });
 
+      // Add EM & HM components
+      if (LIS.EM_HM_DATA && LIS.EM_HM_DATA.schemes) {
+        Object.entries(LIS.EM_HM_DATA.schemes).forEach(([schId, sch]) => {
+          sch.items.forEach((it) => {
+            if (q && (it.description.toLowerCase().includes(q) || it.agmtRef.toLowerCase().includes(q) || it.drawingStatus.toLowerCase().includes(q))) {
+              items.push({
+                type: 'EM & HM',
+                title: `[${schId}] ${it.description.substring(0, 48)}...`,
+                sub: `${it.drawingStatus} · ₹ ${it.amountCr} Cr · ${it.agmtRef}`,
+                action: () => {
+                  emhmFilterScheme = schId;
+                  emhmSearchQuery = it.description.split(' ')[0];
+                  setTab('emhm');
+                  closePalette();
+                }
+              });
+            }
+          });
+        });
+      }
+
       results.innerHTML = items.slice(0, 10).map((it, idx) => `
         <div class="palette-item" data-idx="${idx}" style="padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
           <div>
@@ -1466,6 +1796,7 @@
     else if (tabName === 'issues') renderIssues();
     else if (tabName === 'tanks') renderTanks();
     else if (tabName === 'finance') renderFinance();
+    else if (tabName === 'emhm') renderEmHm();
     else if (tabName === 'gis') renderGis();
     else if (tabName === 'logs') renderLogs();
 
