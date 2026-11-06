@@ -412,9 +412,23 @@
                   Treasury Tokens &amp; Immediate Requisitions
                 </b>
                 <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">
-                  • <b>Works Bill Token:</b> <code>${s.pendingBills.workBills.token}</code> for <b>${inrCr(s.pendingBills.workBills.amountCr)}</b> (HOA: <code>${s.pendingBills.workBills.hoa}</code>)<br/>
-                  • <b>TG TRANSCO Token:</b> <code>${s.pendingBills.nonWork.token}</code> Dt ${s.pendingBills.nonWork.date} for <b>${inrCr(s.pendingBills.nonWork.amountCr)}</b> (Total Power: ₹57.29 Cr)<br/>
-                  • <b>Immediate Total Funding Required:</b> <b style="color:var(--danger);">${inrCr(s.pendingBills.totalImmediateFundingCr)}</b>
+                  ${s.pendingBills.workBills ? `• <b>Works Bill Token:</b> <code>${s.pendingBills.workBills.token}</code> for <b>${inrCr(s.pendingBills.workBills.amountCr)}</b> (HOA: <code>${s.pendingBills.workBills.hoa}</code>)<br/>` : ''}
+                  ${s.pendingBills.nonWork ? `• <b>TG TRANSCO Token:</b> <code>${s.pendingBills.nonWork.token}</code> Dt ${s.pendingBills.nonWork.date} for <b>${inrCr(s.pendingBills.nonWork.amountCr)}</b> (Total Power: ₹57.29 Cr)<br/>` : ''}
+                  ${s.pendingBills.laToken ? `• <b>PAO Land Acquisition Token:</b> <code style="font-weight:700;">${s.pendingBills.laToken.token}</code> (Dt: ${s.pendingBills.laToken.date}) for <b style="color:var(--danger);font-size:13px;">${inrCr(s.pendingBills.laToken.amountCr)}</b> (HOA: <code>${s.pendingBills.laToken.hoa}</code>) — ${s.pendingBills.laToken.purpose}<br/>` : ''}
+                  ${s.pendingBills.powerDepositCr ? `• <b>TGSPDCL Substation &amp; Power Deposit:</b> <b>${inrCr(s.pendingBills.powerDepositCr)}</b> (Dedicated line &amp; 33/11 kV substation)<br/>` : ''}
+                  ${s.pendingBills.totalImmediateFundingCr ? `• <b>Immediate Total Funding Required:</b> <b style="color:var(--danger);">${inrCr(s.pendingBills.totalImmediateFundingCr)}</b>` : ''}
+                </p>
+              </div>
+            ` : ''}
+
+            ${s.forestStatus ? `
+              <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:6px;padding:10px 12px;">
+                <b style="font-size:12.5px;color:var(--success);display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" clip-rule="evenodd"/></svg>
+                  Statutory Forest Land Clearance
+                </b>
+                <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">
+                  ${s.forestStatus}
                 </p>
               </div>
             ` : ''}
@@ -1223,15 +1237,15 @@
             <h3>Official Treasury Tokens &amp; Immediate Execution Funding Requisitions</h3>
             <p>Certified bills, token tracking, and urgent capital requirements submitted by EE, Irrigation Division No.3, Miryalaguda.</p>
           </div>
-          <span class="tag tag-danger" style="font-size:13px;font-weight:800;">DBC: ₹71.29 Cr · THOP: ₹7.35 Cr</span>
+          <span class="tag tag-danger" style="font-size:13px;font-weight:800;">4 Schemes Requisition Statements · Official EE Notes (Oct/Nov 2026)</span>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:20px;">
-          <!-- DBC LIS Funding Card -->
+          <!-- 1. DBC LIS Funding Card -->
           <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--warning);border-radius:var(--radius-md);padding:18px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">DBC LIS</span>
-              <span class="tag tag-danger">Immediate Requisition: ₹ 71.29 Cr</span>
+              <span class="tag tag-danger">Immediate Req: ₹ 71.29 Cr</span>
             </div>
             <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Dunnapothulagandi Lift Irrigation Scheme</h4>
             <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
@@ -1258,11 +1272,71 @@
             </div>
           </div>
 
-          <!-- Thopucherla LIS Funding Card -->
+          <!-- 2. Bothalapalem-Wadapally LIS Funding Card -->
+          <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--brand-accent);border-radius:var(--radius-md);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">BW LIS</span>
+              <span class="tag tag-danger">PAO Token: ₹ 7.00 Cr</span>
+            </div>
+            <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Bothalapalem–Wadapally Lift Irrigation Scheme</h4>
+            <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
+              Civil Works of <b>Rs. 14.13 Cr (9.64%)</b> completed. Sump walls to +65.00m. 11.045 km PM stalled awaiting LA corridor.
+            </p>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">1. Land Acquisition Token at PAO:</b>
+              Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2702237346</b> Dt: 19.09.2026<br>
+              Head of Account: <code style="font-size:11px;">4700-01-129-25-27-530-532-PVN</code><br>
+              Compensation: <b style="color:var(--danger);font-size:13px;">Rs. 7.00 Crores</b> (Ac. 39-35.70 Gts across 7 villages)
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">2. TGSPDCL Power Supply Deposit:</b>
+              Deposit Amount: <b style="color:var(--primary);font-size:13px;">Rs. 12.78 Crores</b><br>
+              <small style="color:var(--text-muted);">Required to commence erection of 33/11 KV Substation, dedicated power lines, and transformers.</small>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">3. Forest Land Clearance (PARIVESH Portal):</b>
+              Area: <b style="color:var(--success);">0.1518 Hectares</b> in Damaracherla mandal. Application submission critically required.
+            </div>
+          </div>
+
+          <!-- 3. Veerlapalem-II LIS Funding Card -->
+          <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--brand-teal);border-radius:var(--radius-md);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">VP-II LIS</span>
+              <span class="tag tag-warning">PAO Token: ₹ 2.20 Cr</span>
+            </div>
+            <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Veerlapalem–II Lift Irrigation Scheme</h4>
+            <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
+              Civil Works of <b>Rs. 3.43 Cr (12.46%)</b> completed. Sump walls to +45.50m. 6,050m pipeline awaiting LA handover.
+            </p>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">1. Land Acquisition Token at PAO:</b>
+              Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2702151464</b> Dt: 10.09.2026<br>
+              Head of Account: <code style="font-size:11px;">4700-01-129-25-27-530-532-PVN</code><br>
+              Compensation: <b style="color:var(--danger);font-size:13px;">Rs. 2.20 Crores</b> (Ac. 16-31.00 Gts across 3 villages)
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">2. TGSPDCL Power Infrastructure Deposit:</b>
+              Deposit Amount: <b style="color:var(--primary);font-size:13px;">Rs. 3.78 Crores</b><br>
+              <small style="color:var(--text-muted);">Required for dedicated 33/11 KV electrical line extension and substation erection.</small>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">3. Forest Land Clearance (PARIVESH Portal):</b>
+              Area: <b style="color:var(--success);">0.6930 Hectares</b> in Veerlapalem village. Registration and submission expedited.
+            </div>
+          </div>
+
+          <!-- 4. Thopucherla LIS Funding Card -->
           <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:var(--radius-md);padding:18px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">THOP LIS</span>
-              <span class="tag tag-warning">Immediate Requisition: ₹ 7.35 Cr</span>
+              <span class="tag tag-warning">Immediate Req: ₹ 7.35 Cr</span>
             </div>
             <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Thopucherla Lift Irrigation Scheme (6 Tanks)</h4>
             <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
