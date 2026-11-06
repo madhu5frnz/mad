@@ -338,6 +338,104 @@
           </div>
         </div>
 
+        <!-- Official Government Orders & Technical Revisions (EE Miryalaguda) -->
+        <div style="margin-top:16px;background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius-md);padding:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+            <div>
+              <b style="font-size:14.5px;color:var(--text-main);display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+                Official Government Orders &amp; Engineering Directives (EE Division No. 3, Miryalaguda)
+              </b>
+              <p style="font-size:12px;color:var(--text-muted);margin-top:3px;">Baseline administrative sanction, technical revisions, pipeline designs, and immediate funding requirements.</p>
+            </div>
+            <span class="tag tag-primary">Official Note: 06.11.2026</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-bottom:14px;">
+            ${s.adminSanctionGo ? `
+              <div style="background:var(--bg-alt);padding:10px 12px;border-radius:6px;border:1px solid var(--border);">
+                <small style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Admin Sanction (AS)</small>
+                <b style="font-size:13px;color:var(--text-main);display:block;margin:2px 0;">${s.adminSanction ? inrCr(s.adminSanction) : '—'}</b>
+                <span style="font-size:11.5px;color:var(--text-muted);">${s.adminSanctionGo}</span>
+              </div>
+            ` : ''}
+
+            ${s.cerNo || s.tsNo ? `
+              <div style="background:var(--bg-alt);padding:10px 12px;border-radius:6px;border:1px solid var(--border);">
+                <small style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Technical Sanction / ECV</small>
+                <b style="font-size:13px;color:var(--text-main);display:block;margin:2px 0;">ECV: ${s.ecv ? inrCr(s.ecv) : '—'} · TS: ${s.origTs ? inrCr(s.origTs) : (s.ts ? inrCr(s.ts) : '—')}</b>
+                <span style="font-size:11.5px;color:var(--text-muted);">${s.cerNo || ('TS No: ' + s.tsNo)}</span>
+              </div>
+            ` : ''}
+
+            ${s.veGo ? `
+              <div style="background:var(--bg-alt);padding:10px 12px;border-radius:6px;border:1px solid var(--border);">
+                <small style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Variation Estimate-I / Revised TS</small>
+                <b style="font-size:13px;color:var(--accent);display:block;margin:2px 0;">Revised Est: ${inrCr(s.ve || s.sanction)} · Revised Agmt: ${inrCr(s.revisedAgreement || s.totalAgreementVal || s.sanction)}</b>
+                <span style="font-size:11.5px;color:var(--text-muted);">${s.veGo}</span>
+              </div>
+            ` : ''}
+
+            <div style="background:var(--bg-alt);padding:10px 12px;border-radius:6px;border:1px solid var(--border);">
+              <small style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Contractor &amp; Target Timeline</small>
+              <b style="font-size:13px;color:var(--text-main);display:block;margin:2px 0;">${s.agency || 'M/s. Kaveri-Shantha-MEIL (JV)'}</b>
+              <span style="font-size:11.5px;color:var(--primary);font-weight:600;">Target: ${s.targetCompletion || 'March 2028'}</span> <small style="color:var(--text-muted);">(${s.eot || '2nd EOT granted'})</small>
+            </div>
+          </div>
+
+          <!-- Specific Directives & Token Details -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">
+            ${s.surgeRecommendation ? `
+              <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:6px;padding:10px 12px;">
+                <b style="font-size:12.5px;color:var(--amber);display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                  Surge Analysis &amp; Pipe Thickness
+                </b>
+                <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">${s.surgeRecommendation}. Km 2.0 to 8.150 approved; Km 0.00 to 2.00 Km submitted with 16mm thick pipe design.</p>
+              </div>
+            ` : ''}
+
+            ${s.gravityMain ? `
+              <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+                <b style="font-size:12.5px;color:var(--brand-blue);display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                  Gravity Distribution Mains Scope
+                </b>
+                <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">${s.gravityMain}. Approved in Variation Estimate-I to command ayacut.</p>
+              </div>
+            ` : ''}
+
+            ${s.pendingBills ? `
+              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:10px 12px;">
+                <b style="font-size:12.5px;color:var(--danger);display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                  Treasury Tokens &amp; Immediate Requisitions
+                </b>
+                <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">
+                  • <b>Works Bill Token:</b> <code>${s.pendingBills.workBills.token}</code> for <b>${inrCr(s.pendingBills.workBills.amountCr)}</b> (HOA: <code>${s.pendingBills.workBills.hoa}</code>)<br/>
+                  • <b>TG TRANSCO Token:</b> <code>${s.pendingBills.nonWork.token}</code> Dt ${s.pendingBills.nonWork.date} for <b>${inrCr(s.pendingBills.nonWork.amountCr)}</b> (Total Power: ₹57.29 Cr)<br/>
+                  • <b>Immediate Total Funding Required:</b> <b style="color:var(--danger);">${inrCr(s.pendingBills.totalImmediateFundingCr)}</b>
+                </p>
+              </div>
+            ` : ''}
+
+            ${s.fundsBreakdown ? `
+              <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:6px;padding:10px 12px;">
+                <b style="font-size:12.5px;color:var(--brand-blue);display:flex;align-items:center;gap:6px;">
+                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" clip-rule="evenodd"/></svg>
+                  Immediate Fund Requisition: ${inrCr(s.fundsBreakdown.totalCr)}
+                </b>
+                <p style="font-size:12px;color:var(--text-body);margin-top:4px;line-height:1.4;">
+                  • Civil Works Execution: <b>${inrCr(s.fundsBreakdown.civilWorksCr)}</b><br/>
+                  • Pumps &amp; Motors Procurement: <b>${inrCr(s.fundsBreakdown.pumpsMotorsCr)}</b><br/>
+                  • Transformer Yard &amp; Line: <b>${inrCr(s.fundsBreakdown.powerTransformerCr)}</b><br/>
+                  <small style="color:var(--text-muted);display:block;margin-top:2px;">(Pending Bills: NIL · Released to date: NIL · Work Done: ${inrCr(s.work)} / ${s.workPctRevised}%)</small>
+                </p>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
         ${s.kmlFiles && s.kmlFiles.length > 0 ? `
           <div style="margin-top:16px;background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:var(--radius-md);padding:16px;">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
@@ -451,6 +549,7 @@
                   <th>Mandal</th>
                   <th>Beneficiary Ayacut (Acres)</th>
                   <th>Ayacut Share (%)</th>
+                  ${s.villages.some(item => item.tanks) ? `<th>Tanks / Water Bodies Benefited</th>` : ''}
                 </tr>
               </thead>
               <tbody>
@@ -461,6 +560,7 @@
                     <td>${v.mandal || s.mandals.join(', ')}</td>
                     <td><b>${v.ayacut !== null && v.ayacut !== undefined ? v.ayacut.toLocaleString('en-IN') + ' Acres' : '<span class="tag tag-neutral">Statement Pending</span>'}</b></td>
                     <td>${v.ayacut !== null && v.ayacut !== undefined ? `<span class="tag tag-primary">${Math.round((v.ayacut / s.ayacutAcres) * 1000) / 10} %</span>` : '—'}</td>
+                    ${s.villages.some(item => item.tanks) ? `<td><small style="color:var(--text-main);font-weight:600;">${v.tanks || '—'}</small></td>` : ''}
                   </tr>
                 `).join('')}
               </tbody>
@@ -1113,6 +1213,80 @@
               `).join('')}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Official Treasury Tokens & Immediate Funding Register -->
+      <div class="card-section" style="margin-top:24px;">
+        <div class="card-section-header">
+          <div>
+            <h3>Official Treasury Tokens &amp; Immediate Execution Funding Requisitions</h3>
+            <p>Certified bills, token tracking, and urgent capital requirements submitted by EE, Irrigation Division No.3, Miryalaguda.</p>
+          </div>
+          <span class="tag tag-danger" style="font-size:13px;font-weight:800;">DBC: ₹71.29 Cr · THOP: ₹7.35 Cr</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:20px;">
+          <!-- DBC LIS Funding Card -->
+          <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--warning);border-radius:var(--radius-md);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">DBC LIS</span>
+              <span class="tag tag-danger">Immediate Requisition: ₹ 71.29 Cr</span>
+            </div>
+            <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Dunnapothulagandi Lift Irrigation Scheme</h4>
+            <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
+              Required immediately to facilitate the execution of Pressure Mains, Substation and Civil Works.
+            </p>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">1. Works Bill Pending in Treasury:</b>
+              Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2702277887</b><br>
+              Head of Account: <code style="font-size:11px;">4700-01-129-25-27-530-531-PVN</code><br>
+              Amount: <b style="color:var(--danger);font-size:13px;">Rs. 37.08 Crores</b>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">2. TG TRANSCO Substation Deposit Pending:</b>
+              Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2602014999</b> Dt: 21.11.2025<br>
+              Deposit Amount: <b style="color:var(--danger);font-size:13px;">Rs. 31.42 Crores</b><br>
+              <small style="color:var(--text-muted);">Total power extension requirement is <b>Rs. 57.29 Cr</b> (revised estimate awaited from TGTRANSCO for relocated substation from Wadapally).</small>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">3. Civil Works Requisition:</b>
+              Approach Channel, Forebay and Pump House: <b style="color:var(--primary);">Rs. 14.00 Crores</b> (Total civil work executed to date: ~₹14.00 Cr).
+            </div>
+          </div>
+
+          <!-- Thopucherla LIS Funding Card -->
+          <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:var(--radius-md);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">THOP LIS</span>
+              <span class="tag tag-warning">Immediate Requisition: ₹ 7.35 Cr</span>
+            </div>
+            <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Thopucherla Lift Irrigation Scheme (6 Tanks)</h4>
+            <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
+              Work completed: <b>Rs. 0.80 Cr</b> (4.34% of revised agmt ₹18.47 Cr). <b>Funds released so far: NIL</b>. Pending bills: NIL.
+            </p>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">1. Balance Civil Works &amp; Pressure Main:</b>
+              Amount: <b style="color:var(--primary);font-size:13px;">Rs. 5.00 Crores</b><br>
+              <small style="color:var(--text-muted);">Pump House superstructure above GL (+156.40 m), Forebay, and 5.881 km Pressure Main.</small>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">2. E&amp;M Pumps &amp; Motors Supply &amp; Erection:</b>
+              Amount: <b style="color:var(--primary);font-size:13px;">Rs. 2.10 Crores</b><br>
+              <small style="color:var(--text-muted);">2 Nos. × 135 kW Submersible VT Pump Sets with Induction Motors (Drawing approval from Advisor LIS awaited).</small>
+            </div>
+
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;">
+              <b style="color:var(--text-main);display:block;margin-bottom:4px;">3. Transmission Line &amp; Transformer Yard:</b>
+              Amount: <b style="color:var(--primary);font-size:13px;">Rs. 0.25 Crores</b><br>
+              <small style="color:var(--text-muted);">Dedicated 415 V transformer yard and power transmission included in Variation Estimate-1.</small>
+            </div>
+          </div>
         </div>
       </div>
     `;
