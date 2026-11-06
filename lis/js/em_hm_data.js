@@ -9,79 +9,89 @@
       "sNo": 1,
       "id": "BW",
       "name": "Bothalapalem-Wadapally LIS",
-      "totalItems": 33,
-      "approved": 4,
-      "submitted": 1,
-      "notSubmitted": 0,
-      "notUpdated": 28,
+      "totalItems": 36,
+      "approved": 6,
+      "submitted": 6,
+      "inProgress": 18,
+      "enquiries": 6,
+      "notProvided": 0,
+      "notUpdated": 0,
       "supplied": 0,
       "billReceived": 0,
       "billClaimed": 0,
       "notClaimed": 0,
-      "boqAmount": 329324821,
-      "boqCr": 32.93
+      "boqAmount": 337324821,
+      "boqCr": 33.73
     },
     {
       "sNo": 2,
       "id": "VP-II",
       "name": "Veerlapalem-II LIS",
-      "totalItems": 26,
-      "approved": 2,
-      "submitted": 1,
-      "notSubmitted": 0,
-      "notUpdated": 23,
+      "totalItems": 28,
+      "approved": 4,
+      "submitted": 5,
+      "inProgress": 11,
+      "enquiries": 8,
+      "notProvided": 0,
+      "notUpdated": 0,
       "supplied": 0,
       "billReceived": 0,
       "billClaimed": 0,
       "notClaimed": 0,
-      "boqAmount": 39802346,
-      "boqCr": 3.98
+      "boqAmount": 44002346,
+      "boqCr": 4.4
     },
     {
       "sNo": 3,
       "id": "DBC",
-      "name": "DBC LIS (Dunnapothulagandi)",
-      "totalItems": 33,
-      "approved": 4,
-      "submitted": 1,
-      "notSubmitted": 0,
-      "notUpdated": 28,
+      "name": "DBC LIS",
+      "totalItems": 35,
+      "approved": 6,
+      "submitted": 6,
+      "inProgress": 15,
+      "enquiries": 6,
+      "notProvided": 2,
+      "notUpdated": 0,
       "supplied": 0,
       "billReceived": 0,
       "billClaimed": 0,
       "notClaimed": 0,
-      "boqAmount": 420595936,
-      "boqCr": 42.06
+      "boqAmount": 429595936,
+      "boqCr": 42.96
     },
     {
       "sNo": 4,
       "id": "THOP",
       "name": "Thopucherla LIS",
-      "totalItems": 19,
+      "totalItems": 21,
       "approved": 0,
-      "submitted": 0,
-      "notSubmitted": 0,
-      "notUpdated": 19,
+      "submitted": 2,
+      "inProgress": 9,
+      "enquiries": 9,
+      "notProvided": 1,
+      "notUpdated": 0,
       "supplied": 0,
       "billReceived": 0,
       "billClaimed": 0,
       "notClaimed": 0,
-      "boqAmount": 20699921,
-      "boqCr": 2.07
+      "boqAmount": 21399921,
+      "boqCr": 2.14
     }
   ],
   "totalAbstract": {
-    "totalItems": 111,
-    "approved": 10,
-    "submitted": 3,
-    "notSubmitted": 0,
-    "notUpdated": 98,
+    "totalItems": 120,
+    "approved": 16,
+    "submitted": 19,
+    "inProgress": 53,
+    "enquiries": 29,
+    "notProvided": 3,
+    "notUpdated": 0,
     "supplied": 0,
     "billReceived": 0,
     "billClaimed": 0,
     "notClaimed": 0,
-    "boqAmount": 810423024,
-    "boqCr": 81.04
+    "boqAmount": 832323024,
+    "boqCr": 83.23
   },
   "schemes": {
     "BW": {
@@ -234,6 +244,22 @@
         {
           "sl": 10,
           "category": "Electro-Mechanical — Pump & Motor Units",
+          "description": "Neutral Grounding Resistor (NGR) & Auxiliary Neutral Earthing System",
+          "unit": "Each",
+          "qty": 2,
+          "rate": 500000,
+          "amount": 1000000,
+          "amountCr": 0.1,
+          "agmtRef": "S-1-47",
+          "drawingStatus": "Under finalisation",
+          "statusType": "finalisation",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "NGR specification under technical scrutiny at Advisor office"
+        },
+        {
+          "sl": 11,
+          "category": "Electro-Mechanical — Pump & Motor Units",
           "description": "11 kV Cable (XLPE)",
           "unit": "LS",
           "qty": 1,
@@ -248,7 +274,7 @@
           "remarks": "Cable sizing & Schedule submitted at Advisor office"
         },
         {
-          "sl": 11,
+          "sl": 12,
           "category": "Electro-Mechanical — Pump & Motor Units",
           "description": "LT Power Cable",
           "unit": "LS",
@@ -264,7 +290,7 @@
           "remarks": "Cable sizing & Schedule submitted at Advisor office"
         },
         {
-          "sl": 12,
+          "sl": 13,
           "category": "Electro-Mechanical — Pump & Motor Units",
           "description": "Control Cables",
           "unit": "LS",
@@ -280,7 +306,7 @@
           "remarks": "Cable sizing & Schedule submitted at Advisor office"
         },
         {
-          "sl": 13,
+          "sl": 14,
           "category": "Electro-Mechanical — Pump & Motor Units",
           "description": "Instrumentation Cable",
           "unit": "LS",
@@ -296,7 +322,7 @@
           "remarks": ""
         },
         {
-          "sl": 14,
+          "sl": 15,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "HT Panel 11 kV Cubicle",
           "unit": "Board",
@@ -312,7 +338,7 @@
           "remarks": "Received from HTS"
         },
         {
-          "sl": 15,
+          "sl": 16,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Station Auxiliary Boards",
           "unit": "Job",
@@ -328,7 +354,7 @@
           "remarks": "At Bhavani Enterprises"
         },
         {
-          "sl": 16,
+          "sl": 17,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Battery 200 AH, 220 V DC with Charger & DCDB",
           "unit": "Job",
@@ -344,7 +370,7 @@
           "remarks": ""
         },
         {
-          "sl": 17,
+          "sl": 18,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Compressor equipment (OPU) — 2 Nos",
           "unit": "Job",
@@ -360,7 +386,7 @@
           "remarks": "Supplied by WEG"
         },
         {
-          "sl": 18,
+          "sl": 19,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Drainage & Dewatering system",
           "unit": "Job",
@@ -376,7 +402,7 @@
           "remarks": ""
         },
         {
-          "sl": 19,
+          "sl": 20,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Lighting (Illumination) system",
           "unit": "Job",
@@ -392,7 +418,7 @@
           "remarks": "Received from Consultant"
         },
         {
-          "sl": 20,
+          "sl": 21,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Air Conditioning system",
           "unit": "Job",
@@ -408,7 +434,7 @@
           "remarks": ""
         },
         {
-          "sl": 21,
+          "sl": 22,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Ventilation system",
           "unit": "Job",
@@ -424,7 +450,7 @@
           "remarks": ""
         },
         {
-          "sl": 22,
+          "sl": 23,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Communication system",
           "unit": "Job",
@@ -440,7 +466,7 @@
           "remarks": ""
         },
         {
-          "sl": 23,
+          "sl": 24,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "EOT Crane 50T/10T",
           "unit": "Each",
@@ -456,7 +482,7 @@
           "remarks": ""
         },
         {
-          "sl": 24,
+          "sl": 25,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Earthing Materials for Pump House",
           "unit": "Job",
@@ -472,7 +498,7 @@
           "remarks": "Materials under supply"
         },
         {
-          "sl": 25,
+          "sl": 26,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "DG Set 250 KVA with AMF Panel",
           "unit": "Job",
@@ -488,7 +514,7 @@
           "remarks": ""
         },
         {
-          "sl": 26,
+          "sl": 27,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Fire Fighting system",
           "unit": "Job",
@@ -504,7 +530,7 @@
           "remarks": ""
         },
         {
-          "sl": 27,
+          "sl": 28,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "Auxiliary Transformer 500 KVA Dry type",
           "unit": "Each",
@@ -520,7 +546,7 @@
           "remarks": "Received from Power star electricals"
         },
         {
-          "sl": 28,
+          "sl": 29,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "11 kV Capacitor Bank",
           "unit": "Job",
@@ -536,7 +562,7 @@
           "remarks": "Received from HTS"
         },
         {
-          "sl": 29,
+          "sl": 30,
           "category": "Electro-Mechanical — Common Equipment",
           "description": "415 V Capacitor Bank",
           "unit": "Job",
@@ -552,7 +578,7 @@
           "remarks": "At Bhavani Enterprises"
         },
         {
-          "sl": 30,
+          "sl": 31,
           "category": "Hydro-Mechanical — Pressure Main",
           "description": "Butterfly Valve 1600 mm PN16 (pressure main)",
           "unit": "Each",
@@ -568,7 +594,7 @@
           "remarks": ""
         },
         {
-          "sl": 31,
+          "sl": 32,
           "category": "Hydro-Mechanical — Pressure Main",
           "description": "DI Air Valve 300 mm PN10",
           "unit": "Each",
@@ -584,7 +610,7 @@
           "remarks": ""
         },
         {
-          "sl": 32,
+          "sl": 33,
           "category": "Hydro-Mechanical — Pressure Main",
           "description": "DI Scour Valve 450 mm PN10",
           "unit": "Each",
@@ -600,7 +626,7 @@
           "remarks": ""
         },
         {
-          "sl": 33,
+          "sl": 34,
           "category": "Hydro-Mechanical — Pressure Main",
           "description": "Surge Protection (1.6 m x 10 mm 2.54 km + 1.1 m x 6 mm 7.66 km)",
           "unit": "LS",
@@ -614,6 +640,38 @@
           "suppliedStatus": "",
           "paymentStatus": "",
           "remarks": "Surge analysis report to be approved"
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Trash Rack Arrangement at Forebay / Intake structure",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 1500000,
+          "amount": 3000000,
+          "amountCr": 0.3,
+          "agmtRef": "BOQ HM-01",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Intake trash rack arrangement approved; fabrication to be commenced",
+          "sl": 35
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Stop Log Gates with Lifting Beam & Gantry Hoist at Pump House intake",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 2000000,
+          "amount": 4000000,
+          "amountCr": 0.4,
+          "agmtRef": "BOQ HM-02",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Intake stop log gates designs approved; fabrication to be commenced",
+          "sl": 36
         }
       ]
     },
@@ -1035,6 +1093,38 @@
           "suppliedStatus": "",
           "paymentStatus": "",
           "remarks": ""
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Trash Rack Arrangement at Forebay / Intake structure",
+          "unit": "Set",
+          "qty": 3,
+          "rate": 600000,
+          "amount": 1800000,
+          "amountCr": 0.18,
+          "agmtRef": "BOQ HM-01",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Intake trash rack arrangement approved; fabrication to be commenced",
+          "sl": 27
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Stop Log Gates with Lifting Beam & Gantry Hoist at Pump House intake",
+          "unit": "Set",
+          "qty": 3,
+          "rate": 800000,
+          "amount": 2400000,
+          "amountCr": 0.24,
+          "agmtRef": "BOQ HM-02",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Intake stop log gates designs approved; fabrication to be commenced",
+          "sl": 28
         }
       ]
     },
@@ -1067,11 +1157,11 @@
           "amount": 4680000,
           "amountCr": 0.47,
           "agmtRef": "S-1-122",
-          "drawingStatus": "Under finalisation",
-          "statusType": "finalisation",
+          "drawingStatus": "Status not provided in checklist",
+          "statusType": "not-provided",
           "suppliedStatus": "",
           "paymentStatus": "",
-          "remarks": ""
+          "remarks": "Agency checklist left status blank; vendor enquiry under finalisation"
         },
         {
           "sl": 3,
@@ -1083,11 +1173,11 @@
           "amount": 486000,
           "amountCr": 0.05,
           "agmtRef": "S-1-123",
-          "drawingStatus": "Under finalisation",
-          "statusType": "finalisation",
+          "drawingStatus": "Status not provided in checklist",
+          "statusType": "not-provided",
           "suppliedStatus": "",
           "paymentStatus": "",
-          "remarks": ""
+          "remarks": "Agency checklist left status blank; vendor enquiry under finalisation"
         },
         {
           "sl": 4,
@@ -1568,6 +1658,38 @@
           "suppliedStatus": "",
           "paymentStatus": "",
           "remarks": "Surge report (Peach Engg) — pipe thickness issue pending"
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Trash Rack Arrangement at Forebay / Intake structure",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 2000000,
+          "amount": 4000000,
+          "amountCr": 0.4,
+          "agmtRef": "BOQ HM-01",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Forebay intake trash rack arrangement approved; fabrication to be commenced",
+          "sl": 34
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Stop Log Gates with Lifting Beam & Gantry Hoist at Pump House intake",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 2500000,
+          "amount": 5000000,
+          "amountCr": 0.5,
+          "agmtRef": "BOQ HM-02",
+          "drawingStatus": "Designs Approved",
+          "statusType": "approved",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Pump house intake stop log gates designs approved; fabrication to be commenced",
+          "sl": 35
         }
       ]
     },
@@ -1792,11 +1914,11 @@
           "amount": 200000,
           "amountCr": 0.02,
           "agmtRef": "S-1-191",
-          "drawingStatus": "Under finalisation",
-          "statusType": "finalisation",
+          "drawingStatus": "Status not provided in checklist",
+          "statusType": "not-provided",
           "suppliedStatus": "",
           "paymentStatus": "",
-          "remarks": ""
+          "remarks": "Agency checklist left status blank; earthing design to be submitted"
         },
         {
           "sl": 15,
@@ -1877,6 +1999,38 @@
           "suppliedStatus": "",
           "paymentStatus": "",
           "remarks": ""
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Intake Coarse Screen / Trash Rack arrangement at Sump intake",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 150000,
+          "amount": 300000,
+          "amountCr": 0.03,
+          "agmtRef": "BOQ HM-01",
+          "drawingStatus": "Under preparation",
+          "statusType": "preparation",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Sump screen layout under finalisation",
+          "sl": 20
+        },
+        {
+          "category": "Hydro-Mechanical — Intake & Forebay Equipment",
+          "description": "Stop Log Arrangement with Guides at Sump Intake",
+          "unit": "Set",
+          "qty": 2,
+          "rate": 200000,
+          "amount": 400000,
+          "amountCr": 0.04,
+          "agmtRef": "BOQ HM-02",
+          "drawingStatus": "Under preparation",
+          "statusType": "preparation",
+          "suppliedStatus": "",
+          "paymentStatus": "",
+          "remarks": "Stop log guides layout under preparation",
+          "sl": 21
         }
       ]
     }

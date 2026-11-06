@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
   
-  <link rel="stylesheet" href="css/app.css?v=3.0">
+  <link rel="stylesheet" href="css/app.css?v=3.1">
   
   <!-- Vendor libraries for Excel, PDF, and Print -->
   <script src="vendor/exceljs.min.js"></script>
@@ -18,11 +18,11 @@
   <script src="vendor/jspdf.plugin.autotable.min.js"></script>
   
   <!-- App logic modules -->
-  <script src="js/data.js?v=3.0" defer></script>
-  <script src="js/em_hm_data.js?v=3.0" defer></script>
-  <script src="js/store.js?v=3.0" defer></script>
-  <script src="js/export.js?v=3.0" defer></script>
-  <script src="js/ui.js?v=3.0" defer></script>
+  <script src="js/data.js?v=3.1" defer></script>
+  <script src="js/em_hm_data.js?v=3.1" defer></script>
+  <script src="js/store.js?v=3.1" defer></script>
+  <script src="js/export.js?v=3.1" defer></script>
+  <script src="js/ui.js?v=3.1" defer></script>
 </head>
 <body>
 
@@ -141,7 +141,7 @@
         </div>
         <div class="metric-data">
           <small>Critical Blockers</small>
-          <b id="kpi-issues" style="color:var(--danger);">5 Urgent</b>
+          <b id="kpi-issues" style="color:var(--danger);">10 Urgent (15 Total)</b>
         </div>
       </div>
     </div>
@@ -164,7 +164,7 @@
 
       <button class="view-tab-btn" data-tab="issues" role="tab">
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-        Urgent Bottlenecks <span class="tab-pill">7</span>
+        Urgent Bottlenecks <span class="tab-pill" id="tab-issues-pill">10</span>
       </button>
 
       <button class="view-tab-btn" data-tab="tanks" role="tab">
@@ -179,12 +179,12 @@
 
       <button class="view-tab-btn" data-tab="emhm" role="tab">
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
-        EM &amp; HM Check List <span class="tab-pill">111 Items · ₹81.04 Cr</span>
+        EM &amp; HM Check List <span class="tab-pill" id="tab-emhm-pill">120 Items · ₹83.23 Cr</span>
       </button>
 
       <button class="view-tab-btn" data-tab="gis" role="tab">
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-        GIS &amp; KML Surveys <span class="tab-pill">3 KML</span>
+        GIS &amp; Topo Layouts <span class="tab-pill" id="tab-gis-pill">4 Schemes</span>
       </button>
 
       <button class="view-tab-btn" data-tab="logs" role="tab">

@@ -39,12 +39,14 @@
     const elSupp = $('#kpi-supp');
     const elProgress = $('#kpi-progress');
     const elIssues = $('#kpi-issues');
+    const elTabIssues = $('#tab-issues-pill') || document.querySelector('.view-tab-btn[data-tab="issues"] .tab-pill');
 
     if (elAyacut) elAyacut.textContent = totalAyacut.toLocaleString('en-IN') + ' Ac';
     if (elSanction) elSanction.textContent = inrCr(totalSanction);
     if (elSupp) elSupp.textContent = inrCr(totalSupp);
     if (elProgress) elProgress.textContent = avgProgress + ' %';
-    if (elIssues) elIssues.textContent = urgentIssues + ' Urgent';
+    if (elIssues) elIssues.textContent = urgentIssues + ' Urgent (' + store.issues.length + ' Total)';
+    if (elTabIssues) elTabIssues.textContent = String(urgentIssues);
   }
 
   // ------------------------------------------------------------- Helper: Get Blocker for Scheme
@@ -139,16 +141,22 @@
             `;
           })()}
 
-          ${s.id === 'DBC' ? `
-            <div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-              <span style="font-size:12px;font-weight:700;color:#166534;display:flex;align-items:center;gap:6px;">
-                🗺️ 3 GIS Survey Files Available (8.2 km PM &amp; 30 Sy.Nos LA)
-              </span>
-              <button class="btn btn-outline btn-sm btn-goto-gis-tab" style="font-size:11px;padding:3px 8px;border-color:#16a34a;color:#166534;background:#fff;">
-                View KML Files →
-              </button>
-            </div>
-          ` : ''}
+          ${(() => {
+            const badgeText = s.id === 'DBC' ? '🗺️ GIS Alignment &amp; KML (8.2 km PM · 42 Sy.Nos LA)' :
+              s.id === 'BW' ? '🗺️ Topo Alignment &amp; LA (11.045 km PM · 61.12 Ac LA)' :
+              s.id === 'VP-II' ? '🗺️ Topo Alignment &amp; LA (6.05 km PM · 22.00 Ac LA)' :
+              '🗺️ Offtake &amp; Pipeline (5.891 km PM · 6 Tanks Ayacut)';
+            return `
+              <div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <span style="font-size:12px;font-weight:700;color:#166534;display:flex;align-items:center;gap:6px;">
+                  ${badgeText}
+                </span>
+                <button class="btn btn-outline btn-sm btn-goto-gis-tab" data-scheme="${s.id}" style="font-size:11px;padding:3px 8px;border-color:#16a34a;color:#166534;background:#fff;">
+                  View GIS / Layout →
+                </button>
+              </div>
+            `;
+          })()}
 
           <div class="scheme-card-buttons">
             <button class="btn btn-outline btn-sm btn-open-scheme" data-scheme-id="${s.id}">
@@ -676,7 +684,7 @@
                 <td><b style="color:var(--success);">5,939 Ac</b> <small style="color:var(--text-muted);">(VE-I report 5,393 corrected)</small></td>
                 <td><b style="color:var(--water);">6,300 Ac</b> <small style="color:var(--text-muted);">(Mudimanikyam Major tail end)</small></td>
                 <td><b style="color:var(--primary);font-size:15px;">12,239 Ac</b></td>
-                <td>8 Villages</td>
+                <td>7 Villages</td>
               </tr>
               <tr>
                 <td><b>Thopucherla LIS (THOP)</b></td>
@@ -691,7 +699,7 @@
                 <td><b style="color:var(--success);font-size:16px;">11,839 Ac</b></td>
                 <td><b style="color:var(--water);font-size:16px;">11,826 Ac</b></td>
                 <td><b style="color:var(--primary);font-size:17px;">23,665 Ac</b></td>
-                <td><b>14 Villages &amp; 6 Tanks</b></td>
+                <td><b>17 Villages (BW 7 + VP-II 3 + DBC 7) &amp; 6 Minor Tanks</b></td>
               </tr>
             </tbody>
           </table>
@@ -786,12 +794,12 @@
             <p>Source: Haliya River near Chityala · Mudimanikyam Major Tail End: 6,300 Ac · New: 5,939 Ac</p>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <span class="tag tag-warning">Target: July 2027</span>
+            <span class="tag tag-warning">Target: March 2028 (3rd E.O.T.)</span>
             <span class="tag tag-primary">Total: 12,239 Ac</span>
           </div>
         </div>
         <div style="padding:12px 20px;background:var(--bg-alt);border-bottom:1px solid var(--border);color:var(--text-body);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <span><b>Agency:</b> M/s. Kaveri-Shantha–MEIL (JV) · <b>Agreement:</b> ₹119.26 Cr + Supp ₹179.42 Cr (Total ₹374.90 Cr)</span>
+          <span><b>Agency:</b> M/s. Kaveri-Shantha–MEIL (JV) · <b>Agreement:</b> Total Agreement Value: ₹375.09 Cr (Supplemental Agreement No. 03: ₹143.92 Cr)</span>
           <span style="color:var(--danger);font-weight:700;">⚠️ TG TRANSCO Token No.2602014999 (₹31.42 Cr) pending release</span>
         </div>
         <div style="overflow-x:auto;">
@@ -1003,6 +1011,31 @@
     const totalFundingNeeded = LIS.FUNDING_SUMMARY.reduce((acc, f) => acc + f.total, 0);
 
     container.innerHTML = `
+      <!-- Critical Contract Alerts (PBG & SLSC) -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:20px;">
+        <div style="background:#fef2f2;border:2px solid #ef4444;border-radius:var(--radius-md);padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span class="tag tag-danger" style="font-weight:800;">CRITICAL CONTRACT BLOCKER</span>
+            <span style="font-size:12px;color:#991b1b;font-weight:700;">EXPIRED 15.10.2025</span>
+          </div>
+          <b style="font-size:15px;color:#991b1b;display:block;margin-bottom:4px;">Performance Bank Guarantee (PBG) of ₹7.15 Cr Expired</b>
+          <p style="font-size:12.5px;color:#7f1d1d;line-height:1.45;margin-bottom:0;">
+            Union Bank of India Performance BG for <b>Rs. 7.15 Crores</b> was extended only up to <b>15.10.2025</b> and is now expired. Immediate re-validation and extension up to <b>23.03.2028 (3rd E.O.T.)</b> is mandatory before releasing further bills.
+          </p>
+        </div>
+
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:var(--radius-md);padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span class="tag tag-success" style="font-weight:800;">SLSC APPROVAL CONCURRENCE</span>
+            <span style="font-size:12px;color:#166534;font-weight:700;">20.02.2026</span>
+          </div>
+          <b style="font-size:15px;color:#166534;display:block;margin-bottom:4px;">State Level Standing Committee Approval: ₹549.91 Cr</b>
+          <p style="font-size:12.5px;color:#14532d;line-height:1.45;margin-bottom:0;">
+            The SLSC accorded formal administrative approval on <b>20.02.2026</b> for <b>Rs. 549.91 Crores</b> covering all 4 Lift Irrigation Schemes (BW, VP-II, DBC, THOP) under Irrigation Division No. 3, Miryalaguda.
+          </p>
+        </div>
+      </div>
+
       <!-- Supplemental Agreement No. 03 Official Breakdown -->
       <div class="card-section" style="margin-bottom:24px;">
         <div class="card-section-header">
@@ -1245,30 +1278,31 @@
           <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--warning);border-radius:var(--radius-md);padding:18px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;">DBC LIS</span>
-              <span class="tag tag-danger">Immediate Req: ₹ 71.29 Cr</span>
+              <span class="tag tag-danger">Immediate Req: ₹ 68.50 Cr</span>
             </div>
             <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:8px;">Dunnapothulagandi Lift Irrigation Scheme</h4>
             <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;margin-bottom:12px;">
-              Required immediately to facilitate the execution of Pressure Mains, Substation and Civil Works.
+              Total Immediate Requirement: <b>₹68.50 Cr</b> (Works Bill Token ₹37.08 Cr + TG TRANSCO Deposit Token ₹31.42 Cr). Civil works (~₹14.00 Cr) executed to date are included in works token.
             </p>
 
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
               <b style="color:var(--text-main);display:block;margin-bottom:4px;">1. Works Bill Pending in Treasury:</b>
               Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2702277887</b><br>
               Head of Account: <code style="font-size:11px;">4700-01-129-25-27-530-531-PVN</code><br>
-              Amount: <b style="color:var(--danger);font-size:13px;">Rs. 37.08 Crores</b>
+              Amount: <b style="color:var(--danger);font-size:13px;">Rs. 37.08 Crores</b><br>
+              <small style="color:var(--text-muted);">(Covers executed civil works including Approach Channel, Forebay and Pump House substructure; no double addition).</small>
             </div>
 
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px;font-size:12px;">
               <b style="color:var(--text-main);display:block;margin-bottom:4px;">2. TG TRANSCO Substation Deposit Pending:</b>
               Token No: <b style="color:var(--primary);font-family:var(--font-mono);">2602014999</b> Dt: 21.11.2025<br>
               Deposit Amount: <b style="color:var(--danger);font-size:13px;">Rs. 31.42 Crores</b><br>
-              <small style="color:var(--text-muted);">Total power extension requirement is <b>Rs. 57.29 Cr</b> (revised estimate awaited from TGTRANSCO for relocated substation from Wadapally).</small>
+              <small style="color:var(--text-muted);">Total power extension requirement per TRANSCO route is <b>Rs. 57.29 Cr</b>. Relocated substation from Wadapally under proposal.</small>
             </div>
 
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;">
-              <b style="color:var(--text-main);display:block;margin-bottom:4px;">3. Civil Works Requisition:</b>
-              Approach Channel, Forebay and Pump House: <b style="color:var(--primary);">Rs. 14.00 Crores</b> (Total civil work executed to date: ~₹14.00 Cr).
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:12px;font-size:12px;">
+              <b style="color:#166534;display:block;margin-bottom:4px;">⚡ Alternative Power Supply Proposal (Under CE Review):</b>
+              Dedicated 33 kV feeder with <b>CMD 9,900 kVA</b> from TGSPDCL proposed directly to Dunnapothulagandi pump house, bypassing the ₹57.29 Cr 132 kV TRANSCO line and enabling fast energization.
             </div>
           </div>
 
@@ -1366,102 +1400,267 @@
     `;
   }
 
-  // ------------------------------------------------------------- Render GIS & KML Surveys Tab
+    // ------------------------------------------------------------- Render GIS & KML Surveys Tab
+  let gisActiveScheme = 'ALL';
+
   function renderGis() {
     const container = $('#view-gis');
     if (!container) return;
 
     const dbc = store.schemes.find((s) => s.id === 'DBC');
+    const bw = store.schemes.find((s) => s.id === 'BW');
+    const vp = store.schemes.find((s) => s.id === 'VP-II');
+    const thop = store.schemes.find((s) => s.id === 'THOP');
+
     const kmlList = dbc?.kmlFiles || [];
-    const syNos = dbc?.surveyNumbers || [];
+    const dbcSyNos = dbc?.surveyNumbers || [];
 
     container.innerHTML = `
+      <!-- GIS Top Executive Banner -->
       <div class="card-section" style="padding:22px;margin-bottom:20px;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
           <div>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-              <span class="scheme-code-badge" style="font-size:15px;padding:5px 12px;">DBC LIS</span>
-              <h2 style="font-size:22px;font-weight:800;color:var(--text-main);">Dunnapothulagandi Lift Irrigation Scheme — GIS Alignment &amp; Land Acquisition (KML)</h2>
-              <span class="tag tag-primary">3 Files Available</span>
+              <span class="scheme-code-badge" style="font-size:15px;padding:5px 12px;">GIS &amp; Topo</span>
+              <h2 style="font-size:22px;font-weight:800;color:var(--text-main);">4 Nos. LIS Package — Spatial Alignments, Topo Layouts &amp; Land Acquisition</h2>
+              <span class="tag tag-primary">All 4 Schemes</span>
             </div>
             <p style="color:var(--text-muted);font-size:13.5px;margin-top:6px;max-width:960px;">
-              Comprehensive spatial survey data covering the 8.200 km Pressure Main corridor (1,900 mm MS Pipe), 270 chainage stations (0 to 8,200 M), 3.5m offset working corridor (7.0m ROW), and 30 Land Acquisition survey numbers across Chityala, Molkacherla, Balnepally, and Adavidevulapally (Adavidevulapally Mandal).
+              Comprehensive spatial survey data covering Pressure Mains, Gravity Distribution Mains, levels, working corridors, and Land Acquisition awards across Dunnapothulagandi (DBC), Bothalapalem-Wadapally (BW), Veerlapalem-II (VP-II), and Thopucherla (THOP).
             </p>
           </div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-outline btn-sm" onclick="alert('Open these .kml files in Google Earth, Google Maps, AutoCAD Civil 3D, or QGIS.')">
-              ℹ️ How to View Files
+              ℹ️ Spatial Data Guide
             </button>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
-          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Total Corridor Length</small><b style="font-size:15px;color:var(--text-main);">8.200 km (0 to 8,200 M)</b></div>
-          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Chainage Frequency</small><b style="font-size:15px;color:var(--text-main);">Every 50 Meters (270 Marks)</b></div>
-          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Working Corridor ROW</small><b style="font-size:15px;color:var(--text-main);">3.5 m Offset (7.0 m Total)</b></div>
-          <div><small style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">LA Sanction Award</small><b style="font-size:15px;color:var(--text-main);">36-11.50 Acres (₹3.60 Cr)</b></div>
+        <!-- 4 Schemes Alignment Overview Matrix -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">DBC LIS (8.200 km PM)</small>
+            <b style="font-size:14.5px;color:var(--text-main);">1,900 mm MS Pipe</b>
+            <span style="display:block;font-size:11.5px;color:var(--text-muted);margin-top:2px;">Award: 21.04.2026 (Ac 12-17½ · ₹2.31 Cr)</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">BW LIS (11.045 km PM)</small>
+            <b style="font-size:14.5px;color:var(--text-main);">1,600 mm (2.54 km) + 1,100 mm (7.66 km)</b>
+            <span style="display:block;font-size:11.5px;color:var(--text-muted);margin-top:2px;">Delivery: +129.00 M (Design) vs +121.00 M (Topo)</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">VP-II LIS (6.050 km PM)</small>
+            <b style="font-size:14.5px;color:var(--text-main);">700 mm MS Pipe · 2.40 km GM</b>
+            <span style="display:block;font-size:11.5px;color:var(--text-muted);margin-top:2px;">LWL: +46.12 M · Pump Floor: +68.80 M</span>
+          </div>
+          <div>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">THOP LIS (5.891 km PM)</small>
+            <b style="font-size:14.5px;color:var(--text-main);">0.60 m (600 mm) MS Pipe</b>
+            <span style="display:block;font-size:11.5px;color:var(--text-muted);margin-top:2px;">NSP Left Canal Ch 12.600 km Offtake</span>
+          </div>
         </div>
       </div>
 
-      <!-- 3 Downloadable KML Cards -->
-      <div class="card-section" style="margin-bottom:20px;">
-        <div class="card-section-header">
-          <div>
-            <h3>DBC Spatial Alignment &amp; Cadastral Survey Files</h3>
-            <p>Click below to download KML files for viewing in Google Earth, AutoCAD Civil 3D, or GPS devices.</p>
-          </div>
-        </div>
+      <!-- Scheme Tabs Filter -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-gis-filter ${gisActiveScheme === 'ALL' ? 'btn-primary' : 'btn-outline'}" data-scheme="ALL">All 4 Schemes</button>
+        <button class="btn btn-sm btn-gis-filter ${gisActiveScheme === 'DBC' ? 'btn-primary' : 'btn-outline'}" data-scheme="DBC">DBC LIS (KML &amp; 42 Sy.Nos)</button>
+        <button class="btn btn-sm btn-gis-filter ${gisActiveScheme === 'BW' ? 'btn-primary' : 'btn-outline'}" data-scheme="BW">BW LIS (11.045 km PM &amp; Topo)</button>
+        <button class="btn btn-sm btn-gis-filter ${gisActiveScheme === 'VP-II' ? 'btn-primary' : 'btn-outline'}" data-scheme="VP-II">VP-II LIS (6.05 km PM &amp; Levels)</button>
+        <button class="btn btn-sm btn-gis-filter ${gisActiveScheme === 'THOP' ? 'btn-primary' : 'btn-outline'}" data-scheme="THOP">THOP LIS (5.891 km PM &amp; Tanks)</button>
+      </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:20px;">
-          ${kmlList.map((kf) => `
-            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;">
-              <div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                  <span class="tag tag-primary">KML Format</span>
-                  <b style="font-size:12px;color:var(--text-muted);">${kf.size}</b>
-                </div>
-                <h4 style="font-size:16px;font-weight:800;color:var(--text-main);margin-bottom:6px;">${kf.name}</h4>
-                <p style="font-size:12.5px;color:var(--text-body);line-height:1.45;">${kf.desc}</p>
-              </div>
-
-              <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
-                <code style="font-size:11px;">${kf.file}</code>
-                <a href="${kf.path}" download="${kf.file}" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;">
-                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                  Download KML
-                </a>
-              </div>
+      <!-- 1. DBC LIS GIS Section -->
+      ${(gisActiveScheme === 'ALL' || gisActiveScheme === 'DBC') ? `
+        <div class="card-section" style="margin-bottom:20px;border-left:4px solid var(--primary);">
+          <div class="card-section-header">
+            <div>
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;margin-bottom:6px;display:inline-block;">DBC LIS</span>
+              <h3 style="font-size:18px;">Dunnapothulagandi LIS — Pressure Main &amp; Cadastral Survey (3 KML Files)</h3>
+              <p>8.200 km Pressure Main corridor (1,900 mm MS Pipe), 270 chainage marks (50m intervals), 3.5m offset corridor (7.0m ROW).</p>
             </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Survey Numbers & Cadastral Corridor Reference -->
-      <div class="card-section">
-        <div class="card-section-header">
-          <div>
-            <h3>Land Acquisition Corridor Survey Numbers (${syNos.length} Nos)</h3>
-            <p>Cadastral survey numbers intersecting the 36-11.50 Acres corridor across 4 villages.</p>
+            <span class="tag tag-success">3 KML Files Available</span>
           </div>
-          <span class="tag tag-warning">Award Passed: 36-11.50 Ac</span>
-        </div>
 
-        <div style="padding:16px 20px;">
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
-            ${syNos.map(sn => `
-              <div style="padding:6px 12px;background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--primary);">
-                Sy. No. ${sn}
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;padding:18px 20px;">
+            ${kmlList.map((kf) => `
+              <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+                <div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                    <span class="tag tag-primary">KML Format</span>
+                    <b style="font-size:11.5px;color:var(--text-muted);">${kf.size}</b>
+                  </div>
+                  <h4 style="font-size:15px;font-weight:700;color:var(--text-main);margin-bottom:4px;">${kf.name}</h4>
+                  <p style="font-size:12px;color:var(--text-body);line-height:1.4;">${kf.desc}</p>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);">
+                  <code style="font-size:11px;">${kf.file}</code>
+                  <a href="${kf.path}" download="${kf.file}" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;">
+                    ⬇ Download
+                  </a>
+                </div>
               </div>
             `).join('')}
           </div>
 
-          <div style="padding:14px;background:#f8fafc;border-radius:var(--radius-md);border:1px solid var(--border);font-size:12.5px;color:var(--text-body);line-height:1.5;">
-            <b>Villages Covered:</b> 1. Chityala · 2. Molkacherla · 3. Balnepally (Bailapally) · 4. Adavidevulapally (all in Adavidevulapally Mandal).<br>
-            <b>Compensation Status:</b> Award passed for 36-11.50 Acres; Rs. 3.60 Crores credited to LAO Account; distribution to patta-holders in active progress.
+          <!-- DBC Land Acquisition & Survey Numbers -->
+          <div style="padding:16px 20px;border-top:1px solid var(--border);background:#f8fafc;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+              <b style="font-size:13.5px;color:var(--text-main);">Land Acquisition Award &amp; Survey Numbers (${dbcSyNos.length} Sy.Nos):</b>
+              <span class="tag tag-warning">Award: 21.04.2026 · Ac. 12-17½ · ₹2.31 Cr (Possession Pending)</span>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.45;">
+              <b>Award Details:</b> Award passed on <b>21.04.2026</b> for <b>Ac. 12-17½</b>, total compensation amount <b>₹2.31 Crores</b>. Physical possession has not yet been taken by the department. Intersects 4 villages (Chityala, Molkacherla, Balnepally, Adavidevulapally).
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${dbcSyNos.map(sn => `
+                <span class="tag tag-neutral" style="font-family:var(--font-mono);font-size:11px;padding:3px 8px;font-weight:700;">
+                  Sy.No ${sn}
+                </span>
+              `).join('')}
+            </div>
           </div>
         </div>
-      </div>
+      ` : ''}
+
+      <!-- 2. BW LIS Topo Alignment Section -->
+      ${(gisActiveScheme === 'ALL' || gisActiveScheme === 'BW') ? `
+        <div class="card-section" style="margin-bottom:20px;border-left:4px solid var(--brand-accent);">
+          <div class="card-section-header">
+            <div>
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;margin-bottom:6px;display:inline-block;">BW LIS</span>
+              <h3 style="font-size:18px;">Bothalapalem–Wadapally LIS — Topo Layout &amp; Pipeline Alignment</h3>
+              <p>11.045 km Pressure Main (1,600 mm &amp; 1,100 mm) + 7.25 km Gravity Mains · Sub-Division 2 Damaracherla</p>
+            </div>
+            <span class="tag tag-warning">LA Token: ₹7.00 Cr Pending</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:18px 20px;">
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--primary);display:block;margin-bottom:4px;">1. Pressure Main Alignment &amp; Diameter Breakdown:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Reach 1:</b> 1,600 mm MS Pipe for <b>2.54 km</b> (Pump House to intermediate junction).<br>
+                • <b>Reach 2:</b> 1,100 mm MS Pipe for <b>7.66 km</b> (Junction to delivery cistern).<br>
+                • <b>Total Length:</b> <b>11.045 km</b>. Pipe factory inspection: WPIL / KBL.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--warning);display:block;margin-bottom:4px;">2. Delivery Level Verification Note:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Approved Design Level:</b> <b>+129.00 M</b> (Delivery Cistern).<br>
+                • <b>Survey Topo Sheet Indication:</b> <b>+121.00 M</b>.<br>
+                • <b>Field Verification:</b> Joint level check by SD-2 / Division office ordered to resolve the 8.00m head differential.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--danger);display:block;margin-bottom:4px;">3. Land Acquisition &amp; Forest Corridor:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>LA Requirement:</b> <b>61.12 Acres</b> across Bothalapalem &amp; Wadapally (Damaracherla M).<br>
+                • <b>PAO Token:</b> <code>2702237346</code> Dt 19.09.2026 for <b>₹7.00 Cr</b> pending release.<br>
+                • <b>Forest Clearance:</b> <b>0.1518 Ha</b> user agency proposal on PARIVESH portal.
+              </p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- 3. VP-II LIS Topo Alignment Section -->
+      ${(gisActiveScheme === 'ALL' || gisActiveScheme === 'VP-II') ? `
+        <div class="card-section" style="margin-bottom:20px;border-left:4px solid var(--brand-teal);">
+          <div class="card-section-header">
+            <div>
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;margin-bottom:6px;display:inline-block;">VP-II LIS</span>
+              <h3 style="font-size:18px;">Veerlapalem–II LIS — Topo Layout, Levels &amp; Gravity Mains</h3>
+              <p>6.050 km Pressure Main (700 mm) + 2.40 km Gravity Mains · Sub-Division 2 Damaracherla</p>
+            </div>
+            <span class="tag tag-warning">LA Token: ₹2.20 Cr Pending</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:18px 20px;">
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--primary);display:block;margin-bottom:4px;">1. Hydraulic &amp; Civil Levels (Tungapadu Vagu):</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Lowest Water Level (LWL):</b> <b>+46.12 M</b> (Tungapadu Vagu offtake).<br>
+                • <b>Maximum Water Level (MWL):</b> <b>+55.00 M</b>.<br>
+                • <b>Pump Floor Level:</b> <b>+68.80 M</b> (revised per hydraulic design).<br>
+                • <b>Delivery Cistern Level:</b> <b>+120.00 M</b>.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--brand-teal);display:block;margin-bottom:4px;">2. Gravity Distribution Mains Scope:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Gravity Mains Length:</b> <b>2.40 km</b> total network.<br>
+                • <b>Land Corridor:</b> <b>8.00 Acres</b> preliminary corridor survey completed.<br>
+                • <b>Beneficiary Ayacut:</b> 2,500 Acres across Veerlapalem, Dameracherla, and Thimmmapur.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--danger);display:block;margin-bottom:4px;">3. Land Acquisition &amp; Forest Status:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>LA Requirement:</b> <b>22.00 Acres</b> across 3 villages.<br>
+                • <b>PAO Token:</b> <code>2702151464</code> Dt 10.09.2026 for <b>₹2.20 Cr</b> pending release.<br>
+                • <b>Forest Clearance:</b> <b>0.6930 Ha</b> in Veerlapalem village under scrutiny.
+              </p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- 4. THOP LIS Topo Alignment Section -->
+      ${(gisActiveScheme === 'ALL' || gisActiveScheme === 'THOP') ? `
+        <div class="card-section" style="margin-bottom:20px;border-left:4px solid var(--primary);">
+          <div class="card-section-header">
+            <div>
+              <span class="scheme-code-badge" style="font-size:12px;padding:3px 8px;margin-bottom:6px;display:inline-block;">THOP LIS</span>
+              <h3 style="font-size:18px;">Thopucherla LIS — NSP Canal Offtake &amp; 6 Tanks Network</h3>
+              <p>5.891 km Pressure Main (0.60 m MS Pipe) from NSP Left Canal Ch. 12.600 km · Sub-Division 2 Damaracherla</p>
+            </div>
+            <span class="tag tag-primary">6 Minor Tanks Command</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:18px 20px;">
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--primary);display:block;margin-bottom:4px;">1. Intake &amp; Sump Offtake Location:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Offtake Point:</b> Ch. 12.600 km of Nagarjuna Sagar Project (NSP) Left Canal.<br>
+                • <b>Intake Sluice Sill Level:</b> <b>+69.30 M</b>.<br>
+                • <b>Canal Full Supply Level (FSL):</b> <b>+72.00 M</b>.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--primary);display:block;margin-bottom:4px;">2. Pressure Main Pipeline:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                • <b>Total Length:</b> <b>5.891 km (5,891 M)</b>.<br>
+                • <b>Diameter:</b> <b>0.60 m (600 mm) MS Pipe</b> (5 mm to 6 mm thickness).<br>
+                • <b>Surge Protection:</b> 0.60 m x 5 mm surge arrangement provided per VE-I.
+              </p>
+            </div>
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:14px;">
+              <b style="font-size:13px;color:var(--success);display:block;margin-bottom:4px;">3. 6 Beneficiary Minor Irrigation Tanks:</b>
+              <p style="font-size:12px;color:var(--text-body);line-height:1.45;margin:0;">
+                Feeds 6 tanks in Thopucherla &amp; surrounding habitations in Madgulapally Mandal:<br>
+                • <b>Total Storage Capacity:</b> <b>39.50 Mcft</b>.<br>
+                • <b>Stabilisation Ayacut:</b> <b>1,600 Acres</b> (315.98 Ac direct + filling).
+              </p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
     `;
+
+    // Event handlers for GIS filters
+    $('.btn-gis-filter', container).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        gisActiveScheme = btn.dataset.scheme;
+        renderGis();
+      });
+    });
   }
 
   // ------------------------------------------------------------- Render EM & HM Components Check List Tab
@@ -1536,8 +1735,8 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;background:var(--bg-alt);border-radius:var(--radius-md);border:1px solid var(--border);">
           <div>
             <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Total EM &amp; HM BOQ Scope</small>
-            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. 81,04,23,024</b>
-            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">≈ ₹ 81.04 Cr (111 Items)</span>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">Rs. ${totalAbstract.boqAmount.toLocaleString('en-IN')}</b>
+            <span style="display:block;font-size:12px;color:var(--primary);font-weight:700;margin-top:2px;">≈ ₹ ${totalAbstract.boqCr.toFixed(2)} Cr (${totalAbstract.totalItems} Items)</span>
           </div>
           <div>
             <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Drawings Approved</small>
@@ -1547,12 +1746,12 @@
           <div>
             <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Drawings Submitted</small>
             <b style="font-size:17px;color:var(--warning);font-family:var(--font-mono);">${totalAbstract.submitted} Items</b>
-            <span style="display:block;font-size:12px;color:var(--warning);margin-top:2px;">FCMA Soft Starters under review</span>
+            <span style="display:block;font-size:12px;color:var(--warning);margin-top:2px;">Under review / Advisor office</span>
           </div>
           <div>
-            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">In Finalisation / Enquiry</small>
-            <b style="font-size:17px;color:var(--text-muted);font-family:var(--font-mono);">${totalAbstract.notUpdated} Items</b>
-            <span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">Panels, cables, valves &amp; surge</span>
+            <small style="display:block;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">In Finalisation &amp; Enquiries</small>
+            <b style="font-size:17px;color:var(--text-main);font-family:var(--font-mono);">${(totalAbstract.inProgress || 0) + (totalAbstract.enquiries || 0)} Items</b>
+            <span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">${totalAbstract.inProgress || 0} finalising, ${totalAbstract.enquiries || 0} enquiries${totalAbstract.notProvided ? `, ${totalAbstract.notProvided} blank` : ''}</span>
           </div>
         </div>
       </div>
@@ -1564,7 +1763,7 @@
             <h3>EM &amp; HM Components Check List : Abstract (4 Schemes)</h3>
             <p>Official summary of drawings approvals and BOQ values across all 4 lift irrigation schemes.</p>
           </div>
-          <span class="tag tag-primary">Total: ₹ 81.04 Cr</span>
+          <span class="tag tag-primary">Total: ₹ ${totalAbstract.boqCr.toFixed(2)} Cr</span>
         </div>
 
         <div style="overflow-x:auto;">
@@ -1575,11 +1774,10 @@
                 <th>Name of LIS</th>
                 <th>Total Items</th>
                 <th>Drawings Approved</th>
-                <th>Drawings Submitted</th>
-                <th>Under Finalisation / Pending</th>
-                <th>Supplied</th>
-                <th>Bill Received</th>
-                <th>Bill Claimed</th>
+                <th>Submitted / Review</th>
+                <th>Under Finalisation</th>
+                <th>Vendor Enquiries</th>
+                <th>Checklist Blank</th>
                 <th>BOQ Amount (Rs)</th>
                 <th>BOQ (₹ Cr)</th>
               </tr>
@@ -1596,10 +1794,9 @@
                   <td><b>${a.totalItems}</b></td>
                   <td><span class="tag tag-success" style="font-weight:700;">${a.approved}</span></td>
                   <td><span class="tag ${a.submitted > 0 ? 'tag-warning' : 'tag-neutral'}">${a.submitted}</span></td>
-                  <td>${a.notUpdated}</td>
-                  <td>${a.supplied}</td>
-                  <td>${a.billReceived}</td>
-                  <td>${a.billClaimed}</td>
+                  <td>${a.inProgress || 0}</td>
+                  <td>${a.enquiries || 0}</td>
+                  <td>${a.notProvided > 0 ? `<span class="tag tag-danger" style="font-size:11px;padding:2px 6px;">${a.notProvided} Pending</span>` : '—'}</td>
                   <td><code style="font-weight:700;">Rs. ${a.boqAmount.toLocaleString('en-IN')}</code></td>
                   <td><b style="color:var(--primary);">₹ ${a.boqCr.toFixed(2)} Cr</b></td>
                 </tr>
@@ -1609,10 +1806,9 @@
                 <td><b>${totalAbstract.totalItems}</b></td>
                 <td><span class="tag tag-success" style="font-weight:800;font-size:12px;">${totalAbstract.approved}</span></td>
                 <td><span class="tag tag-warning" style="font-weight:800;font-size:12px;">${totalAbstract.submitted}</span></td>
-                <td><b>${totalAbstract.notUpdated}</b></td>
-                <td>${totalAbstract.supplied}</td>
-                <td>${totalAbstract.billReceived}</td>
-                <td>${totalAbstract.billClaimed}</td>
+                <td><b>${totalAbstract.inProgress || 0}</b></td>
+                <td><b>${totalAbstract.enquiries || 0}</b></td>
+                <td><b>${totalAbstract.notProvided || 0}</b></td>
                 <td><code style="font-size:14px;color:var(--primary);">Rs. ${totalAbstract.boqAmount.toLocaleString('en-IN')}</code></td>
                 <td><b style="font-size:15px;color:var(--primary);">₹ ${totalAbstract.boqCr.toFixed(2)} Cr</b></td>
               </tr>
