@@ -36,6 +36,8 @@ jobs:
           cp -r bridge-design/index.html bridge-design/css bridge-design/js bridge-design/vendor _site/
           mkdir -p _site/lis
           cp -r lis/* _site/lis/
+          mkdir -p _site/transformer
+          cp -r transformer/* _site/transformer/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transformer Repair Estimate Generator</title>
+<meta name="description" content="Estimate for rewinding a distribution transformer after burnt winding or theft — winding current and copper weight calculation, abstract, detailed estimate and data in the I&CAD format.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#E9ECEA; --surface:#F7F8F7; --ink:#1C2422; --muted:#5A6663; --line:#C7CECB;
+  --plate:#8E9A97; --plate-hi:#B4BEBB; --plate-ink:#162020; --copper:#A85A22; --copper-soft:#F3E2D3;
+  --ok:#2E6B47; --warn:#A33A2A; --field:#FFFFFF; --R:#C0392B; --Y:#C99A06; --B:#2457A6;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141A19; --surface:#1C2322; --ink:#E4E9E7; --muted:#9AA7A3; --line:#33403D;
+  --plate:#59645F; --plate-hi:#77837F; --plate-ink:#F2F5F4; --copper:#E08A4C; --copper-soft:#3A2618;
+  --ok:#6FC08F; --warn:#F08A79; --field:#121817; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#141A19; --surface:#1C2322; --ink:#E4E9E7; --muted:#9AA7A3; --line:#33403D;
+  --plate:#59645F; --plate-hi:#77837F; --plate-ink:#F2F5F4; --copper:#E08A4C; --copper-soft:#3A2618;
+  --ok:#6FC08F; --warn:#F08A79; --field:#121817; color-scheme:dark;}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,"Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:"Barlow Condensed",Barlow,Arial,sans-serif;line-height:1.1;margin:0}
+a{color:var(--copper)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:20px;height:56px}
+.brand{font-family:"Barlow Condensed";font-weight:700;font-size:20px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.brand span{color:var(--copper)}
+nav{display:flex;gap:16px;overflow-x:auto}
+nav a{color:var(--muted);text-decoration:none;font-weight:500;white-space:nowrap}
+nav a:hover{color:var(--ink)}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;padding-top:56px;padding-bottom:40px}
+.hero h1{font-size:clamp(40px,6vw,68px);font-weight:700;letter-spacing:-.01em}
+.hero p.lede{font-size:19px;color:var(--muted);max-width:34em;margin:18px 0 24px}
+.cases{display:flex;gap:12px;flex-wrap:wrap}
+.cases button{font:600 15px Barlow;padding:12px 16px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-align:left}
+.cases button small{display:block;font-weight:400;color:var(--muted)}
+.cases button[aria-pressed="true"]{border-color:var(--copper);background:var(--copper-soft)}
+/* nameplate */
+.plate{position:relative;background:linear-gradient(160deg,var(--plate-hi),var(--plate));color:var(--plate-ink);border-radius:10px;padding:26px 30px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 18px 40px -22px rgba(0,0,0,.55)}
+.plate::before,.plate::after,.plate .rv1,.plate .rv2{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#eee,#777);top:12px;left:12px}
+.plate::after{left:auto;right:12px}.plate .rv1{top:auto;bottom:12px}.plate .rv2{top:auto;bottom:12px;left:auto;right:12px}
+.plate h2{font-size:15px;font-weight:600;letter-spacing:.06em;text-align:center;border-bottom:1.5px solid currentColor;padding-bottom:8px;margin-bottom:10px;opacity:.9}
+.plate table{width:100%;border-collapse:collapse;font-size:15px}
+.plate td{padding:5px 4px;border-bottom:1px solid rgba(0,0,0,.18)}
+.plate td:nth-child(even){text-align:right;font-weight:600}
+.plate .big{font-family:"Barlow Condensed";font-size:30px;font-weight:700;color:var(--plate-ink)}
+.plate .cu{color:inherit}
+.ph{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:2px}
+section{padding:36px 0}
+section>h2,.wrap>h2{font-size:34px;margin-bottom:18px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s;padding:0;margin:0;list-style:none}
+.steps li{border-top:3px solid var(--copper);padding-top:12px;counter-increment:s}
+.steps li::before{content:counter(s);font-family:"Barlow Condensed";font-weight:700;font-size:28px;color:var(--copper);display:block}
+.steps b{display:block;font-size:17px}
+.steps p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.basis{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.basis h3{font-size:21px;margin-bottom:8px}
+.basis ul{margin:0;padding-left:18px;color:var(--muted)}
+.basis li{margin:3px 0}
+/* workspace */
+.work{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.inputs{padding:18px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);max-height:calc(100vh - 90px);overflow:auto}
+fieldset{border:0;border-top:1px solid var(--line);margin:0 0 6px;padding:12px 0 4px}
+fieldset:first-of-type{border-top:0;padding-top:0}
+legend{font-family:"Barlow Condensed";font-weight:600;font-size:18px;padding:0 6px 0 0;color:var(--ink)}
+label{display:grid;grid-template-columns:1fr 140px;gap:10px;align-items:center;font-size:14px;color:var(--muted);margin:7px 0}
+label.full{grid-template-columns:1fr}
+input,select,textarea{font:500 15px Barlow,Arial;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:5px;padding:7px 9px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:52px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.tabs button:focus-visible{outline:2px solid var(--copper);outline-offset:1px}
+details summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--ink);padding:6px 0}
+.hint{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.btn{font:600 14px Barlow;padding:9px 14px;border-radius:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--copper);border-color:var(--copper);color:#fff}
+.btn:hover{border-color:var(--copper)}
+.out{padding:18px;min-width:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs button{font:600 15px Barlow;background:none;border:0;border-bottom:3px solid transparent;padding:9px 12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--copper)}
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 8px;vertical-align:top}
+table.t th{background:var(--bg);font-weight:600;text-align:center}
+table.t td.n{text-align:right;white-space:nowrap}
+table.t td.c{text-align:center}
+table.t tr.key td{background:var(--copper-soft);font-weight:700}
+table.t tr.na td{color:var(--muted)}
+table.t tr.tot td{font-weight:600}
+table.t input{width:100px;text-align:right;padding:4px 6px}
+.status{display:flex;gap:10px;align-items:center;font-size:14px;margin-bottom:10px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+.dot.warn{background:var(--warn)}
+.now{font-size:15px;margin:0 0 14px;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--muted);font-size:14px}
+#print{display:none}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:28px;padding-top:32px}
+  nav{display:none}
+  .steps{grid-template-columns:1fr 1fr}
+  .basis{grid-template-columns:1fr}
+  .work{grid-template-columns:1fr}
+  .inputs{position:static;max-height:none}
+  nav a.opt{display:none}
+}
+@media (max-width:420px){label{grid-template-columns:1fr 120px}.steps{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  body>*:not(#print){display:none!important}
+  body::before{display:none}
+  #print{display:block}
+  #print .pg{page-break-after:always;padding:6mm}
+  #print h2{font-size:15pt;text-align:center;margin:0 0 4mm}
+  #print h3{font-size:12pt;text-align:center;margin:0 0 3mm}
+  #print table{border-collapse:collapse;width:100%;font-size:9.5pt}
+  #print th,#print td{border:1px solid #000;padding:3px 5px}
+  #print td.n{text-align:right}
+  #print .cover{border:3px double #000;height:250mm;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20mm}
+  #print .sig{display:flex;justify-content:space-between;margin-top:18mm;font-weight:600}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top">Transformer <span>Repair</span> Estimate</a>
+  <nav><a href="#how" class="opt">How it works</a><a href="#basis" class="opt">Calculation basis</a><a href="#work">Workspace</a><a href="https://madhu5frnz.github.io/mad/" target="_blank" rel="noopener">Canal crossings</a></nav>
+</div></header>
+
+<main id="top">
+<div class="wrap hero">
+  <div>
+    <h1>Rewinding estimate, worked out from the rating plate.</h1>
+    <p class="lede">Enter the KVA and the HV and LV voltages. The page works out the currents, turns and copper weight, then prepares the abstract, detailed estimate and data on SoR 2026-27 for a burnt winding or a theft case.</p>
+    <div class="cases" role="group" aria-label="Choose the case">
+      <button type="button" data-case="1" aria-pressed="false">Case 1: Burnt winding<small>Rewinding, old copper retained by firm</small></button>
+      <button type="button" data-case="2" aria-pressed="true">Case 2: Theft of winding<small>New copper, oil, core repair, CCTV</small></button>
+    </div>
+  </div>
+  <div class="plate" aria-live="polite">
+    <i class="rv1"></i><i class="rv2"></i>
+    <h2>Distribution transformer · estimate plate</h2>
+    <table>
+      <tr><td>Rating</td><td id="p-kva"></td><td>Vector group</td><td id="p-vg"></td></tr>
+      <tr><td><span class="ph" style="background:var(--R)"></span><span class="ph" style="background:var(--Y)"></span><span class="ph" style="background:var(--B)"></span> HV</td><td id="p-hv"></td><td>LV</td><td id="p-lv"></td></tr>
+      <tr><td>HV current</td><td id="p-ih"></td><td>LV current</td><td id="p-il"></td></tr>
+      <tr><td>Copper (HV+LV)</td><td id="p-cu"></td><td>Oil</td><td id="p-oil"></td></tr>
+      <tr><td colspan="2">Estimate amount</td><td colspan="2" class="big" id="p-amt"></td></tr>
+    </table>
+  </div>
+</div>
+
+<section id="how"><div class="wrap">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><b>Choose the case</b><p>Burnt winding takes rewinding at ELEC 8.18.9. Theft takes new copper at ELEC 10.3.2, full oil and a workshop quotation.</p></li>
+    <li><b>Enter the rating</b><p>KVA, HV and LV line voltages, winding connections, scheme name and location.</p></li>
+    <li><b>Check the copper weight</b><p>The calculation tab shows every step. Enter the nameplate weight if you have it; it overrides the calculated value.</p></li>
+    <li><b>Download</b><p>Excel workbook with all sheets, or print the cover, abstract, detailed estimate and calculation.</p></li>
+  </ol>
+</div></section>
+
+<section id="basis"><div class="wrap">
+  <h2>Calculation basis</h2>
+  <div class="basis">
+    <div><h3>Winding weight</h3><ul>
+      <li>Current I = KVA × 1000 / (√3 × V); delta phase current = I / √3</li>
+      <li>Volts per turn Et = K √KVA, K = 0.45 for 3-phase distribution</li>
+      <li>Core area from E = 4.44 f Bm Ai, Bm = 1.55 T (CRGO)</li>
+      <li>Conductor area = phase current / J, J = 2.5 A/mm²</li>
+      <li>Weight = 3 × turns × mean turn × area × 8890 kg/m³, + 5%</li>
+    </ul></div>
+    <div><h3>Rates</h3><ul>
+      <li>TG Common SoR 2026-27, Part-III Electrical, Sec. 8.18 and 10.3</li>
+      <li>Contractor’s profit & overheads 13.615% added to SoR basic rates</li>
+      <li>Workshop repair and CCTV by quotation, exclusive of GST</li>
+      <li>Labour cess 1%, NAC 0.1%, GST 18%, rounded up to the next ₹1,000</li>
+    </ul></div>
+    <div><h3>Limits</h3><ul>
+      <li>Calculated copper weight is approximate (±10–15%)</li>
+      <li>Some 8.18 rates change with the KVA band; check and edit them in the Data tab</li>
+      <li>Oil quantity is interpolated from typical values unless the nameplate value is entered</li>
+      <li>To be checked and approved by the competent engineer</li>
+    </ul></div>
+  </div>
+</div></section>
+
+<section id="work"><div class="wrap">
+  <h2>Workspace</h2>
+  <div class="work">
+    <form class="panel inputs" id="form" onsubmit="return false">
+      <div class="bar">
+        <select id="example" aria-label="Load an example"><option value="">Load an example…</option><option value="a">500 KVA theft (L-16 type)</option><option value="b">250 KVA burnt winding</option><option value="c">160 KVA theft</option><option value="d">100 KVA burnt winding</option></select>
+      </div>
+      <fieldset><legend>Transformer</legend>
+        <label>Rating (KVA)<input type="number" min="5" step="any" data-k="kva"></label>
+        <label>HV line voltage (V)<input type="number" min="100" step="any" data-k="hv"></label>
+        <label>LV line voltage (V)<input type="number" min="100" step="any" data-k="lv"></label>
+        <label>HV connection<select data-k="hvc"><option>Delta</option><option>Star</option></select></label>
+        <label>LV connection<select data-k="lvc"><option>Star</option><option>Delta</option></select></label>
+        <label>Frequency (Hz)<input type="number" step="any" data-k="f"></label>
+        <label>Case<select data-k="case"><option value="1">Case 1: Burnt</option><option value="2">Case 2: Theft</option></select></label>
+      </fieldset>
+      <fieldset><legend>Work details</legend>
+        <label class="full">Name of the scheme<input data-k="scheme"></label>
+        <label class="full">Location<textarea data-k="loc"></textarea></label>
+        <label class="full">FIR No. & date (theft)<input data-k="fir"></label>
+        <label>Year<input data-k="year"></label>
+      </fieldset>
+      <fieldset><legend>Quantities</legend>
+        <label>Nameplate copper (Kg)<input type="number" step="any" data-k="cuOv" placeholder="calculated"></label>
+        <label>Nameplate oil (Ltr)<input type="number" step="any" data-k="oilOv" placeholder="suggested"></label>
+        <label>Oil replaced, burnt case (%)<input type="number" step="any" data-k="oilPct"></label>
+        <label>Workshop repair, Rs per KVA<input type="number" step="any" data-k="qPerKva"></label>
+        <label>CCTV (theft case)<select data-k="cctv"><option>Yes</option><option>No</option></select></label>
+        <label>CCTV Nos<input type="number" step="1" data-k="cctvN"></label>
+        <label>CCTV rate per job (Rs)<input type="number" step="any" data-k="cctvR"></label>
+      </fieldset>
+      <fieldset><legend>Add-ons</legend>
+        <label>Profit & overheads (%)<input type="number" step="any" data-k="cp"></label>
+        <label>Labour cess (%)<input type="number" step="any" data-k="cess"></label>
+        <label>NAC (%)<input type="number" step="any" data-k="nac"></label>
+        <label>GST (%)<input type="number" step="any" data-k="gst"></label>
+      </fieldset>
+      <details><summary>Design constants</summary>
+        <p class="hint">Change only if you have better data for the make.</p>
+        <label>K (Et = K√KVA)<input type="number" step="any" data-k="K"></label>
+        <label>Flux density Bm (T)<input type="number" step="any" data-k="Bm"></label>
+        <label>Current density J (A/mm²)<input type="number" step="any" data-k="J"></label>
+        <label>Core area factor Kc<input type="number" step="any" data-k="Kc"></label>
+        <label>Core–LV clearance (mm)<input type="number" step="any" data-k="c1"></label>
+        <label>LV radial build / d<input type="number" step="any" data-k="rL"></label>
+        <label>LV–HV gap (mm)<input type="number" step="any" data-k="g"></label>
+        <label>HV radial build / d<input type="number" step="any" data-k="rH"></label>
+        <label>Tapping allowance (%)<input type="number" step="any" data-k="tap"></label>
+        <label>Copper density (kg/m³)<input type="number" step="any" data-k="rho"></label>
+        <label>Leads & wastage (%)<input type="number" step="any" data-k="allow"></label>
+      </details>
+      <div class="bar" style="margin-top:14px">
+        <button type="button" class="btn" id="saveIn">Save inputs</button>
+        <button type="button" class="btn" id="openIn">Open inputs</button>
+        <button type="button" class="btn" id="reset">Reset</button>
+        <input type="file" id="file" accept=".json,application/json" hidden>
+      </div>
+    </form>
+
+    <div class="panel out">
+      <div class="status"><span class="dot" id="dot"></span><span id="statusTxt"></span></div>
+      <div class="bar">
+        <button type="button" class="btn primary" id="xlsx">Download Excel</button>
+        <button type="button" class="btn" id="printBtn">Print / save as PDF</button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="calc">Winding calculation</button>
+        <button role="tab" aria-selected="false" data-tab="abs">Abstract</button>
+        <button role="tab" aria-selected="false" data-tab="det">Detailed</button>
+        <button role="tab" aria-selected="false" data-tab="data">Data (rates)</button>
+      </div>
+      <div id="view"></div>
+    </div>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">Transformer repair estimate generator · I&CAD Department, Government of Telangana · Results are a design aid and must be checked by the competent engineer.</div></footer>
+<div id="print"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const DEF={kva:500,hv:11000,lv:415,hvc:"Delta",lvc:"Star",f:50,case:"2",
+ scheme:"XYZ Lift Irrigation Scheme",loc:"Km ___ of NSLBC, ______ (V), ______ (M), Nalgonda District",
+ fir:"FIR No. ___/2026 dt. __-__-2026, ______ PS",year:"2026-27",
+ cuOv:"",oilOv:"",oilPct:50,qPerKva:200,cctv:"Yes",cctvN:2,cctvR:30000,
+ cp:13.615,cess:1,nac:0.1,gst:18,
+ K:0.45,Bm:1.55,J:2.5,Kc:0.6,c1:5,rL:0.12,g:12,rH:0.20,tap:5,rho:8890,allow:5};
+const RATES=[
+ {code:"ELEC 8.18.15",d:"Supply of transformer oil conforming to IS 335",u:"Ltr",b:163},
+ {code:"ELEC 10.3.2",d:"Supply of super-enamelled / DPC copper winding wire (new) for the stolen windings",u:"Kg",b:1601},
+ {code:"ELEC 8.18.9",d:"Rewinding of burnt HT/LT copper coils including varnishing and vacuuming (burnt coils retained by the firm)",u:"Kg",b:942},
+ {code:"Quotation",d:"Complete workshop repair process: winding labour, insulation paper, varnishing, core restacking/repair, assembly and routine tests",u:"Job",q:"repair"},
+ {code:"ELEC 8.18.4",d:"Testing of transformer oil for dielectric strength (BDV)",u:"Each",b:865},
+ {code:"ELEC 8.18.5",d:"Insulation resistance (IR) testing of transformer",u:"Each",b:436},
+ {code:"ELEC 8.18.6(b)",d:"Removing the transformer from plinth and refixing after repairs",u:"Each",b:9548,band:1},
+ {code:"ELEC 8.18.7",d:"Supply and fixing of top cover gasket",u:"Set",b:1516,band:1},
+ {code:"ELEC 8.18.8",d:"Supply and fixing of HT bushing gaskets",u:"Set",b:805},
+ {code:"ELEC 8.18.8",d:"Supply and fixing of LT bushing gaskets",u:"Set",b:2078,band:1},
+ {code:"ELEC 8.18.10",d:"Painting of transformer with zinc chromate primer and hammerton grey finish",u:"Each",b:4091,band:1},
+ {code:"ELEC 8.18.12",d:"Drying out of transformer (core and winding)",u:"Each",b:5733,band:1},
+ {code:"ELEC 8.18.13",d:"Loading, transport and unloading of transformer (site to workshop and back)",u:"Each",b:6141},
+ {code:"ELEC 8.18.11",d:"Supply and fixing of HT porcelain bushing",u:"Each",b:485},
+ {code:"ELEC 8.18.11",d:"Supply and fixing of LT porcelain bushing",u:"Each",b:243,band:1},
+ {code:"ELEC 8.18.11",d:"Supply and fixing of HT bushing metal parts",u:"Set",b:524},
+ {code:"ELEC 8.18.11",d:"Supply and fixing of LT bushing metal parts",u:"Set",b:1781,band:1},
+ {code:"Quotation",d:"Supply and installation of solar-powered wireless 4G CCTV camera system at the transformer premises",u:"Job",q:"cctv"}];
+const OIL=[[25,95],[63,170],[100,220],[160,280],[200,300],[250,330],[315,360],[400,390],[500,410],[630,520],[750,600],[1000,780]];
+const EX={a:{kva:500,case:"2",cuOv:400,oilOv:410},b:{kva:250,case:"1"},c:{kva:160,case:"2"},d:{kva:100,case:"1"}};
+const LS="tx-estimate-v1";
+let S=Object.assign({},DEF), R=RATES.map(r=>r.b??null), tab="calc";
+try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s){Object.assign(S,s.S||{});if(Array.isArray(s.R))R=s.R;}}catch(e){}
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const n=v=>{const x=parseFloat(v);return isFinite(x)?x:0};
+const fmt=(v,d=2)=>Number(v).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function oilSug(k){
+  if(k<=OIL[0][0]) return Math.round(OIL[0][1]*k/OIL[0][0]);
+  for(let i=0;i<OIL.length-1;i++){const[a,x]=OIL[i],[b,y]=OIL[i+1];if(k<=b)return Math.round(x+(k-a)*(y-x)/(b-a));}
+  const[a,x]=OIL[OIL.length-1];return Math.round(x*k/a);
+}
+function words(num){
+  num=Math.round(num);if(num===0)return"Zero";
+  const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"],
+  t=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  const two=x=>x<20?a[x]:t[Math.floor(x/10)]+(x%10?" "+a[x%10]:"");
+  const three=x=>(x>=100?a[Math.floor(x/100)]+" Hundred"+(x%100?" ":""):"")+(x%100?two(x%100):"");
+  let out=[];const cr=Math.floor(num/1e7),lk=Math.floor(num/1e5)%100,th=Math.floor(num/1e3)%100,rest=num%1000;
+  if(cr)out.push(three(cr)+" Crore");if(lk)out.push(two(lk)+" Lakh");if(th)out.push(two(th)+" Thousand");if(rest)out.push(three(rest));
+  return out.join(" ");
+}
+
+function compute(){
+  const q3=Math.sqrt(3),kva=n(S.kva),hv=n(S.hv),lv=n(S.lv),f=n(S.f)||50;
+  const err=[];
+  if(kva<=0)err.push("Enter the rating in KVA");if(hv<=0)err.push("Enter the HV voltage");if(lv<=0)err.push("Enter the LV voltage");
+  if(hv>0&&lv>0&&hv<=lv)err.push("HV voltage should be higher than LV voltage");
+  const IHl=kva*1000/(q3*hv),IHp=S.hvc==="Delta"?IHl/q3:IHl,ILl=kva*1000/(q3*lv),ILp=S.lvc==="Delta"?ILl/q3:ILl;
+  const VHp=S.hvc==="Delta"?hv:hv/q3,VLp=S.lvc==="Delta"?lv:lv/q3;
+  const Et=n(S.K)*Math.sqrt(kva),TL=Math.ceil(VLp/Et),Eta=VLp/TL,TH=Math.round(TL*VHp/VLp),THt=Math.ceil(TH*(1+n(S.tap)/100));
+  const Ai=Eta/(4.44*f*n(S.Bm))*1e6,d=Math.sqrt(Ai/n(S.Kc)),aL=ILp/n(S.J),aH=IHp/n(S.J);
+  const DL=d+2*n(S.c1)+n(S.rL)*d,DH=d+2*(n(S.c1)+n(S.rL)*d+n(S.g))+n(S.rH)*d,mL=Math.PI*DL/1000,mH=Math.PI*DH/1000;
+  const WL=3*TL*mL*aL*1e-6*n(S.rho),WH=3*THt*mH*aH*1e-6*n(S.rho),Wt=Math.ceil((WL+WH)*(1+n(S.allow)/100)/5)*5;
+  const oS=oilSug(kva),cu=n(S.cuOv)>0?n(S.cuOv):Wt,oil=n(S.oilOv)>0?n(S.oilOv):oS;
+  const vg=(S.hvc==="Delta"?"D":"Y")+(S.lvc==="Star"?"yn":"d")+(S.hvc===S.lvc?"0":"11");
+  const steps=[
+   ["1","HV line current","KVA×1000 / (√3×V_HV)",`${kva}×1000 / (1.732×${hv})`,IHl,"A"],
+   ["2","HV phase current",S.hvc==="Delta"?"I_line / √3 (delta)":"I_line (star)","",IHp,"A"],
+   ["3","LV line current","KVA×1000 / (√3×V_LV)",`${kva}×1000 / (1.732×${lv})`,ILl,"A"],
+   ["4","LV phase current",S.lvc==="Delta"?"I_line / √3 (delta)":"I_line (star)","",ILp,"A"],
+   ["5","HV phase voltage",S.hvc==="Delta"?"V_line":"V_line / √3","",VHp,"V"],
+   ["6","LV phase voltage",S.lvc==="Delta"?"V_line":"V_line / √3","",VLp,"V"],
+   ["7","Volts per turn","Et = K × √KVA",`${S.K} × √${kva}`,Et,"V/turn"],
+   ["8","LV turns per phase","V_LVph / Et, rounded up",`${fmt(VLp)} / ${fmt(Et,3)}`,TL,"turns",0],
+   ["9","Actual volts per turn","V_LVph / T_LV","",Eta,"V/turn",3],
+   ["10","HV turns per phase","T_LV × V_HVph / V_LVph","",TH,"turns",0],
+   ["11","HV turns with tappings",`T_HV × (1 + ${S.tap}%)`,"",THt,"turns",0],
+   ["12","Net core area","Et / (4.44 × f × Bm)",`${fmt(Eta,3)} / (4.44×${f}×${S.Bm})`,Ai,"mm²",0],
+   ["13","Core circle diameter, d","√(Ai / Kc)","",d,"mm",1],
+   ["14","LV conductor area","I_LVph / J",`${fmt(ILp)} / ${S.J}`,aL,"mm²"],
+   ["15","HV conductor area","I_HVph / J",`${fmt(IHp)} / ${S.J}`,aH,"mm²"],
+   ["16","LV mean diameter","d + 2c1 + b_LV","",DL,"mm",1],
+   ["17","HV mean diameter","d + 2(c1 + b_LV + g) + b_HV","",DH,"mm",1],
+   ["18","Mean turn, LV","π × D_LV","",mL,"m",3],
+   ["19","Mean turn, HV","π × D_HV","",mH,"m",3],
+   ["20","LV copper, 3 phases","3 × T × MLT × a × ρ",`3×${TL}×${fmt(mL,3)}×${fmt(aL)}e-6×${S.rho}`,WL,"Kg"],
+   ["21","HV copper, 3 phases","3 × T × MLT × a × ρ",`3×${THt}×${fmt(mH,3)}×${fmt(aH)}e-6×${S.rho}`,WH,"Kg"],
+   ["22","Total copper weight",`(LV + HV) × (1 + ${S.allow}%), rounded up to 5 Kg`,`(${fmt(WL,1)} + ${fmt(WH,1)}) × ${1+n(S.allow)/100}`,Wt,"Kg",0,1],
+   ["23","Oil quantity (suggested)","interpolated from typical values","",oS,"Ltr",0]];
+  const c=S.case==="2"?2:1,cp=n(S.cp)/100;
+  const qty=[Math.round(oil*(c===2?1:n(S.oilPct)/100)),c===2?cu:0,c===1?cu:0,c===2?1:0,1,1,1,1,1,1,1,1,4,3,4,3,4,(c===2&&S.cctv==="Yes")?n(S.cctvN):0];
+  const rem=[c===2?"Full oil quantity (stolen / drained)":`Oil ${fmt(oil,0)} Ltr × ${n(S.oilPct)}% (burnt case)`,
+   c===2?"Copper weight, new copper":"Not applicable for burnt case",c===1?"Copper weight, rewinding":"Not applicable for theft case",
+   c===2?"Labour and core repair are not in SoR; by quotation":"Included in ELEC 8.18.9 for burnt case",
+   "One test","After repair","One transformer","One set","One set","One set","One transformer","One transformer",
+   "Site to vehicle, vehicle to workshop and back","3 phases","3 phases + neutral","3 phases","3 phases + neutral",
+   c===2?"Security of the transformer after theft":"Not applicable for burnt case"];
+  const items=RATES.map((r,i)=>{
+    let basic,cpAmt;
+    if(r.q==="repair"){basic=n(S.qPerKva)*kva;cpAmt=0}else if(r.q==="cctv"){basic=n(S.cctvR);cpAmt=0}
+    else{basic=n(R[i]);cpAmt=Math.round(basic*cp*100)/100}
+    const rate=basic+cpAmt,amt=Math.round(qty[i]*rate*100)/100;
+    return {...r,i,basic,cpAmt,rate,qty:qty[i],amt,rem:rem[i]};
+  });
+  const ecv=items.reduce((s,x)=>s+x.amt,0),cess=Math.round(ecv*n(S.cess))/100,nac=Math.round(ecv*n(S.nac))/100,
+   t1=ecv+cess+nac,gst=Math.round(t1*n(S.gst))/100,sub=t1+gst,total=Math.ceil(sub/1000)*1000;
+  const name=`Emergency repairs to ${kva} KVA, ${hv/1000} kV / ${lv} V transformer: ${c===1?"rewinding of burnt HT/LT windings":"replacement of stolen HT/LT copper windings and transformer oil"} at ${S.scheme}, ${S.loc} during ${S.year}`;
+  return {err,kva,hv,lv,IHl,IHp,ILl,ILp,Wt,cu,oil,oS,vg,steps,items,ecv,cess,nac,t1,gst,sub,total,misc:total-sub,name,c};
+}
+
+function bindForm(){
+  $$("[data-k]").forEach(el=>{el.value=S[el.dataset.k]??"";
+    el.addEventListener("input",()=>{S[el.dataset.k]=el.value;update();});});
+}
+function setCase(v){S.case=v;const el=$('[data-k="case"]');if(el)el.value=v;update();}
+$$(".cases button").forEach(b=>b.addEventListener("click",()=>setCase(b.dataset.case)));
+$$(".tabs button").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.tab;$$(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));render(compute());}));
+$("#example").addEventListener("change",e=>{const v=EX[e.target.value];if(!v)return;S=Object.assign({},DEF,v);R=RATES.map(r=>r.b??null);bindForm();update();toast("Example loaded");e.target.value="";});
+$("#reset").addEventListener("click",()=>{S=Object.assign({},DEF);R=RATES.map(r=>r.b??null);bindForm();update();toast("Inputs reset");});
+
+let lastR;
+function update(){
+  const r=compute();lastR=r;
+  $$(".cases button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.case===(r.c===2?"2":"1")));
+  const ok=!r.err.length;
+  $("#p-kva").textContent=`${r.kva} kVA`;$("#p-vg").textContent=r.vg;
+  $("#p-hv").textContent=`${fmt(r.hv,0)} V`;$("#p-lv").textContent=`${fmt(r.lv,0)} V`;
+  $("#p-ih").textContent=ok?`${fmt(r.IHl)} A`:"–";$("#p-il").textContent=ok?`${fmt(r.ILl,1)} A`:"–";
+  $("#p-cu").textContent=ok?`${fmt(r.cu,0)} kg`:"–";$("#p-oil").textContent=ok?`${fmt(r.oil,0)} L`:"–";
+  $("#p-amt").textContent=ok?`₹ ${fmt(r.total/1e5)} lakh`:"–";
+  $("#dot").classList.toggle("warn",!ok);
+  $("#statusTxt").textContent=ok?`${r.c===1?"Case 1: Burnt winding":"Case 2: Theft of winding"}. Copper ${n(S.cuOv)>0?"from nameplate":"calculated"}: ${fmt(r.cu,0)} Kg. Total ₹ ${fmt(r.total,0)}.`:r.err.join(". ")+".";
+  render(r);
+  try{localStorage.setItem(LS,JSON.stringify({S,R}))}catch(e){}
+}
+
+function render(r){
+  const v=$("#view");if(r.err.length){v.innerHTML=`<p class="now">${esc(r.err.join(". "))}.</p>`;return;}
+  if(tab==="calc"){
+    v.innerHTML=`<p class="now">Approximate core-type design method. Calculated ${fmt(r.Wt,0)} Kg${n(S.cuOv)>0?`; nameplate ${fmt(r.cu,0)} Kg adopted`:""}.</p><div class="scroll"><table class="t"><thead><tr><th>Step</th><th>Parameter</th><th>Formula</th><th>Substitution</th><th>Value</th><th>Unit</th></tr></thead><tbody>${
+     r.steps.map(s=>`<tr${s[7]?' class="key"':""}><td class="c">${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td>${esc(s[3])}</td><td class="n">${fmt(s[4],s[6]??2)}</td><td class="c">${s[5]}</td></tr>`).join("")}</tbody></table></div>`;
+  }else if(tab==="abs"){
+    v.innerHTML=`<p class="now"><b>Name of work:</b> ${esc(r.name)}</p><div class="scroll"><table class="t"><thead><tr><th>S.No</th><th>SoR item</th><th>Description</th><th>Qty</th><th>Unit</th><th>Rate (Rs)</th><th>Amount (Rs)</th></tr></thead><tbody>${
+     r.items.map((x,k)=>`<tr${x.qty?"":' class="na"'}><td class="c">${k+1}</td><td>${x.code}</td><td>${x.d}</td><td class="n">${x.qty?fmt(x.qty,2):"–"}</td><td class="c">${x.u}</td><td class="n">${fmt(x.rate)}</td><td class="n">${x.amt?fmt(x.amt):"–"}</td></tr>`).join("")}
+     ${totRows(r).map(([l,a,k])=>`<tr class="${k?"key":"tot"}"><td colspan="6" class="n">${l}</td><td class="n">${fmt(a)}</td></tr>`).join("")}
+     </tbody></table></div><p class="now">(Rupees ${words(r.total)} only)</p>`;
+  }else if(tab==="det"){
+    v.innerHTML=`<div class="scroll"><table class="t"><thead><tr><th>S.No</th><th>Description</th><th>Unit</th><th>Qty</th><th>Basis</th></tr></thead><tbody>${
+     r.items.map((x,k)=>`<tr${x.qty?"":' class="na"'}><td class="c">${k+1}</td><td>${x.d}</td><td class="c">${x.u}</td><td class="n">${x.qty?fmt(x.qty,2):"–"}</td><td>${esc(x.rem)}</td></tr>`).join("")}</tbody></table></div>`;
+  }else{
+    v.innerHTML=`<p class="now">Basic rates are editable. Rows marked “band” change with the KVA band in SoR Sec. 8.18; the default values are for 500 KVA.</p><div class="scroll"><table class="t"><thead><tr><th>No</th><th>SoR item</th><th>Description</th><th>Unit</th><th>Basic (Rs)</th><th>CP & OH</th><th>Rate (Rs)</th></tr></thead><tbody>${
+     r.items.map((x,k)=>`<tr><td class="c">${k+1}</td><td>${x.code}${x.band?"<br><small>band</small>":""}</td><td>${x.d}</td><td class="c">${x.u}</td><td class="n">${x.q?fmt(x.basic):`<input type="number" step="any" data-r="${k}" value="${R[k]}" aria-label="Basic rate item ${k+1}">`}</td><td class="n">${fmt(x.cpAmt)}</td><td class="n">${fmt(x.rate)}</td></tr>`).join("")}</tbody></table></div>`;
+    $$("[data-r]").forEach(el=>el.addEventListener("change",()=>{R[+el.dataset.r]=n(el.value);update();}));
+  }
+}
+function totRows(r){return[["Estimate Contract Value (ECV)",r.ecv],[`Labour cess @ ${S.cess}%`,r.cess],[`NAC @ ${S.nac}%`,r.nac],["Total",r.t1],[`GST @ ${S.gst}% on above`,r.gst],["Sub-total",r.sub],["Miscellaneous & rounding off",r.misc],["Grand total",r.total,1]];}
+
+/* saving */
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+let dl=null;
+if(window.claude&&typeof window.claude.use==="function"){window.claude.use("downloads").then(x=>{dl=x}).catch(()=>{});}
+async function saveFile(name,data){
+  if(dl){try{await dl.save({filename:name,data});toast("Saved "+name);}catch(e){if(e&&e.code==="declined")return;toast("Couldn’t save the file here.");}return;}
+  if(window.claude){toast("Saving files isn’t available in this view.");return;}
+  const url=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Saved "+name);
+}
+const fname=ext=>`Transformer_${n(S.kva)}KVA_${S.case==="2"?"Theft":"Burnt"}_estimate.${ext}`;
+$("#saveIn").addEventListener("click",()=>saveFile(fname("json"),JSON.stringify({S,R},null,1)));
+$("#openIn").addEventListener("click",()=>$("#file").click());
+$("#file").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);S=Object.assign({},DEF,o.S||{});if(Array.isArray(o.R))R=o.R;bindForm();update();toast("Inputs opened");}catch(x){toast("That file isn’t a saved inputs file.");}});e.target.value="";});
+
+$("#xlsx").addEventListener("click",()=>{
+  const r=lastR;if(r.err.length){toast("Fix the inputs first.");return;}
+  if(!window.XLSX){toast("Excel library didn’t load. Check the connection.");return;}
+  const wb=XLSX.utils.book_new();
+  const add=(name,aoa,cols)=>{const ws=XLSX.utils.aoa_to_sheet(aoa);ws["!cols"]=cols.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name);};
+  const r2=x=>Math.round(x*100)/100;
+  add("Cover",[["GOVERNMENT OF TELANGANA"],["IRRIGATION & COMMAND AREA DEVELOPMENT DEPARTMENT"],[],["NAME OF WORK"],[r.name],[],["Amount of Estimate: Rs. "+fmt(r.total/1e5)+" Lakhs"],[r.c===2?S.fir:""]],[110]);
+  add("Input",[["Parameter","Value"],["Scheme",S.scheme],["Location",S.loc],["Rating (KVA)",n(S.kva)],["HV line voltage (V)",n(S.hv)],["LV line voltage (V)",n(S.lv)],["HV / LV connection",S.hvc+" / "+S.lvc],["Vector group",r.vg],["Case",r.c===1?"Case-1: Burnt winding":"Case-2: Theft of winding"],["FIR",S.fir],["Year",S.year],["Copper weight adopted (Kg)",r.cu],["Oil quantity adopted (Ltr)",r.oil],["Profit & OH (%)",n(S.cp)],["Labour cess (%)",n(S.cess)],["NAC (%)",n(S.nac)],["GST (%)",n(S.gst)],[],["Design constants"],["K",n(S.K)],["Bm (T)",n(S.Bm)],["J (A/mm²)",n(S.J)],["Kc",n(S.Kc)],["Core-LV clearance (mm)",n(S.c1)],["LV radial build / d",n(S.rL)],["LV-HV gap (mm)",n(S.g)],["HV radial build / d",n(S.rH)],["Tapping allowance (%)",n(S.tap)],["Copper density (kg/m3)",n(S.rho)],["Leads & wastage (%)",n(S.allow)]],[34,70]);
+  add("Winding Calc",[["Step","Parameter","Formula","Substitution","Value","Unit"],...r.steps.map(s=>[s[0],s[1],s[2],s[3],Math.round(s[4]*1000)/1000,s[5]]),[],["","Copper weight adopted in estimate","","",r.cu,"Kg"]],[6,30,40,40,12,8]);
+  add("Abstract",[["ABSTRACT ESTIMATE"],["Name of work: "+r.name],[],["S.No","SoR item","Description","Qty","Unit","Rate (Rs)","Amount (Rs)"],...r.items.map((x,k)=>[k+1,x.code,x.d,x.qty,x.u,r2(x.rate),x.amt]),...totRows(r).map(([l,a])=>["","",l,"","","",r2(a)]),[],["(Rupees "+words(r.total)+" only)"]],[6,15,70,9,7,13,15]);
+  add("Detailed",[["S.No","Description","Unit","Qty","Basis"],...r.items.map((x,k)=>[k+1,x.d,x.u,x.qty,x.rem])],[6,70,7,10,48]);
+  add("Data",[["No","SoR item","Description","Unit","Basic rate","CP & OH","Finalised rate"],...r.items.map((x,k)=>[k+1,x.code,x.d,x.u,r2(x.basic),x.cpAmt,r2(x.rate)])],[5,15,70,7,12,12,14]);
+  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  saveFile(fname("xlsx"),new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+});
+
+$("#printBtn").addEventListener("click",()=>{
+  const r=lastR;if(r.err.length){toast("Fix the inputs first.");return;}
+  const sig=`<div class="sig"><span>Assistant Executive Engineer</span><span>Deputy Executive Engineer</span><span>Executive Engineer</span></div>`;
+  $("#print").innerHTML=`
+  <div class="pg"><div class="cover"><h2>GOVERNMENT OF TELANGANA</h2><h3>IRRIGATION & COMMAND AREA DEVELOPMENT DEPARTMENT</h3><br><br><h3><u>NAME OF WORK</u></h3><p style="font-size:14pt;font-weight:600">${esc(r.name)}</p><br><h2>Amount of Estimate: Rs. ${fmt(r.total/1e5)} Lakhs</h2><p>${r.c===2?esc(S.fir):""}</p></div></div>
+  <div class="pg"><h2>ABSTRACT ESTIMATE</h2><p><b>Name of work:</b> ${esc(r.name)}</p><table><tr><th>S.No</th><th>SoR item</th><th>Description</th><th>Qty</th><th>Unit</th><th>Rate (Rs)</th><th>Amount (Rs)</th></tr>${r.items.map((x,k)=>`<tr><td>${k+1}</td><td>${x.code}</td><td>${x.d}</td><td class="n">${x.qty?fmt(x.qty):"-"}</td><td>${x.u}</td><td class="n">${fmt(x.rate)}</td><td class="n">${x.amt?fmt(x.amt):"-"}</td></tr>`).join("")}${totRows(r).map(([l,a])=>`<tr><td colspan="6" class="n"><b>${l}</b></td><td class="n"><b>${fmt(a)}</b></td></tr>`).join("")}</table><p style="text-align:right"><b>(Rupees ${words(r.total)} only)</b></p>${sig}</div>
+  <div class="pg"><h2>DETAILED ESTIMATE</h2><table><tr><th>S.No</th><th>Description</th><th>Unit</th><th>Qty</th><th>Basis</th></tr>${r.items.map((x,k)=>`<tr><td>${k+1}</td><td>${x.d}</td><td>${x.u}</td><td class="n">${x.qty?fmt(x.qty):"-"}</td><td>${esc(x.rem)}</td></tr>`).join("")}</table>${sig}</div>
+  <div class="pg"><h2>WINDING CURRENT & COPPER WEIGHT CALCULATION</h2><p>${r.kva} KVA, ${r.hv} V / ${r.lv} V, ${S.hvc}/${S.lvc} (${r.vg}), ${S.f} Hz</p><table><tr><th>Step</th><th>Parameter</th><th>Formula</th><th>Substitution</th><th>Value</th><th>Unit</th></tr>${r.steps.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td>${esc(s[3])}</td><td class="n">${fmt(s[4],s[6]??2)}</td><td>${s[5]}</td></tr>`).join("")}</table><p>Copper weight adopted: <b>${fmt(r.cu,0)} Kg</b>${n(S.cuOv)>0?" (nameplate)":" (calculated, approximate)"}.</p>${sig}</div>`;
+  window.print();
+});
+
+bindForm();update();
+})();
+</script>
+</body>
+</html>
