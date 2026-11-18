@@ -7,14 +7,14 @@
  *   - design method: IRC 21:2000 WSM (department type designs) or
  *     IRC 112:2020 LSM (current code) for the deck slab
  *   - concrete / steel grades, exposure & cover, substructure grade
- *   - live load: automatic per IRC 6:2017 Table 6A or chosen classes
+ *   - live load: automatic per IRC 6:2024 Table 6 or chosen classes
  *     (Class A 1/2 lanes, Class B, Class 70R tracked / wheeled bogie)
  *   - edge: kerb + hand railing (MORTH SD/202) or RCC crash barrier,
  *     optional footpaths with pedestrian live load (IRC 6 cl.206)
  *   - seismic zone, importance factor, check per IRC 6 cl.219 (exemption
  *     rule applied automatically, can be forced on)
  *   - soil: SBC, phi, unit weight, friction, silt factor; floor protection
- *   - skew, number of vents with gravity piers (IRC 78 scour at piers 2.0 dsm)
+ *   - skew, number of vents with gravity piers (IRC 78:2024 scour at piers 2.0 dsm)
  *
  * Defaults reproduce the I&CAD reference design SLRB @ Km 0.450, L-1 Minor,
  * Perur Major (IRC 21 WSM, M20 / Fe415, Class A, Zone II, single vent).
@@ -121,7 +121,7 @@
   }
 
   // ------------------------------------------------------------ live loads
-  // Which IRC 6 vehicles apply. Automatic = IRC 6:2017 Table 6A.
+  // Which IRC 6 vehicles apply. Automatic = IRC 6:2024 Table 6.
   function liveLoadSet(p) {
     if (p.liveMode === 'manual') {
       const s = [];
@@ -138,7 +138,7 @@
 
   function vehiclesFor(p, L, edgeOff) {
     const WC = p.wc;
-    const imp = L <= 3 ? 0.5 : 4.5 / (6 + L); // IRC 6 cl.208.2 (Class A / B, RCC)
+    const imp = L <= 3 ? 0.5 : 4.5 / (6 + L); // IRC 6:2024 cl.208.2 (Class A / B, RCC)
     const v = [];
     for (const id of liveLoadSet(p)) {
       if (id === 'A1' || id === 'A2') {
@@ -153,7 +153,7 @@
         v.push({ id, name: 'IRC Class B (one lane)', axleT: 6.8, axle: 6.8, axleGap: 1.2, xs: [x0, x0 + 1.8], impact: imp,
           cAlong: 0.2 + 2 * WC, b1: 0.38 + 2 * WC, shift: 0.3, tracked: false, tyre: [0.2, 0.38], wheelGap: 1.8 });
       } else if (id === 'R70T') {
-        const impTr = L <= 5 ? 0.25 : L <= 9 ? 0.25 - ((L - 5) * 0.15) / 4 : 0.1; // IRC 6 cl.208.3
+        const impTr = L <= 5 ? 0.25 : L <= 9 ? 0.25 - ((L - 5) * 0.15) / 4 : 0.1; // IRC 6:2024 cl.208.3
         const x70 = edgeOff + 1.2 + 0.42;
         v.push({ id, name: 'IRC Class 70R tracked', P: 70, length: 4.57, xs: [x70, x70 + 2.06], impact: impTr,
           cAlong: 4.57 + 2 * WC, b1: 0.84 + 2 * WC, tracked: true });
@@ -201,8 +201,8 @@
     return out;
   }
 
-  // Support reaction (whole deck, no impact at foundations - IRC 6 cl.208.4)
-  // and braking per support (IRC 6 cl.211: 20 % of 1st train + 10 % of 2nd).
+  // Support reaction (whole deck, no impact at foundations - IRC 6:2024 cl.208.7)
+  // and braking per support (IRC 6:2024 cl.211: 20 % of 1st train + 10 % of 2nd).
   function supportLL(veh, Lcb) {
     if (veh.tracked) {
       const cOn = Math.min(veh.length, Lcb), Pon = veh.P * (cOn / veh.length);
@@ -254,15 +254,15 @@
     // 0. design basis
     sec('0. DESIGN BASIS');
     row('Structure', `${isD ? 'Double' : 'Single'} lane road bridge, ${nV} vent${nV > 1 ? 's' : ''} RCC solid slab (simply supported) on gravity abutments${nV > 1 ? ' and piers' : ''}, open foundations`, '');
-    row('Deck design method', LSM ? 'IRC 112:2020 Limit State Method' : 'IRC 21:2000 Working Stress Method', '', LSM ? 'Current code for concrete road bridges' : 'As in department type designs; IRC 112 is the current code');
+    row('Deck design method', LSM ? 'IRC 112:2020 Limit State Method' : 'IRC 21:2000 Working Stress Method', '', LSM ? 'Current code for concrete road bridges' : 'As in department type designs; IRC 112:2020 is current limit state code');
     row('Concrete / steel (deck)', `M${p.fck} / Fe${p.fy}`, '', `Exposure: ${p.exposure}; clear cover ${fmt(p.cover * 1000, 0)} mm`);
     row('Substructure', `Plain CC M${p.subFck} with plums; permissible direct compression ${fmt(p.subAllow, 0)} t/sqm`, '', 'IS 456 Table 21');
     const lls = liveLoadSet(p);
     row('Live load', lls.map((x) => ({ A1: 'Class A 1-lane', A2: 'Class A 2-lane', B: 'Class B', R70T: '70R tracked', R70W: '70R wheeled bogie' }[x])).join(', '), '',
-      p.liveMode === 'manual' ? 'Selected by designer' : 'IRC 6:2017 Table 6A for the carriageway width');
+      p.liveMode === 'manual' ? 'Selected by designer' : 'IRC 6:2024 Table 6 for the carriageway width');
     row('Edge / footpath', `${railing ? `RCC kerb ${fmt(p.kerbW * 1000, 0)} + hand railing (MORTH SD/202)` : `RCC crash barrier ${fmt(p.barrierW * 1000, 0)} wide`}${p.fpW > 0 ? `; footpath ${fmt(p.fpW, 2)} m each side, ${fmt(p.fpLoad * 9.81, 1)} kN/sqm` : '; no footpath'}`, '');
-    row('Seismic', `Zone ${p.seismicZone} (Z = ${Z})`, '', 'IRC 6:2017 cl.219');
-    row('Codes', 'IRC 5-2015, IRC 6-2017, IRC 21-2000 / IRC 112-2020, IRC 78-2014, IRC SP:13-2004, IS 456-2000, IS 1786, IS 2502; MORTH standard drawings', '');
+    row('Seismic', `Zone ${p.seismicZone} (Z = ${Z})`, '', 'IRC 6:2024 cl.219');
+    row('Codes', 'IRC 5-2024, IRC 6-2024, IRC 21-2000 / IRC 112-2020, IRC 78-2024, IRC SP:13-2022, IS 456-2000, IS 1786, IS 2502; MORTH standard drawings', '');
     if (LSM && p.fck < 25) warnings.push('IRC 112 requires at least M25 for reinforced concrete bridge members. Raise the deck concrete grade.');
 
     // 1. canal data
@@ -297,16 +297,16 @@
     row('Clear span of each vent (normal to canal)', p.span, 'm', `suggested ${fmt(R.spanSuggested, 2)} m`, { input: 'span' });
     if (p.skew) { inp('Skew angle', 'skew', 'deg'); row('Clear span along road = span / cos(skew)', spanR, 'm'); }
     R.opening = row('Total opening between abutment faces (along road)', nV * spanR + (nV - 1) * p.pierTopW / cosS, 'm');
-    inp(`Carriageway width (IRC 5 ${isD ? 'two lane' : 'single lane'})`, 'carriageway', 'm', 'IRC 5 cl.104.3.1');
+    inp(`Carriageway width (IRC 5 ${isD ? 'two lane' : 'single lane'})`, 'carriageway', 'm', 'IRC 5:2024 cl.104.3.1');
     if (railing) {
-      inp('Kerb width (each side)', 'kerbW', 'm', 'IRC 5 min 225 mm');
+      inp('Kerb width (each side)', 'kerbW', 'm', 'IRC 5:2024 min 225 mm');
       inp('Kerb height above deck', 'kerbH', 'm');
       inp('Hand railing (MORTH SD/202) load per side', 'railingLoad', 't/m');
     } else {
-      inp('Crash barrier base width (each side)', 'barrierW', 'm', 'IRC 5 cl.109.6 / MORTH');
+      inp('Crash barrier base width (each side)', 'barrierW', 'm', 'IRC 5:2024 cl.109.6 / MORTH');
       inp('Crash barrier self weight', 'barrierLoad', 't/m');
     }
-    if (p.fpW > 0) { inp('Footpath width (each side)', 'fpW', 'm'); inp('Footpath live load', 'fpLoad', 't/sqm', 'IRC 6 cl.206'); }
+    if (p.fpW > 0) { inp('Footpath width (each side)', 'fpW', 'm'); inp('Footpath live load', 'fpLoad', 't/sqm', 'IRC 6:2024 cl.206'); }
     const B = (R.B = row('Overall deck width B', p.carriageway + 2 * (p.fpW + edgeW), 'm'));
     inp('Bearing width on each support (bed block 500 - 20 joint)', 'bearingW', 'm');
     R.deckL = row('Deck length of each vent', spanR + 2 * p.bearingW, 'm');
@@ -330,7 +330,7 @@
     R.okSoffit = R.soffit >= R.tbl;
     R.frlMin = R.tbl + p.D + p.wc;
     chk('Check soffit >= TBL', R.okSoffit, R.okSoffit ? `OK - clearance ${fmt(R.soffit - R.tbl)} m above TBL` : `REVISE - raise FRL to at least +${fmt(R.frlMin)}`);
-    R.clearFSL = row('Vertical clearance soffit above FSL', R.soffit - R.fsl, 'm', 'IRC 5 cl.106: > FB for canal');
+    R.clearFSL = row('Vertical clearance soffit above FSL', R.soffit - R.fsl, 'm', 'IRC 5:2024 cl.106: > FB for canal');
     inp('Bed block thickness (RCC)', 'bedBlockT', 'm');
     R.stemTop = row('Bed block bottom / stem top level', R.soffit - p.bedBlockT, 'm');
     inp('Footing thickness (PCC)', 'footingT', 'm');
@@ -347,7 +347,7 @@
     R.clearFSLw = row('Clear waterway width at FSL', clearAt(R.fsl), 'm');
 
     // 4. vent way / scour
-    sec('4. VENTWAY, SCOUR AND FOUNDATION LEVEL (IRC 5 / IRC 78)');
+    sec('4. VENTWAY, SCOUR AND FOUNDATION LEVEL (IRC 5:2024 / IRC 78:2024)');
     R.ventArea = row('Vent area at FSL = avg clear width x FSD', ((R.clearCBL + R.clearFSLw) / 2) * p.fsd, 'sqm');
     R.ratio = row('Ratio canal area / vent area', R.area / R.ventArea, '', R.area / R.ventArea < 1 ? '< 1 : no contraction' : 'Contraction - afflux computed');
     R.afflux = row('Afflux (Molesworth)', Math.max(0, (R.vel ** 2 / 17.88 + 0.01524) * ((R.area / R.ventArea) ** 2 - 1)), 'm');
@@ -357,23 +357,23 @@
     R.vcAct = R.soffit - (R.fsl + R.afflux);
     R.okVC = R.vcAct >= R.vcReq - 1e-9;
     R.frlMin = Math.max(R.frlMin, R.fsl + R.afflux + R.vcReq + p.D + p.wc);
-    row(`Minimum vertical clearance for Q = ${fmt(Q, 2)} cumecs`, R.vcReq, 'm', 'IRC 5 cl.106.2.1 (above HFL)');
+    row(`Minimum vertical clearance for Q = ${fmt(Q, 2)} cumecs`, R.vcReq, 'm', 'IRC 5:2024 cl.106.2.1 (above HFL)');
     chk('Check vertical clearance: soffit - (FSL + afflux)', R.okVC, R.okVC ? `OK (${fmt(R.vcAct)} m)` : `REVISE - raise FRL to at least +${fmt(R.frlMin)}`);
-    chk(`Check waterway: afflux <= ${fmt(p.affluxLimit, 3)} m`, R.okVent, R.okVent ? 'OK' : `REVISE - vent too narrow; use span ${fmt(R.spanSuggested, 2)} m or more vents`, 'Vent should not constrict the canal (IRC 5 / IRC SP:13)');
-    R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
+    chk(`Check waterway: afflux <= ${fmt(p.affluxLimit, 3)} m`, R.okVent, R.okVent ? 'OK' : `REVISE - vent too narrow; use span ${fmt(R.spanSuggested, 2)} m or more vents`, 'Vent should not constrict the canal (IRC 5:2024 / IRC SP:13-2022)');
+    R.Qs = row('Design discharge for scour = 1.3 Q (IRC 78:2024 cl.703.1.1)', 1.3 * p.Q, 'cumecs');
     inp('Silt factor f = 1.76 sqrt(dm, mm)', 'siltFactor', '', 'From bed material; confirm by soil test');
     R.q = row('Discharge per m width q (on width at bed)', R.Qs / R.clearCBL, 'cumec/m');
     R.dsm = row('Normal scour depth dsm = 1.34 (q^2/f)^(1/3)', 1.34 * Math.cbrt(R.q ** 2 / p.siltFactor), 'm', 'Lacey');
-    R.maxScourD = row('Max scour depth at abutment = 1.27 dsm', 1.27 * R.dsm, 'm', 'IRC 78 cl.703.3.1');
+    R.maxScourD = row('Max scour depth at abutment = 1.27 dsm', 1.27 * R.dsm, 'm', 'IRC 78:2024 cl.703.3.1');
     R.msl = row('Max scour level at abutments = FSL - 1.27 dsm', R.fsl - R.maxScourD, 'm');
-    R.flScour = row('Foundation level required <= MSL - 1.20 m', R.msl - 1.2, 'm', 'IRC 78 cl.705.2.1.1');
+    R.flScour = row('Foundation level required <= MSL - 1.20 m', R.msl - 1.2, 'm', 'IRC 78:2024 cl.705.2.1.1');
     const apron = yes(p.apron);
-    R.flApron = apron ? row(`With rigid floor protection + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= floor bottom - ${fmt(p.floorDepth, 2)} m`, p.cbl - p.apronThk - p.floorDepth, 'm', 'Floor-protected criterion (IRC SP:13); depth below floor set by designer') : -Infinity;
+    R.flApron = apron ? row(`With rigid floor protection + ${fmt(p.liningLen, 0)} m lining u/s & d/s: foundation <= floor bottom - ${fmt(p.floorDepth, 2)} m`, p.cbl - p.apronThk - p.floorDepth, 'm', 'Floor-protected criterion (IRC:SP:13-2022 / IRC:78-2024); depth below floor set by designer') : -Infinity;
     if (!apron) row('Floor protection (apron / lining)', 'not provided', '', 'Scour criterion alone governs');
     let flReq = Math.max(R.flScour + 0.01, R.flApron);
     if (nV > 1) {
-      R.mslPier = row('Max scour level at piers = FSL - 2.0 dsm', R.fsl - 2 * R.dsm, 'm', 'IRC 78 cl.703.3.1');
-      R.flScourPier = row('Pier foundation level required <= MSL - 1.20 m', R.mslPier - 1.2, 'm');
+      R.mslPier = row('Max scour level at piers = FSL - 2.0 dsm', R.fsl - 2 * R.dsm, 'm', 'IRC 78:2024 cl.703.3.1');
+      R.flScourPier = row('Pier foundation level required <= MSL - 1.20 m', R.mslPier - 1.2, 'm', 'IRC 78:2024 cl.705.2.1.1');
       flReq = Math.max(Math.min(R.flScour, R.flScourPier) + 0.01, R.flApron);
     }
     R.okFound = p.foundationLevel <= flReq + 1e-9;
@@ -382,11 +382,11 @@
     R.flSuggested = Math.floor((flReq + 1e-9) / 0.05) * 0.05;
     R.foundDepth = row('Depth of foundation below design CBL', p.cbl - p.foundationLevel, 'm', 'Kept >= 1.0 m below bed');
     if (p.cbl - p.foundationLevel < 1) warnings.push('Foundation is less than 1.0 m below canal bed.');
-    if (apron) row('Curtain walls at u/s & d/s ends of apron/lining: CC 300 thk x 1000 deep', 'provided', '', 'IRC SP:13 / IRC 89');
+    if (apron) row('Curtain walls at u/s & d/s ends of apron/lining: CC 300 thk x 1000 deep', 'provided', '', 'IRC SP:13-2022 / IRC 89');
     const exemptSeis = spanR < 10 || ((p.seismicZone === 'II' || p.seismicZone === 'III') && spanR < 15 && R.totalLength < 60);
     R.seismic = p.seismicMode === 'include' || (p.seismicMode === 'auto' && !exemptSeis);
     R.Ah = (Z / 2) * p.impFactor * p.saG / p.respR;
-    row('Seismic check (IRC 6-2017 cl.219.1)', R.seismic ? `Required - Ah = (Z/2)(I)(Sa/g)/R = ${fmt(R.Ah, 3)}` : 'Not required', '',
+    row('Seismic check (IRC 6-2024 cl.219.1)', R.seismic ? `Required - Ah = (Z/2)(I)(Sa/g)/R = ${fmt(R.Ah, 3)}` : 'Not required', '',
       exemptSeis ? `Zone ${p.seismicZone}: span < 10 m, or Zone II/III with span < 15 m and length < 60 m` : `Zone ${p.seismicZone}`);
 
     // 5. deck slab
@@ -405,8 +405,8 @@
     R.MDL = (R.DLw * L * L) / 8;
     const ea = R.vehicles[0], va = ea.veh;
     if (!va.tracked) {
-      row(`Impact factor ${va.name} = ${L <= 3 ? '0.5 (span <= 3 m)' : '4.5/(6+L)'}`, va.impact, '', 'IRC 6 cl.208.2');
-      row('Heaviest axle', va.axleT, 't', 'IRC 6 Fig.1');
+      row(`Impact factor ${va.name} = ${L <= 3 ? '0.5 (span <= 3 m)' : '4.5/(6+L)'}`, va.impact, '', 'IRC 6:2024 cl.208.2');
+      row('Heaviest axle', va.axleT, 't', 'IRC 6:2024 Fig.1');
       row('Axle with impact P', ea.P, 't');
       row('Tyre contact along / across span', `${fmt(va.tyre[0], 2)} / ${fmt(va.tyre[1], 2)}`, 'm');
       row('Loaded length along span = c + 2 WC', va.cAlong, 'm');
@@ -428,7 +428,7 @@
     let gov = ea;
     const others = R.vehicles.filter((e) => e !== ea || va.tracked);
     if (others.length) {
-      row('Live loads checked (IRC 6)', '', '', '', { sub: true });
+      row('Live loads checked (IRC 6:2024)', '', '', '', { sub: true });
       for (const e of others) {
         const v = e.veh;
         if (v.tracked) row(`${v.name}: impact ${fmt(v.impact * 100, 1)} %, ${fmt(e.P, 2)} t over ${fmt(v.cAlong, 2)} m, width ${fmt(e.width, 3)} m`, e.M, 't-m/m', 'LL moment');
@@ -489,7 +489,7 @@
       row('Limit state design (IRC 112:2020)', '', '', '', { sub: true });
       const fck = p.fck, fy = p.fy, d = R.d;
       const MDLs = (R.DLslab * L * L) / 8, MWC = (R.DLwc * L * L) / 8;
-      R.M = row('Mu = 1.35 M(slab) + 1.75 M(WC) + 1.5 M(LL)', 1.35 * MDLs + 1.75 * MWC + 1.5 * R.MLL, 't-m/m', 'IRC 6 Annex B, ULS basic combination');
+      R.M = row('Mu = 1.35 M(slab) + 1.75 M(WC) + 1.5 M(LL)', 1.35 * MDLs + 1.75 * MWC + 1.5 * R.MLL, 't-m/m', 'IRC 6:2024 Annex B, ULS basic combination');
       R.MkN = row('Mu in kN-m', R.M * 9.81, 'kN-m/m');
       const xr = 0.0035 / (0.0055 + (0.87 * fy) / 200000);
       R.xuMax = row('xu,max / d', xr, '', 'epsilon cu = 0.0035');
@@ -554,7 +554,7 @@
     R.AstTop = row(`Top steel both ways ${p.topDia} dia @ ${p.topSpacing} c/c`, Ab(p.topDia, p.topSpacing), 'sqmm/m');
 
     // 6. abutment
-    sec(`6. ABUTMENT (CC M${p.subFck} with plums) - STABILITY (IRC 78, per m length)`);
+    sec(`6. ABUTMENT (CC M${p.subFck} with plums) - STABILITY (IRC 78:2024, per m length)`);
     inp('Stem top width at bed block level (bed block 0.50 + dirt wall part)', 'abTopW', 'm');
     inp('Back batter projection', 'abBackBatter', 'm');
     R.stemBase = row('Stem base width', p.frontBatter + p.abTopW + p.abBackBatter, 'm');
@@ -565,7 +565,7 @@
     inp('Angle of internal friction of backfill', 'phi', 'deg');
     R.Ka = row('Ka (Rankine)', (1 - Math.sin(rad(p.phi))) / (1 + Math.sin(rad(p.phi))));
     R.Kp = row('Kp = 1/Ka', 1 / R.Ka);
-    inp('LL surcharge equivalent height', 'surcharge', 'm', 'IRC 6 cl.214.1.1.3');
+    inp('LL surcharge equivalent height', 'surcharge', 'm', 'IRC 6:2024 cl.214.1.1.3');
     inp('Coefficient of friction (concrete on soil)', 'mu', '');
     inp('Safe bearing capacity', 'sbc', 't/sqm', 'From soil investigation / trial pit');
     row('Vertical loads (t) and lever arms from toe (m)', 'W (t)', '', 'arm x from toe, y above base', { sub: true });
@@ -586,7 +586,7 @@
     const Lcb = spanR + p.bearingW;
     const fpLL = (2 * p.fpW * p.fpLoad * R.deckL) / 2 / B;
     R.LLcases = vehicles.map((v) => { const a = supportLL(v, Lcb); return { name: v.name, id: v.id, R: a.R / B + fpLL, Hb: a.Hb / B }; });
-    for (const c of R.LLcases) row(`LL reaction ${c.name}${fpLL ? ' + footpath' : ''}, no impact (IRC 6 cl.208.4)`, c.R, 't', `x = ${fmt(xBrg, 3)} m`);
+    for (const c of R.LLcases) row(`LL reaction ${c.name}${fpLL ? ' + footpath' : ''}, no impact (IRC 6:2024 cl.208.7)`, c.R, 't', `x = ${fmt(xBrg, 3)} m`);
     row('Horizontal forces (t) and lever arms above base (m)', '', '', '', { sub: true });
     const Pa = 0.5 * R.Ka * p.gammaSoil * R.H ** 2, yPa = R.H / 3;
     const Ps = R.Ka * p.gammaSoil * p.surcharge * R.H, yPs = R.H / 2;
@@ -594,7 +594,7 @@
     row('LL surcharge Ka g h H', Ps, 't', `y = ${fmt(yPs, 3)} m`);
     for (const c of R.LLcases) row(`Braking - ${c.name}, shared by 2 supports, at bearing level`, c.Hb, 't', `y = ${fmt(yBr, 3)} m`);
     R.Hfr = yes(p.tempFriction) ? p.bearingMu * deckDL : 0;
-    if (R.Hfr) row(`Bearing friction due to temperature = ${fmt(p.bearingMu, 2)} x DL reaction (acts instead of braking when larger)`, R.Hfr, 't', `y = ${fmt(yBr, 3)} m; IRC 6 cl.211`);
+    if (R.Hfr) row(`Bearing friction due to temperature = ${fmt(p.bearingMu, 2)} x DL reaction (acts instead of braking when larger)`, R.Hfr, 't', `y = ${fmt(yBr, 3)} m; IRC 6:2024 cl.211`);
     for (const c of R.LLcases) { c.HbBrake = c.Hb; c.Hb = Math.max(c.Hb, R.Hfr); }
     const sumV1 = W.reduce((s, o) => s + o.w, 0), sumMR1 = W.reduce((s, o) => s + o.w * o.x, 0);
     const sumH1 = Pa + Ps, sumMO1 = Pa * yPa + Ps * yPs;
@@ -607,24 +607,24 @@
     };
     const cases = [Object.assign({ name: 'Case 1: span unloaded', lim: [2, 1.5, 1] }, stab(sumV1, sumMR1, sumH1 + R.Hfr, sumMO1 + R.Hfr * yBr, R.ftgW, R.PkeyAb))];
     for (const c of R.LLcases) cases.push(Object.assign({ name: `Case 2: ${c.name} on span`, lim: [2, 1.5, 1] }, stab(sumV1 + c.R, sumMR1 + c.R * xBrg, sumH1 + c.Hb, sumMO1 + c.Hb * yBr, R.ftgW, R.PkeyAb)));
-    // seismic case (IRC 6 cl.219 / 214.1.2), no live load, no braking
+    // seismic case (IRC 6:2024 cl.219 / 214.1.2), no live load, no braking
     let dPae = 0, Kae = 0;
     if (R.seismic) {
       Kae = R.Kae = kaeMO(p.phi, R.Ah);
       dPae = 0.5 * p.gammaSoil * R.H ** 2 * (Kae - R.Ka);
       const inert = W.reduce((s, o) => s + R.Ah * o.w, 0), inertM = W.reduce((s, o) => s + R.Ah * o.w * o.y, 0);
       row('Seismic: Kae (Mononobe-Okabe, delta = 0)', Kae, '', `Ah = ${fmt(R.Ah, 3)}`);
-      row('Dynamic increment of earth pressure 0.5 g H^2 (Kae - Ka) at H/2', dPae, 't', 'IRC 6 cl.214.1.2');
+      row('Dynamic increment of earth pressure 0.5 g H^2 (Kae - Ka) at H/2', dPae, 't', 'IRC 6:2024 cl.214.1.2');
       row('Inertia of abutment, soil over it and deck DL (Ah x W)', inert, 't');
       cases.push(Object.assign({ name: 'Case 3: seismic (span unloaded)', lim: [1.5, 1.25, 1.25] }, stab(sumV1, sumMR1, Pa + dPae + inert, Pa * yPa + dPae * R.H / 2 + inertM, R.ftgW, R.PkeyAb)));
     }
     R.abCases = cases;
-    if (R.seismic && p.mu < 1.25 * R.Ah && !R.PkeyAb) warnings.push(`Seismic: Ah = ${fmt(R.Ah, 3)} exceeds friction mu / 1.25 - a plain gravity abutment cannot satisfy sliding; provide shear keys / RCC abutment or reduce Ah where IRC 6 cl.219 permits (e.g. free sliding bearings).`);
+    if (R.seismic && p.mu < 1.25 * R.Ah && !R.PkeyAb) warnings.push(`Seismic: Ah = ${fmt(R.Ah, 3)} exceeds friction mu / 1.25 - a plain gravity abutment cannot satisfy sliding; provide shear keys / RCC abutment or reduce Ah where IRC 6:2024 cl.219 permits (e.g. free sliding bearings).`);
     for (const c of cases) {
       row(c.name, '', '', '', { sub: true });
       row('Sum V', c.V, 't'); row('Sum MR', c.MR, 't-m'); row('Sum H', c.H, 't'); row('Sum MO', c.MO, 't-m');
-      chk(`FOS overturning (>= ${c.lim[0]})`, c.fosO >= c.lim[0], fmt(c.fosO, 2), 'IRC 78 cl.706.3.4');
-      chk(`FOS sliding (>= ${c.lim[1]})`, c.fosS >= c.lim[1], fmt(c.fosS, 2), R.PkeyAb ? 'IRC 78 cl.706.3.4 (with shear key)' : 'IRC 78 cl.706.3.4 (no shear key)');
+      chk(`FOS overturning (>= ${c.lim[0]})`, c.fosO >= c.lim[0], fmt(c.fosO, 2), 'IRC 78:2024 cl.706.3.4');
+      chk(`FOS sliding (>= ${c.lim[1]})`, c.fosS >= c.lim[1], fmt(c.fosS, 2), R.PkeyAb ? 'IRC 78:2024 cl.706.3.4 (with shear key)' : 'IRC 78:2024 cl.706.3.4 (no shear key)');
       row('Eccentricity e', c.e, 'm', `< B/6 = ${fmt(R.ftgW / 6, 3)}`);
       chk(`Max base pressure (<= ${c.lim[2] > 1 ? '1.25 x ' : ''}SBC ${fmt(p.sbc * c.lim[2], 1)})`, c.pmax <= p.sbc * c.lim[2], fmt(c.pmax, 2) + ' t/sqm');
       chk('Min base pressure (>= 0, no tension)', c.pmin >= 0, fmt(c.pmin, 2) + ' t/sqm');
@@ -821,7 +821,7 @@
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
     R.subtitle = `${nV} vent${nV > 1 ? 's' : ''} x ${fmt(p.span, 2)} m clear span RCC solid slab | Carriageway ${fmt(p.carriageway, 2)} m | ${R.vehicles.map((e) => e.veh.name.replace('IRC ', '')).join(' / ')} | ${LSM ? 'IRC 112 LSM' : 'IRC 21 WSM'}`;
-    R.codes = `Codes: IRC 5-2015, IRC 6-2017, ${LSM ? 'IRC 112-2020 (LSM)' : 'IRC 21-2000 (WSM)'}, IRC 78-2014, IRC SP:13-2004, IS 456-2000, IS 1786-2008, IS 2502-1963, MORTH standard drawings.`;
+    R.codes = `Codes: IRC 5-2024, IRC 6-2024, ${LSM ? 'IRC 112-2020 (LSM)' : 'IRC 21-2000 (WSM)'}, IRC 78-2024, IRC SP:13-2022, IS 456-2000, IS 1786-2008, IS 2502-1963, MORTH standard drawings.`;
     R.nameOfWork = `Construction of ${typ} across ${String(p.canalName).replace(/\s*\(.*\)\s*/, '')} at Km ${p.chainage} in ${p.location}, ${p.district} District.`;
     return { p, R, sections: secs, warnings };
   }

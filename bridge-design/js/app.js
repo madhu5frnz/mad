@@ -28,19 +28,19 @@
       ['floorDepth', 'Foundation depth below floor protection', 'm', 0.05], ['affluxLimit', 'Permissible afflux', 'm', 0.01],
       ['frlNote', 'FRL note', '', 'text'],
     ]],
-    ['Design standard & loading', true, { step: 3, note: 'Defaults follow IRC 6 / IRC 21 as in department type designs. Change them for your authority and site.' }, [
+    ['Design standard & loading', true, { step: 3, note: 'Defaults follow IRC 6:2024 / IRC 21 as in department type designs. Change them for your authority and site.' }, [
       ['method', 'Deck design method', '', [['WSM', 'IRC 21 WSM (type designs)'], ['LSM', 'IRC 112 LSM (current code)']]],
       ['fck', 'Deck concrete', '', [[20, 'M20'], [25, 'M25'], [30, 'M30'], [35, 'M35'], [40, 'M40']]],
       ['fy', 'Reinforcement', '', [[415, 'Fe415'], [500, 'Fe500'], [550, 'Fe550']]],
       ['exposure', 'Exposure (sets cover)', '', [['moderate', 'Moderate - 40 mm'], ['severe', 'Severe - 45 mm'], ['very severe', 'Very severe - 50 mm'], ['extreme', 'Extreme - 75 mm']]],
       ['subFck', 'Substructure concrete', '', [[15, 'CC M15'], [20, 'CC M20'], [25, 'CC M25']]],
-      ['liveMode', 'Live load', '', [['auto', 'As per IRC 6 Table 6A'], ['manual', 'Choose classes']]],
+      ['liveMode', 'Live load', '', [['auto', 'As per IRC 6:2024 Table 6'], ['manual', 'Choose classes']]],
       ['llA1', 'Class A, 1 lane', '', YN], ['llA2', 'Class A, 2 lanes', '', YN], ['llB', 'Class B', '', YN],
       ['ll70T', '70R tracked', '', YN], ['ll70W', '70R wheeled bogie', '', YN],
       ['edgeType', 'Deck edge', '', [['railing', 'Kerb + hand railing (SD/202)'], ['crash', 'RCC crash barrier (MORTH)']]],
       ['fpW', 'Footpath width each side (0 = none)', 'm', 0.25],
       ['seismicZone', 'Seismic zone', '', [['II', 'Zone II (Z 0.10)'], ['III', 'Zone III (Z 0.16)'], ['IV', 'Zone IV (Z 0.24)'], ['V', 'Zone V (Z 0.36)']]],
-      ['seismicMode', 'Seismic check', '', [['auto', 'As per IRC 6 cl.219.1'], ['include', 'Always check'], ['exclude', 'Do not check']]],
+      ['seismicMode', 'Seismic check', '', [['auto', 'As per IRC 6:2024 cl.219.1'], ['include', 'Always check'], ['exclude', 'Do not check']]],
       ['impFactor', 'Importance factor I', '', [[1.0, '1.0 normal'], [1.2, '1.2 important'], [1.5, '1.5 large / critical']]],
     ]],
     ['Project details', false, { step: 4, note: 'Printed on the drawings, report and estimate.' }, [
@@ -95,14 +95,14 @@
   };
   // Where each standard (not calculated) value comes from.
   const STD_NOTE = {
-    wc: 'Standard 75 mm (IRC SP:13 / MORTH; 65 mm min)', kerbW: 'IRC 5: min 225 mm', kerbH: 'Standard 300 mm (225 above road)',
+    wc: 'Standard 75 mm (IRC SP:13-2022 / MORTH; 65 mm min)', kerbW: 'IRC 5:2024: min 225 mm', kerbH: 'Standard 300 mm (225 above road)',
     railingLoad: 'MORTH SD/202 RCC posts + pipes', bearingW: 'Bed block 500 mm - 20 mm joint', approachLen: 'Standard 3.5 m (MORTH type approach slab)',
     approachThk: 'Standard 300 mm', topDia: 'Nominal top mesh 10 @ 200', topSpacing: 'Nominal top mesh', 
     maxSlabSpan: 'MORTH standard solid slabs up to about 10 m', barrierW: 'MORTH crash barrier base 450 mm', barrierLoad: 'About 0.3 sqm x 2.5 t/cum',
     scbc: 'Follows concrete grade (IRC 21 Table 9)', sst: 'Follows steel grade (IRC 21 Table 10)', modRatio: 'IRC 21 cl.303.1: m = 10',
-    cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
-    subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6 Table 20: 1.0',
-    fpLoad: 'IRC 6 cl.206: 4-5 kN/sqm', bearingMu: 'Slab on bed block with kraft paper: 0.5', bermW: 'Berm at TBL level, as in deep cuttings', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
+    cover: 'Follows exposure (IRC 112 Table 14.2)', surcharge: 'IRC 6:2024 cl.214.1.1.3: 1.2 m', gammaConc: 'Plain concrete 2.4 t/cum',
+    subAllow: 'Follows substructure grade (IS 456 Table 21)', saG: 'Rigid substructure: 2.5', respR: 'IRC 6:2024 Table 20: 1.0',
+    fpLoad: 'IRC 6:2024 cl.206: 4-5 kN/sqm', bearingMu: 'Slab on bed block with kraft paper: 0.5', bermW: 'Berm at TBL level, as in deep cuttings', floorDepth: '1.0 m conservative; pitched & lined canals often 0.2-0.5 m', affluxLimit: 'Keep small so the canal is not constricted', apronThk: 'Total thickness of apron / lining + pitching', minD: 'Practical minimum for road bridge slabs (designer choice)',
   };
 
   // Code-derived values that follow a choice (IRC 21 Tables 9/10, IRC 112 Table 14.2, IS 456 Table 21).
@@ -380,9 +380,9 @@
     }
     if (Math.abs(state.span - R.spanSuggested) > 1e-6) set('span', `Suggested ${fmt(R.spanSuggested, 2)} m (canal top width at FSL ${fmt(R.topFSL, 3)}) <button data-use="span" data-val="${R.spanSuggested}">use</button>`);
     else set('span', `= suggested from top width at FSL ${fmt(R.topFSL, 3)} m`);
-    set('foundationLevel', `Must be at or below +${fmt(R.flSuggested)} (IRC 78 scour${state.apron !== 'no' ? ' / IRC SP:13 apron' : ''})${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use</button>`}`);
+    set('foundationLevel', `Must be at or below +${fmt(R.flSuggested)} (IRC 78:2024 scour${state.apron !== 'no' ? ' / IRC SP:13-2022 apron' : ''})${R.okFound ? '' : ` <button data-use="foundationLevel" data-val="${R.flSuggested.toFixed(3)}">use</button>`}`);
     if (R.ventsSuggested > state.nVents) set('nVents', `Canal ${fmt(R.topFSL, 2)} m wide at FSL > ${fmt(state.maxSlabSpan, 1)} m slab span: ${R.ventsSuggested} vents suggested <button data-use="nVents" data-val="${R.ventsSuggested}">use</button>`);
-    set('seismicZone', R.seismic ? `Seismic check applied, Ah = ${fmt(R.Ah, 3)}` : 'Not required for this span / zone (IRC 6 cl.219.1)');
+    set('seismicZone', R.seismic ? `Seismic check applied, Ah = ${fmt(R.Ah, 3)}` : 'Not required for this span / zone (IRC 6:2024 cl.219.1)');
     set('liveMode', `Checking: ${R.vehicles.map((e) => e.veh.name.replace('IRC ', '')).join(', ')}`);
     set('method', state.method === 'LSM' ? 'IRC 112:2020; minimum M25 for RCC' : 'IRC 21:2000 as in department type designs');
     set('skew', state.skew > 20 ? 'Above 20°: needs skew slab analysis' : '');

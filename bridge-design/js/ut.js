@@ -320,7 +320,7 @@
     R.nameOfWork = `Construction of Under Tunnel (U.T.) at Km ${p.chainage} of ${p.canalName}${p.location ? ` near ${p.location}` : ''}${p.district ? `, ${p.district} District` : ''}.`;
     R.title = `DESIGN OF UNDER TUNNEL AT KM ${p.chainage} OF ${String(p.canalName).toUpperCase()}`;
     R.subtitle = R.nameOfWork;
-    R.codes = 'IS 7784 (Pt 1 & 2), IRC 6:2017, IRC 21:2000 (WSM), IRC 78, IRC SP:13, IS 456; CDO guidelines.';
+    R.codes = 'IS 7784 (Pt 1 & 2), IRC 6:2024, IRC 21:2000 / IRC 112:2020, IRC 78:2024, IRC SP:13-2022, IS 456-2000; CDO guidelines.';
     R.assumptions = 'The box is analysed as a closed rigid frame per metre length (member centre lines) with a uniform soil reaction; haunches are ignored in the analysis and in the barrel area. Earth pressure: Rankine ' + (p.kMode === 'rest' ? 'at-rest (1 - sin phi)' : 'active') + ' on the walls. Axial compression N: design moment Ms = M + N (d - D/2) about the tension steel, Ast = Ms / (sst j d) - N / sst (not less than 0.12 %). Gravity walls: no tension allowed in the plain concrete (e <= b/6).';
 
     // ---- 1. hydraulic particulars

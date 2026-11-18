@@ -65,7 +65,7 @@ tool is not tied to one office's type design:
 |---|---|---|
 | Deck method | IRC 21:2000 WSM (department type designs) or IRC 112:2020 LSM (current code: ULS flexure & shear, SLS stresses, minimum steel) | IRC 21, IRC 112 |
 | Materials | Deck M20–M40, Fe415/500/550 (permissible stresses follow the grade), exposure → cover 40/45/50/75 mm, substructure CC M15–M25 | IRC 21 Tables 9–10, IRC 112 Table 14.2, IS 456 Table 21 |
-| Live load | Automatic per IRC 6:2017 Table 6A (< 5.3 m: 1-lane Class A; 5.3–9.6 m: 2-lane Class A or 1-lane 70R tracked / wheeled bogie) or chosen classes incl. Class B | IRC 6 cl.204–211 |
+| Live load | Automatic per IRC 6:2024 Table 6 (< 5.3 m: 1-lane Class A; 5.3–9.6 m: 2-lane Class A or 1-lane 70R tracked / wheeled bogie) or chosen classes incl. Class B | IRC 6 cl.204–211 |
 | Edge | Kerb + hand railing (MORTH SD/202) or RCC crash barrier; optional footpaths with pedestrian load | IRC 5, IRC 6 cl.206 |
 | Vents | 1..n vents; gravity piers added with their own stability, scour at piers 2.0 dsm | IRC 78 cl.703 |
 | Seismic | Zone II–V, importance factor; exemption of IRC 6 cl.219.1 applied automatically (span < 10 m, or Zone II/III with span < 15 m and length < 60 m) or forced; Ah = (Z/2)(I)(Sa/g)/R; Mononobe-Okabe dynamic increment; FOS 1.5 / 1.25, SBC +25 % | IRC 6 cl.219, 214.1.2; IRC 78 |
