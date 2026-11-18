@@ -45,9 +45,9 @@
     { code: 'IRR-CCDW-2-10', unit: 'Cum', key: 'bedblock', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (bed blocks)', seigName: 'M-20 (20 mm)',
       short: 'Providing and laying insitu vibrated M-20 grade cement concrete using 20 mm down size graded aggregates for bed blocks, complete with initial lead upto 50 m and all lifts.',
       long: 'Providing and laying insitu vibrated M-20 ( 28 days cube compressive strength not less than 20 N / sq mm ) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for sub-structure / super-structure works including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts.' },
-    { code: 'IRR-CCDW-2-25', unit: 'Cum', key: 'deck', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (deck, kerb, approach slabs)', seigName: 'M-20 (20 mm) Deck slab',
-      short: 'Providing and laying insitu vibrated M-20 grade cement concrete using 20 mm down size graded aggregates for deck slab, kerb & approach slabs, complete with initial lead upto 50 m and all lifts.',
-      long: 'Providing and laying insitu vibrated M-20 ( 28 days cube compressive strength not less than 20 N / sq mm ) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for deck slab & kerb including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts. If water is to be brought from other place add only lead charges @ 500 ltr / cum. (Cement content: 330 kg / cum with use of super plasticiser (0.4% by wt. of cement), CA : 0.80 cum, Blending Ratio of CA--65:35, FA : 0.45 cum)' },
+    { code: 'IRR-CCDW-2-25', unit: 'Cum', key: 'deck', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (deck, kerb, crash barrier, approach slabs)', seigName: 'M-20 (20 mm) Deck & Crash barrier',
+      short: 'Providing and laying insitu vibrated M-20 grade cement concrete using 20 mm down size graded aggregates for deck slab, kerb, crash barriers & approach slabs, complete with initial lead upto 50 m and all lifts.',
+      long: 'Providing and laying insitu vibrated M-20 ( 28 days cube compressive strength not less than 20 N / sq mm ) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for deck slab, kerb & crash barriers including cost of all materials, machinery, labour, formwork, scaffolding, cleaning, batching, mixing, placing in position, levelling, vibrating, finishing, curing etc., complete with initial lead upto 50 m and all lifts. If water is to be brought from other place add only lead charges @ 500 ltr / cum. (Cement content: 330 kg / cum with use of super plasticiser (0.4% by wt. of cement), CA : 0.80 cum, Blending Ratio of CA--65:35, FA : 0.45 cum)' },
     { code: 'IRR-CCDW-2-29', unit: 'Cum', key: 'wc', seig: [0.8, 0.225, 0.225], theo: [0.8, 0.45], theoName: 'M-20 Grade (wearing coat)', seigName: 'M-20 (20 mm) wearing coat',
       short: 'Providing and laying VCC M-20 grade wearing coat 75 mm thick over deck slab and approach slabs, complete.',
       long: 'Providing and laying insitu M-20 (28 days cube compressive strength not less than 20 N/sq mm) grade cement concrete using 20 mm down size approved, clean, hard, graded aggregates for 75 mm thick wearing coat over the deck slab of {TYP} including cost of all materials, machinery, labour, formwork, cleaning, batching, mixing, placing in position in alternate panels, levelling, compacting, finishing, curing, packing joints with asphalt mortar etc., complete with initial lead up to 50 m and all lifts.' },
@@ -66,33 +66,63 @@
     const { p, R } = d;
     const L = R.deckL, B = R.B, c = 0.04, nV = R.nV || 1;
     const rows = [];
-    const add = (member, desc, dia, sp, shape, len, nb, nm) => {
+    const add = (member, desc, dia, sp, shape, len, nb, nm, lenFormula, nbFormula) => {
       const tl = len * nb * nm, w = unitWt(dia);
-      rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w, kg: r2(tl * w) });
+      rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w, kg: r2(tl * w), lenFormula, nbFormula });
     };
     const m1 = `Deck slab  (${nV} No${nV > 1 ? 's' : ''}.)  ${L.toFixed(2)} x ${B.toFixed(2)} x ${p.D.toFixed(3)} m - M20`;
-    add(m1, '(i) Main bars - bottom (200 end bends)', p.mainDia, p.mainSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.mainSpacing / 1000), 1);
-    add(m1, '(ii) Top bars (span direction)', p.topDia, p.topSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.topSpacing / 1000), 1);
-    add(m1, '(iii) Distributaries - bottom', p.distDia, p.distSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.distSpacing / 1000), 1);
-    add(m1, '(iv) Distributaries - top', p.topDia, p.topSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.topSpacing / 1000), 1);
-    add(m1, '(v) Supporting chairs @ 1 No./sqm', 10, '-', '2 legs 0.30 + 2 feet 0.15', 0.9, Math.ceil(L * B - 1e-9), 1);
+    add(m1, '(i) Main bars - bottom (200 end bends)', p.mainDia, p.mainSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.mainSpacing / 1000), 1,
+      `ROUND(${L.toFixed(3)}-2*0.04+2*0.20,3)`, (sr) => `ROUNDUP((${B.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+    add(m1, '(ii) Top bars (span direction)', p.topDia, p.topSpacing / 1000, `${L.toFixed(2)} - 2x0.04 + 2x0.20`, L - 2 * c + 0.4, nBars(B, p.topSpacing / 1000), 1,
+      `ROUND(${L.toFixed(3)}-2*0.04+2*0.20,3)`, (sr) => `ROUNDUP((${B.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+    add(m1, '(iii) Distributaries - bottom', p.distDia, p.distSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.distSpacing / 1000), 1,
+      `ROUND(${B.toFixed(3)}-2*0.04,3)`, (sr) => `ROUNDUP((${L.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+    add(m1, '(iv) Distributaries - top', p.topDia, p.topSpacing / 1000, 'Straight across width', B - 2 * c, nBars(L, p.topSpacing / 1000), 1,
+      `ROUND(${B.toFixed(3)}-2*0.04,3)`, (sr) => `ROUNDUP((${L.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+    add(m1, '(v) Supporting chairs @ 1 No./sqm', 10, '-', '2 legs 0.30 + 2 feet 0.15', 0.9, Math.ceil(L * B - 1e-9), 1,
+      `ROUND(2*0.30+2*0.15,3)`, () => `ROUNDUP(${L.toFixed(3)}*${B.toFixed(3)},0)`);
     if (nV > 1) for (const x of rows) if (x.member === m1) { x.nm = nV; x.tl = r2(x.len * x.nb * nV); x.kg = r2(x.tl * x.w); }
     if (p.edgeType !== 'crash') {
       const m2 = `Kerbs  (${2 * nV} Nos.)  ${p.kerbW.toFixed(3)} x ${p.kerbH.toFixed(2)} m`;
-      add(m2, '(i) Main bars', 10, '-', 'Straight', L - 2 * c, 4, 2 * nV);
-      add(m2, '(ii) Stirrups', 8, 0.2, '2x(0.145+0.22) + 2x0.32 anch. + 0.10', 2 * (0.145 + 0.22) + 2 * 0.32 + 0.1, nBars(L, 0.2), 2 * nV);
+      add(m2, '(i) Main bars', 10, '-', 'Straight', L - 2 * c, 4, 2 * nV,
+        `ROUND(${L.toFixed(3)}-2*0.04,3)`, () => `4`);
+      add(m2, '(ii) Stirrups', 8, 0.2, '2x(0.145+0.22) + 2x0.32 anch. + 0.10', 2 * (0.145 + 0.22) + 2 * 0.32 + 0.1, nBars(L, 0.2), 2 * nV,
+        `ROUND(2*(0.145+0.22)+2*0.32+0.10,3)`, (sr) => `ROUNDUP((${L.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+    } else {
+      const mCrash = `RCC Crash barrier  (${2 * nV} Nos.)  length ${L.toFixed(2)} m - M20`;
+      add(mCrash, '(i) Vertical stirrups / profile bars (12 dia @ 150 c/c)', 12, 0.15, 'U-profile + dowels (2x0.90+0.45+2x0.30 - 2x0.04)', 2 * 0.90 + 0.45 + 2 * 0.30 - 2 * c, nBars(L, 0.15), 2 * nV,
+        `ROUND(2*0.90+0.45+2*0.30-2*0.04,3)`, (sr) => `ROUNDUP((${L.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+      add(mCrash, '(ii) Longitudinal distribution bars (10 dia)', 10, '-', '6 Nos. continuous along length', L - 2 * c, 6, 2 * nV,
+        `ROUND(${L.toFixed(3)}-2*0.04,3)`, () => `6`);
+      add(mCrash, '(iii) Internal ties (8 dia @ 200 c/c)', 8, 0.20, '2x(0.20+0.15)+0.10', 2 * (0.20 + 0.15) + 0.10, nBars(L, 0.20), 2 * nV,
+        `ROUND(2*(0.20+0.15)+0.10,3)`, (sr) => `ROUNDUP((${L.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+      if (p.approachLen > 0) {
+        const mCrashApp = `RCC Crash barrier over approach slabs  (4 Nos.)  length ${p.approachLen.toFixed(2)} m - M20`;
+        add(mCrashApp, '(i) Vertical stirrups / profile bars (12 dia @ 150 c/c)', 12, 0.15, 'U-profile + dowels (2x0.90+0.45+2x0.30 - 2x0.04)', 2 * 0.90 + 0.45 + 2 * 0.30 - 2 * c, nBars(p.approachLen, 0.15), 4,
+          `ROUND(2*0.90+0.45+2*0.30-2*0.04,3)`, (sr) => `ROUNDUP((${p.approachLen.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+        add(mCrashApp, '(ii) Longitudinal distribution bars (10 dia)', 10, '-', '6 Nos. continuous along length', p.approachLen - 2 * c, 6, 4,
+          `ROUND(${p.approachLen.toFixed(3)}-2*0.04,3)`, () => `6`);
+        add(mCrashApp, '(iii) Internal ties (8 dia @ 200 c/c)', 8, 0.20, '2x(0.20+0.15)+0.10', 2 * (0.20 + 0.15) + 0.10, nBars(p.approachLen, 0.20), 4,
+          `ROUND(2*(0.20+0.15)+0.10,3)`, (sr) => `ROUNDUP((${p.approachLen.toFixed(3)}-2*0.04)/D${sr},0)+1`);
+      }
     }
     const m3 = `Bed block over abutment  (2 Nos.)  ${B.toFixed(2)} x 0.50 x ${p.bedBlockT.toFixed(2)} m`;
-    add(m3, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(0.5, 0.15), 2);
-    add(m3, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', 0.5 - 2 * c, 2 * nBars(B, 0.15), 2);
+    add(m3, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(0.5, 0.15), 2,
+      `ROUND(${B.toFixed(3)}-2*0.04,3)`, (sr) => `2*(ROUNDUP((0.50-2*0.04)/D${sr},0)+1)`);
+    add(m3, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', 0.5 - 2 * c, 2 * nBars(B, 0.15), 2,
+      `ROUND(0.50-2*0.04,3)`, (sr) => `2*(ROUNDUP((${B.toFixed(3)}-2*0.04)/D${sr},0)+1)`);
     if (nV > 1) {
       const m5 = `Bed block over piers  (${nV - 1} Nos.)  ${B.toFixed(2)} x ${p.pierTopW.toFixed(2)} x ${p.bedBlockT.toFixed(2)} m`;
-      add(m5, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.pierTopW, 0.15), nV - 1);
-      add(m5, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', p.pierTopW - 2 * c, 2 * nBars(B, 0.15), nV - 1);
+      add(m5, '(i) Longitudinal bars (T&B)', 10, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.pierTopW, 0.15), nV - 1,
+        `ROUND(${B.toFixed(3)}-2*0.04,3)`, (sr) => `2*(ROUNDUP((${p.pierTopW.toFixed(3)}-2*0.04)/D${sr},0)+1)`);
+      add(m5, '(ii) Transverse bars (T&B)', 10, 0.15, 'Straight', p.pierTopW - 2 * c, 2 * nBars(B, 0.15), nV - 1,
+        `ROUND(${p.pierTopW.toFixed(3)}-2*0.04,3)`, (sr) => `2*(ROUNDUP((${B.toFixed(3)}-2*0.04)/D${sr},0)+1)`);
     }
     const m4 = `Approach slab  (2 Nos.)  ${p.approachLen.toFixed(2)} x ${B.toFixed(2)} x ${p.approachThk.toFixed(2)} m`;
-    add(m4, '(i) Main bars (T&B)', 12, 0.15, 'Straight', p.approachLen - 2 * c, 2 * nBars(B, 0.15), 2);
-    add(m4, '(ii) Distributaries (T&B)', 12, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.approachLen, 0.15), 2);
+    add(m4, '(i) Main bars (T&B)', 12, 0.15, 'Straight', p.approachLen - 2 * c, 2 * nBars(B, 0.15), 2,
+      `ROUND(${p.approachLen.toFixed(3)}-2*0.04,3)`, (sr) => `2*(ROUNDUP((${B.toFixed(3)}-2*0.04)/D${sr},0)+1)`);
+    add(m4, '(ii) Distributaries (T&B)', 12, 0.15, 'Straight', B - 2 * c, 2 * nBars(p.approachLen, 0.15), 2,
+      `ROUND(${B.toFixed(3)}-2*0.04,3)`, (sr) => `2*(ROUNDUP((${p.approachLen.toFixed(3)}-2*0.04)/D${sr},0)+1)`);
     const total = r2(rows.reduce((s, x) => s + x.kg, 0));
     const byDia = {};
     for (const x of rows) byDia[x.dia] = r2((byDia[x.dia] || 0) + x.kg);
@@ -148,7 +178,10 @@
       bedblock: [['for bed blocks on abutments', 1, 2, abL, 0.5, p.bedBlockT], ...(nV > 1 ? [['for bed blocks on piers', 1, nV - 1, abL, p.pierTopW, p.bedBlockT]] : [])],
       deck: [
         ['for deck slab', 1, nV, L, B, p.D],
-        ...(railing ? [['for kerb walls', 1, 2 * nV, L, p.kerbW, p.kerbH]] : []),
+        ...(railing ? [['for kerb walls', 1, 2 * nV, L, p.kerbW, p.kerbH]] : [
+          ['for RCC crash barriers over deck (M-20)', 1, 2 * nV, L, p.barrierW, 0.667],
+          ...(p.approachLen > 0 ? [['for RCC crash barriers over approach slabs (M-20)', 1, 4, p.approachLen, p.barrierW, 0.667]] : []),
+        ]),
         ...(p.fpW > 0 ? [['for raised footpaths', 1, 2 * nV, L, p.fpW, p.fpThk]] : []),
         ['for approach slab', 1, 2, p.approachLen, B, p.approachThk],
       ],
@@ -157,7 +190,7 @@
         ['wearing coat over approach slabs', 1, 2, p.approachLen, p.carriageway, p.wc],
       ],
       rail: railing ? [['on both sides of deck', 1, 2, R.totalLength, 1, 1]] : [],
-      crash: railing ? [] : [['on both sides of deck and approach slabs', 1, 2, R.totalLength + 2 * p.approachLen, 1, 1]],
+      crash: [], // RCC crash barriers are now measured directly under M20 concrete and HYSD steel
     };
     return price(ITEMS, M, b, { typ, where, nameOfWork: R.nameOfWork }, opts);
   }

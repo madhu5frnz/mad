@@ -260,7 +260,7 @@
     const lls = liveLoadSet(p);
     row('Live load', lls.map((x) => ({ A1: 'Class A 1-lane', A2: 'Class A 2-lane', B: 'Class B', R70T: '70R tracked', R70W: '70R wheeled bogie' }[x])).join(', '), '',
       p.liveMode === 'manual' ? 'Selected by designer' : 'IRC 6:2024 Table 6 for the carriageway width');
-    row('Edge / footpath', `${railing ? `RCC kerb ${fmt(p.kerbW * 1000, 0)} + hand railing (MORTH SD/202)` : `RCC crash barrier ${fmt(p.barrierW * 1000, 0)} wide`}${p.fpW > 0 ? `; footpath ${fmt(p.fpW, 2)} m each side, ${fmt(p.fpLoad * 9.81, 1)} kN/sqm` : '; no footpath'}`, '');
+    row('Edge / footpath', `${railing ? `RCC kerb ${fmt(p.kerbW * 1000, 0)} + hand railing (MORTH SD/202)` : `RCC crash barrier ${fmt(p.barrierW * 1000, 0)} wide (M20 RCC)`}${p.fpW > 0 ? `; footpath ${fmt(p.fpW, 2)} m each side, ${fmt(p.fpLoad * 9.81, 1)} kN/sqm` : '; no footpath'}`, '');
     row('Seismic', `Zone ${p.seismicZone} (Z = ${Z})`, '', 'IRC 6:2024 cl.219');
     row('Codes', 'IRC 5-2024, IRC 6-2024, IRC 21-2000 / IRC 112-2020, IRC 78-2024, IRC SP:13-2022, IS 456-2000, IS 1786, IS 2502; MORTH standard drawings', '');
     if (LSM && p.fck < 25) warnings.push('IRC 112 requires at least M25 for reinforced concrete bridge members. Raise the deck concrete grade.');
@@ -801,7 +801,7 @@
       ['Vents', `${nV} No${nV > 1 ? 's' : ''}. x ${fmt(p.span, 2)} m clear span${p.skew ? ` (skew ${p.skew} deg, ${fmt(spanR, 2)} m along road)` : ''}, RCC solid slab, simply supported${nV > 1 ? `; ${nV - 1} pier${nV > 2 ? 's' : ''} ${fmt(p.pierTopW, 2)} m wide` : ''}`],
       ['Deck', `${fmt(p.D * 1000, 0)} mm RCC M${p.fck} (${LSM ? 'IRC 112 LSM' : 'IRC 21 WSM'}), ${fmt(R.deckL, 2)} m long x ${fmt(B, 2)} m wide each; ${p.mainDia} dia @ ${p.mainSpacing} c/c main, ${p.distDia} dia @ ${p.distSpacing} distribution, ${p.topDia} dia @ ${p.topSpacing} top; Fe${p.fy}`],
       ['Live load', `${R.vehicles.map((e) => e.veh.name).join(', ')} (governing: ${gov.veh.name})`],
-      ['Edge / wearing coat', `${railing ? `RCC kerb ${fmt(p.kerbW * 1000, 0)} x ${fmt(p.kerbH * 1000, 0)} with hand railing (MORTH SD/202)` : `RCC crash barrier ${fmt(p.barrierW * 1000, 0)} wide (MORTH)`}${p.fpW > 0 ? `, footpaths ${fmt(p.fpW, 2)} m` : ''}; ${fmt(p.wc * 1000, 0)} mm wearing coat`],
+      ['Edge / wearing coat', `${railing ? `RCC kerb ${fmt(p.kerbW * 1000, 0)} x ${fmt(p.kerbH * 1000, 0)} with hand railing (MORTH SD/202)` : `RCC crash barrier ${fmt(p.barrierW * 1000, 0)} wide (M20 RCC)`}${p.fpW > 0 ? `, footpaths ${fmt(p.fpW, 2)} m` : ''}; ${fmt(p.wc * 1000, 0)} mm wearing coat`],
       ['Approach slabs', `${fmt(p.approachThk * 1000, 0)} mm RCC, ${fmt(p.approachLen, 2)} m long each side, 12 dia @ 150 T&B both ways; 20 mm expansion joints`],
       ['Abutments', `${yes(p.abKey) ? 'with shear key; ' : ''}${fmt(p.abTopW, 2)} top / ${fmt(R.stemBase, 2)} base (front batter ${fmt(fb, 2)}, back ${fmt(p.abBackBatter, 2)}), CC M${p.subFck} plums, stem ${fmt(R.stemH)} m, on ${fmt(R.ftgW, 2)} x ${fmt(p.footingT, 2)} PCC footing`],
       ...(nV > 1 ? [['Piers', `${fmt(p.pierTopW, 2)} top / ${fmt(R.pierBase, 2)} base, CC M${p.subFck} plums, on ${fmt(R.pierFtgW, 2)} x ${fmt(p.footingT, 2)} PCC footing`]] : []),

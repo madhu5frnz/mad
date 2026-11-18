@@ -137,6 +137,14 @@
     for (const x of e.bbs.rows) {
       if (x.member !== lastMember) { sl++; st.getRow(sr).values = [sl, x.member]; st.getRow(sr).font = bold; sr++; lastMember = x.member; }
       st.getRow(sr).values = ['', x.desc, x.dia, x.sp, x.shape, x.len, x.nb, x.nm];
+      if (typeof x.lenFormula === 'string') {
+        st.getCell(sr, 6).value = { formula: x.lenFormula, result: x.len };
+      }
+      if (typeof x.nbFormula === 'function') {
+        st.getCell(sr, 7).value = { formula: x.nbFormula(sr), result: x.nb };
+      } else if (typeof x.nbFormula === 'string') {
+        st.getCell(sr, 7).value = { formula: x.nbFormula, result: x.nb };
+      }
       st.getCell(sr, 9).value = { formula: `F${sr}*G${sr}*H${sr}`, result: x.tl };
       st.getCell(sr, 10).value = { formula: `ROUND(C${sr}^2/162,3)`, result: x.w };
       st.getCell(sr, 11).value = { formula: `ROUND(I${sr}*J${sr},2)`, result: x.kg };

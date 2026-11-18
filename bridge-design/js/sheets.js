@@ -262,8 +262,8 @@
       'GRADES OF CONCRETE:',
       `   PCC M${p.subFck} WITH 40MM M.S.A FOR FOUNDATION.`,
       `   CC M${p.subFck} WITH 15% PLUMS FOR ABUTMENTS${nV > 1 ? ', PIERS' : ''}, WING WALLS AND RETURNS.`,
-      `   RCC M${p.fck} WITH 20MM M.S.A FOR DECK SLAB, BED BLOCKS, APPROACH SLABS${railing ? ', KERB' : ''}, WEARING COAT.`,
-      ...(railing ? [] : ['   RCC CRASH BARRIERS AS PER MORTH STANDARD DRAWING (M40).']),
+      `   RCC M${p.fck} WITH 20MM M.S.A FOR DECK SLAB, BED BLOCKS, APPROACH SLABS${railing ? ', KERB' : ', CRASH BARRIERS'}, WEARING COAT.`,
+      ...(railing ? [] : ['   RCC CRASH BARRIERS: M20 GRADE CONCRETE WITH HYSD REINFORCEMENT (12Ø VERT, 10Ø LONG, 8Ø TIES).']),
       '   CC M15 WITH 20MM M.S.A FOR CANAL FLOOR / LINING.',
       'THE EXPANSION JOINT MUST BE ROBUST, DURABLE, WATERTIGHT AND REPLACEABLE, OVER FULL WIDTH OF THE SUPERSTRUCTURE.',
       'THE EXPANSION JOINT SHALL CATER FOR A TOTAL MOVEMENT OF 20 MM.',
@@ -455,8 +455,15 @@
       vk.line(-0.1, 0, bw + 0.3, 0, 'THIN');
       vk.dimH(0, bw, 0, mm(bw), -4, { h: 1.5 });
       vk.dimV(0, 0.9, 0, '900', -4, { h: 1.5 });
-      dw.title(vk.X(bw / 2), vk.Y(0) - 12, 'CRASH BARRIER (MORTH)', 2.4);
-      dw.text(vk.X(bw / 2), vk.Y(0) - 16, 'REINFORCEMENT AS PER MORTH STANDARD DRAWING', 1.2, 'TEXT', { anchor: 'middle' });
+      vk.poly([[0.04, -0.15], [0.04, 0.86], [0.14, 0.86], [bw - 0.13, 0.24], [bw - 0.04, 0.075], [bw - 0.04, -0.15]], false, 'REBAR', { w: 0.35 });
+      vk.circle(0.06, 0.84, 0.4, 'REBAR', { fill: true });
+      vk.circle(0.06, 0.55, 0.4, 'REBAR', { fill: true });
+      vk.circle(0.06, 0.25, 0.4, 'REBAR', { fill: true });
+      vk.circle(0.12, 0.84, 0.4, 'REBAR', { fill: true });
+      vk.circle(bw - 0.12, 0.24, 0.4, 'REBAR', { fill: true });
+      vk.circle(bw - 0.06, 0.075, 0.4, 'REBAR', { fill: true });
+      dw.title(vk.X(bw / 2), vk.Y(0) - 12, 'RCC CRASH BARRIER (M20)', 2.4);
+      dw.text(vk.X(bw / 2), vk.Y(0) - 16, '12Ø @ 150 VERT, 6-10Ø LONG, 8Ø @ 200 TIES', 1.2, 'TEXT', { anchor: 'middle' });
     }
 
     // E. stress table
@@ -477,7 +484,7 @@
       ['Deck - distribution', `${p.distDia} dia @ ${p.distSpacing} c/c (bottom)`, 'over main bars'],
       ['Deck - top', `${p.topDia} dia @ ${p.topSpacing} c/c both ways`, 'nominal'],
       ['Chairs', '10 dia, 1 No./sqm', 'IS 2502'],
-      ...(railing ? [[`Kerb (${2 * (R.nV || 1)} Nos)`, '4-10 dia + 8 dia stirrups @ 200', 'anchored in deck']] : [['Crash barrier', 'As per MORTH standard drawing', 'M40']]),
+      ...(railing ? [[`Kerb (${2 * (R.nV || 1)} Nos)`, '4-10 dia + 8 dia stirrups @ 200', 'anchored in deck']] : [[`Crash barrier (${2 * (R.nV || 1)} Nos)`, '12 dia @ 150 vert, 6-10 dia long, 8 dia ties', 'M20 grade RCC']]),
       [`Bed block (${2 + (R.nV || 1) - 1} Nos)`, '10 dia @ 150 c/c T&B both ways', ''],
       ['Approach slab (2 Nos)', '12 dia @ 150 c/c T&B both ways', `${mm(p.approachLen)} x ${mm(B)} x ${mm(p.approachThk)}`],
       ...(railing ? [['Hand railing', 'As per MORTH Drg. No. SD/202', '']] : []),
