@@ -67,8 +67,9 @@
             <option value="km1580">SLRB Km 1.580 (reference)</option>
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
             <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
-            <option value="culvert4m">Slab Culvert 1 x 4.0 m (IRC SP:13 / 7.5 m road)</option>
-            <option value="culvertTwin">Slab Culvert 2 x 3.0 m (IRC SP:13 twin vent)</option>
+            <option value="culvert4m">Slab Culvert 1 x 4.0 m Stream (IRC SP:13 / 7.5 m road)</option>
+            <option value="culvertTwin">Slab Culvert 2 x 3.0 m Stream (Twin vent IRC SP:13)</option>
+            <option value="culvertCanal">Slab Culvert 1 x 3.0 m Canal (4.25 m Village Road)</option>
             <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
             <option value="ut25615">U.T. Km 25.615 (department workbook data)</option>
           </select>
@@ -97,19 +98,19 @@
   <ol class="steps">
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="17" r="2"/></svg>
-      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B. or U.T. (drain under the canal) at the top.</span>
+      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B., SLAB CULVERT (1–6 m stream/canal crossing) or U.T. (drain under canal) at the top.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 20c3-3 6 3 9 0s6 3 9 0M12 3v8M9 8l3 3 3-3"/></svg>
-      <b>Enter the HPs</b><span>Q, bed width, FSD, side slope (1.5 for 1.5:1), free board, bed fall (2500 for 1 in 2500), CBL.</span>
+      <b>Enter the HPs / Catchment</b><span>Canal HPs (Q, bed width, FSD, slope, CBL) or Stream hydrology (Ryves / Dicken's / Rational catchment, bed slope, deep bed level).</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M6 20V9h12v11M3 9h18M9 13h2M13 13h2"/></svg>
-      <b>Site &amp; design conditions</b><span>FRL, ground level, soil, vents; then code, grades, loading, edge and seismic zone for your site. Press <i>use</i> on suggestions.</span>
+      <b>Site &amp; design conditions</b><span>FRL, ground level, soil SBC, spans &amp; vents; then design code, concrete/steel grades, IRC live loading, curtain walls &amp; bed protection. Press <i>use</i> on suggestions.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>
-      <b>Check &amp; download</b><span>Green means done; if red press <i>Auto design</i>. Download PDF, Excel or DXF.</span>
+      <b>Check &amp; download</b><span>Green means done; if red press <i>Auto design</i>. Download calculation report, A2 drawings (PDF/DXF), and live-formula Excel estimate.</span>
     </li>
   </ol>
 </section>
@@ -120,11 +121,12 @@
     <div class="bcard">
       <b>What you can set for your site</b>
       <ul>
-        <li>Hydraulic particulars, road and ground levels, bed material (silt factor), SBC, backfill φ and unit weight, friction</li>
-        <li>Number of vents (piers added automatically), clear span, skew, carriageway, footpaths</li>
+        <li>Hydraulic particulars / stream catchment hydrology, road and ground levels, bed material (silt factor), SBC, backfill φ and unit weight</li>
+        <li>Structure type: S.L.R.B. (4.25 m), D.L.R.B. (7.50 m), RCC Slab Culvert (1–6 m clear span, 1–4 vents with piers), or U.T. Box</li>
+        <li>Culvert floor protection: CC M15 bed apron (150 mm) over stone packing, u/s drop wall (1.5 m) and d/s drop wall (2.0 m)</li>
         <li>Deck edge: kerb with hand railing or RCC crash barrier</li>
         <li>Design method (IRC 21 WSM or IRC 112 LSM), concrete and steel grades, exposure and cover</li>
-        <li>Live load classes, seismic zone and importance factor, floor protection</li>
+        <li>Live load classes: IRC Class 70R (Tracked & Wheeled) / Class A / Class B, seismic zone and importance factor</li>
       </ul>
     </div>
     <div class="bcard">
@@ -135,7 +137,7 @@
         <li><i>IRC 21:2000</i> WSM deck, effective width (cl.305.16), permissible stresses (Department type designs)</li>
         <li><i>IRC 112:2020</i> LSM deck: flexure, shear, SLS stresses, minimum steel, cover</li>
         <li><i>IRC 78:2024</i> scour (1.27 / 2.0 dsm), foundation depth, stability FOS</li>
-        <li><i>IRC SP:13:2022</i> small bridges, floor protection</li>
+        <li><i>IRC SP:13:2022</i> small bridges & slab culverts, bed protection, curtain drop walls</li>
         <li><i>IS 456-2000, IS 1786, IS 2502</i>; <i>MORTH</i> SD/202 railing, crash barrier, specifications</li>
         <li><i>IS 7784 Pt 1 &amp; 2</i> U.T.: Lacey waterway, fluming, transitions, Unwin barrel loss; Dicken's flood; CDO drop-wall rules</li>
       </ul>
@@ -143,7 +145,8 @@
     <div class="bcard warn">
       <b>Scope and limits</b>
       <ul>
-        <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent; wider canals use more vents</li>
+        <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent for bridges; 1.0 to 6.0 m standard spans for slab culverts</li>
+        <li>Culverts feature standard IRC:SP:13 bed protection (150 mm CC M15 apron with 1.5 m u/s and 2.0 m d/s curtain walls)</li>
         <li>Plain concrete gravity abutments, piers and wing walls on open foundations; where they cannot work (high walls, poor soil, Zone IV–V) the tool says so</li>
         <li>Up to two traffic lanes; skew above 20° needs separate skew-slab analysis</li>
         <li>U.T.: single / multi-cell RCC box (closed-frame analysis, WSM) with vertical drop, cistern, splayed transitions and gravity head / wing / return walls</li>
@@ -246,6 +249,8 @@
 <script src="js/ut-estimate.js" defer></script>
 <script src="js/ut-sheets.js" defer></script>
 <script src="js/ut-ui.js" defer></script>
+<script src="js/culvert.js" defer></script>
+<script src="js/culvert-ui.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   const BD = window.BD;
   const $ = (s, r = document) => r.querySelector(s);
   const fmt = BD.fmt;
-  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1';
+  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1', CSTORE = 'bd-culvert-v1';
 
   // [key, label, unit, step]; step = 'text' for text, or an array of
   // [value, label] pairs for a drop-down.
@@ -119,33 +119,49 @@
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
-    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }),
-    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }),
-    dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
-    general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
-    culvert4m: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
-      bridgeType: 'CULVERT', chainage: '3.400', canalName: 'Stream / Nala Crossing', roadType: 'R&B / MDR ROAD',
-      location: 'Suryapet', district: 'Suryapet', span: 4.0, nVents: 1, carriageway: 7.5, edgeType: 'crash',
-      Q: 8.5, bedWidth: 3.5, fsd: 1.25, freeBoard: 0.6, bedFall: 1000, cbl: 120.0, cblExisting: 120.0,
-      frl: 122.95, gl: 122.2, foundationLevel: 118.5, sbc: 22, apron: 'yes',
-      frlNote: 'FRL fixed as per road formation level with 0.60 m freeboard over HFL.'
-    })).input,
-    culvertTwin: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
-      bridgeType: 'CULVERT', chainage: '7.850', canalName: 'Peddavagu Stream', roadType: 'STATE HIGHWAY',
-      location: 'Miryalaguda', district: 'Nalgonda', span: 3.0, nVents: 2, carriageway: 7.5, edgeType: 'crash',
-      Q: 14.0, bedWidth: 6.5, fsd: 1.4, freeBoard: 0.6, bedFall: 1200, cbl: 110.0, cblExisting: 110.0,
-      frl: 113.1, gl: 112.5, foundationLevel: 108.2, sbc: 25, apron: 'yes',
-      frlNote: 'Twin vent 2 x 3.0 m slab culvert per IRC SP:13 / MORTH standards.'
-    })).input,
-    wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
+    km0450: () => { setMode('bridge'); return Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }); },
+    km1580: () => { setMode('bridge'); return Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }); },
+    dlrb: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input; },
+    general: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input; },
+    culvert4m: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'stream', span: 4.0, nVents: 1, carriageway: 7.50, roadType: 'MDR_TWO',
+        waterwayName: 'Peddavagu Stream', chainage: '3.400', catchment: 6.25, formulaC: 8.5,
+        streamBed: 100.0, streamBedWidth: 5.5, streamFall: 800, frl: 103.20, gl: 102.50,
+      })).input;
+    },
+    culvertTwin: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'stream', span: 3.0, nVents: 2, pierW: 0.75, carriageway: 7.50, roadType: 'SH',
+        waterwayName: 'Chityala Stream', chainage: '7.850', catchment: 12.0, formulaC: 8.5,
+        streamBed: 110.0, streamBedWidth: 8.5, streamFall: 1000, frl: 113.30, gl: 112.50,
+      })).input;
+    },
+    culvertCanal: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'canal', span: 3.0, nVents: 1, carriageway: 4.25, roadType: 'PR_VILLAGE',
+        waterwayName: 'L-1 Minor Canal', chainage: '0.850', Qc: 1.5, canalBedW: 2.0, canalFsd: 0.8,
+        canalCbl: 145.0, frl: 147.50, gl: 147.0,
+      })).input;
+    },
+    wide: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input; },
   };
 
-  // Structure kinds: road bridges (SLRB / DLRB) and U.T. share the form, tabs and exports.
+  // Structure kinds: road bridges (SLRB / DLRB), dedicated culverts, and U.T. share the form, tabs and exports.
   const UT = BD.UTUI;
+  const CULVERT = BD.CULVERTUI;
   const BRIDGE = { GROUPS, SHOW_IF, AUTO_FIELDS, STD_NOTE, onChoice: (st, k) => onChoice(k) };
-  let mode = load('bd-mode') === 'ut' ? 'ut' : 'bridge';
-  const K = () => (mode === 'ut' ? UT : BRIDGE);
-  const states = { bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}), ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {}) };
+  let mode = load('bd-mode') || 'bridge';
+  if (!['bridge', 'culvert', 'ut'].includes(mode)) mode = 'bridge';
+  const K = () => (mode === 'ut' ? UT : mode === 'culvert' ? CULVERT : BRIDGE);
+  const states = {
+    bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}),
+    culvert: Object.assign({}, BD.CULVERT_DEFAULTS, load(CSTORE) || {}),
+    ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {})
+  };
   let state = states[mode];
   function setMode(m) {
     states[mode] = state;
@@ -153,8 +169,12 @@
     save('bd-mode', m);
     lastDeckKey = '';
     buildForm();
-    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : DWG_HINT;
-    $('#bp-foot').textContent = mode === 'ut' ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres' : 'Drawn to scale from your inputs · levels in metres';
+    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : mode === 'culvert' ? CULVERT.dwgHint : DWG_HINT;
+    $('#bp-foot').textContent = mode === 'ut'
+      ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres'
+      : mode === 'culvert'
+      ? 'Culvert sectional elevation with bed protection & curtain walls · levels in metres'
+      : 'Drawn to scale from your inputs · levels in metres';
   }
   const DWG_HINT = 'Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.';
   let rates = load(RSTORE) || {};
@@ -241,7 +261,7 @@
   function fillForm() {
     for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
     applyVisibility();
-    const ty = mode === 'ut' ? 'UT' : state.bridgeType;
+    const ty = mode === 'ut' ? 'UT' : mode === 'culvert' ? 'CULVERT' : state.bridgeType;
     document.querySelectorAll('.type-switch button').forEach((b) => { b.classList.toggle('active', b.dataset.type === ty); b.setAttribute('aria-checked', String(b.dataset.type === ty)); });
   }
 
@@ -252,6 +272,7 @@
   let lastDeckKey = '';
   function run() {
     if (mode === 'ut') return runUT();
+    if (mode === 'culvert') return runCulvert();
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
@@ -273,6 +294,19 @@
     if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
   }
   let drawingsStale = true;
+
+  function runCulvert() {
+    try {
+      cur = BD.culvertDesign(state);
+      est = BD.CULVERTUI.estimate(cur, { rates });
+    } catch (err) {
+      $('#status').innerHTML = `<div class="fixbox">Could not compute: ${esc(err.message)}</div>`;
+      return;
+    }
+    save(CSTORE, state);
+    renderStatus(); renderHints(); renderReport(); renderEstimate();
+    if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
+  }
 
   function runUT() {
     try {
@@ -298,13 +332,32 @@
     const nChecks = cur.sections.reduce((n, s) => n + s.rows.filter((r) => r.check).length, 0);
     $('#badge').className = 'badge ' + (fails.length ? 'bad' : 'ok');
     $('#badge').textContent = fails.length ? `${fails.length} of ${nChecks} checks need revision` : `All ${nChecks} design checks OK`;
-    const fixTxt = mode === 'ut' ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.' : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
+    const fixTxt = mode === 'ut'
+      ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.'
+      : mode === 'culvert'
+      ? 'Press <b>Auto design</b> to size the slab, foundation depth, abutments, and wing walls to pass all checks.'
+      : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
     if (mode === 'ut') {
       const u = UT.status(cur, est, state);
       $('#xsec').innerHTML = UT.sectionSVG(cur);
       $('#xsec-title').textContent = u.title;
       $('#kpis').innerHTML = u.kpis;
       $('#status').innerHTML = `<div class="gov">${u.gov}</div>` +
+        (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
+        (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+      return;
+    }
+    if (mode === 'culvert') {
+      $('#xsec').innerHTML = CULVERT.renderXSec(cur);
+      $('#xsec-title').textContent = `${R.typ} (${state.crossingType === 'stream' ? 'Stream' : 'Canal'}) · Km ${state.chainage}`;
+      const estLakhs = est.lakhs ? est.lakhs.toFixed(2) : (est.total / 100000).toFixed(2);
+      $('#kpis').innerHTML = `
+        <div><span>Linear waterway</span><b>${fmt(R.totalWaterway, 2)}<i>m</i></b><small>${state.nVents} vent${state.nVents > 1 ? 's' : ''} x ${fmt(state.span, 2)} m</small></div>
+        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)}<i>mm</i></b><small>${state.mainDia} dia @ ${state.mainSpacing} c/c</small></div>
+        <div><span>Base pressure</span><b>${fmt(R.pmax, 2)}<i>t/m²</i></b><small>SBC ${state.sbc} · FOS ${fmt(R.fosO, 2)}</small></div>
+        <div><span>Estimate</span><b>${estLakhs}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`;
+      $('#status').innerHTML =
+        `<div class="gov"><span>Culvert Waterway & Hydrology</span><b>Design Q = ${fmt(R.Q, 2)} cumecs · ${state.crossingType === 'stream' ? 'HFL' : 'FSL'} +${fmt(R.hfl, 3)} m</b></div>` +
         (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
         (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
       return;
@@ -480,7 +533,7 @@
     drawingsStale = false;
   }
 
-  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
+  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : mode === 'culvert' ? CULVERT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
   // ---------------------------------------------------------------- downloads
   const fileBase = () => `${cur.R.typ.replace(/[\.\s]+/g, '_')}_Km${String(state.chainage).replace('.', '')}`;
   // Runs an export; libraries load deferred, so wait for them briefly.
@@ -503,21 +556,20 @@
   function init() {
     wireForm(); setMode(mode); fillForm();
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
-      if (b.dataset.type === 'UT') { if (mode === 'ut') return; setMode('ut'); fillForm(); run(); return; }
-      const wasUT = (mode === 'ut');
-      if (wasUT) {
-        setMode('bridge');
-      } else if (state.bridgeType === b.dataset.type) {
-        return;
+      const targetType = b.dataset.type;
+      if (targetType === 'UT') {
+        if (mode === 'ut') return;
+        setMode('ut'); fillForm(); run(); return;
       }
-      if (state.bridgeType !== b.dataset.type) {
-        state.bridgeType = b.dataset.type;
-        state.carriageway = BD.CARRIAGEWAY[state.bridgeType] || 7.5;
-        if (b.dataset.type === 'CULVERT') {
-          if (!state.span || state.span > 6.0) state.span = 4.0;
-          if (!state.canalName || state.canalName.includes('Minor')) state.canalName = 'Stream / Drain Crossing';
-          if (state.roadType === 'C.T ROAD') state.roadType = 'R&B / MDR ROAD';
-        }
+      if (targetType === 'CULVERT') {
+        if (mode === 'culvert') return;
+        setMode('culvert'); fillForm(); run(); return;
+      }
+      // SLRB or DLRB
+      if (mode !== 'bridge') setMode('bridge');
+      if (state.bridgeType !== targetType) {
+        state.bridgeType = targetType;
+        state.carriageway = BD.CARRIAGEWAY[state.bridgeType];
       }
       fillForm(); run();
     }));
@@ -540,6 +592,12 @@
         flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
         return;
       }
+      if (mode === 'culvert') {
+        const a = BD.culvertAutoDesign(state);
+        state = a.input; fillForm(); run();
+        flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
+        return;
+      }
       const a = BD.autoDesign(state);
       state = a.input; fillForm(); run();
       const msg = a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above (e.g. raise FRL or improve SBC).';
@@ -548,19 +606,27 @@
     $('#sel-example').addEventListener('change', (e) => {
       const f = EXAMPLES[e.target.value];
       if (e.target.value === 'ut25615') { setMode('ut'); state = Object.assign({}, BD.UT_DEFAULTS); fillForm(); run(); }
-      else if (f) { if (mode === 'ut') setMode('bridge'); state = f(); fillForm(); run(); }
+      else if (f) { state = f(); fillForm(); run(); }
       e.target.value = '';
     });
-    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS); fillForm(); run(); });
-    $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
+    $('#btn-reset').addEventListener('click', () => {
+      state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : mode === 'culvert' ? BD.CULVERT_DEFAULTS : BD.DEFAULTS);
+      fillForm(); run();
+    });
+    $('#btn-save').addEventListener('click', async () => {
+      try {
+        const payload = Object.assign({ structure: mode === 'ut' ? 'UT' : mode === 'culvert' ? 'CULVERT' : 'BRIDGE' }, state);
+        if (await dl(JSON.stringify(payload, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.');
+      } catch (err) { flash(err.message); }
+    });
     $('#file-open').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
       try {
         const js = JSON.parse(await f.text());
-        const m = js.structure === 'UT' ? 'ut' : 'bridge';
+        const m = js.structure === 'UT' ? 'ut' : js.structure === 'CULVERT' ? 'culvert' : 'bridge';
         if (m !== mode) setMode(m);
-        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
+        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : m === 'culvert' ? BD.CULVERT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
       }
       catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
       e.target.value = '';

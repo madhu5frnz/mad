@@ -493,8 +493,9 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
             <option value="km1580">SLRB Km 1.580 (reference)</option>
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
             <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
-            <option value="culvert4m">Slab Culvert 1 x 4.0 m (IRC SP:13 / 7.5 m road)</option>
-            <option value="culvertTwin">Slab Culvert 2 x 3.0 m (IRC SP:13 twin vent)</option>
+            <option value="culvert4m">Slab Culvert 1 x 4.0 m Stream (IRC SP:13 / 7.5 m road)</option>
+            <option value="culvertTwin">Slab Culvert 2 x 3.0 m Stream (Twin vent IRC SP:13)</option>
+            <option value="culvertCanal">Slab Culvert 1 x 3.0 m Canal (4.25 m Village Road)</option>
             <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
             <option value="ut25615">U.T. Km 25.615 (department workbook data)</option>
           </select>
@@ -523,19 +524,19 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   <ol class="steps">
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="17" r="2"/></svg>
-      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B. or U.T. (drain under the canal) at the top.</span>
+      <b>Choose the structure</b><span>S.L.R.B., D.L.R.B., SLAB CULVERT (1–6 m stream/canal crossing) or U.T. (drain under canal) at the top.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c3-3 6 3 9 0s6 3 9 0M3 20c3-3 6 3 9 0s6 3 9 0M12 3v8M9 8l3 3 3-3"/></svg>
-      <b>Enter the HPs</b><span>Q, bed width, FSD, side slope (1.5 for 1.5:1), free board, bed fall (2500 for 1 in 2500), CBL.</span>
+      <b>Enter the HPs / Catchment</b><span>Canal HPs (Q, bed width, FSD, slope, CBL) or Stream hydrology (Ryves / Dicken's / Rational catchment, bed slope, deep bed level).</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M6 20V9h12v11M3 9h18M9 13h2M13 13h2"/></svg>
-      <b>Site &amp; design conditions</b><span>FRL, ground level, soil, vents; then code, grades, loading, edge and seismic zone for your site. Press <i>use</i> on suggestions.</span>
+      <b>Site &amp; design conditions</b><span>FRL, ground level, soil SBC, spans &amp; vents; then design code, concrete/steel grades, IRC live loading, curtain walls &amp; bed protection. Press <i>use</i> on suggestions.</span>
     </li>
     <li>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg>
-      <b>Check &amp; download</b><span>Green means done; if red press <i>Auto design</i>. Download PDF, Excel or DXF.</span>
+      <b>Check &amp; download</b><span>Green means done; if red press <i>Auto design</i>. Download calculation report, A2 drawings (PDF/DXF), and live-formula Excel estimate.</span>
     </li>
   </ol>
 </section>
@@ -546,11 +547,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     <div class="bcard">
       <b>What you can set for your site</b>
       <ul>
-        <li>Hydraulic particulars, road and ground levels, bed material (silt factor), SBC, backfill φ and unit weight, friction</li>
-        <li>Number of vents (piers added automatically), clear span, skew, carriageway, footpaths</li>
+        <li>Hydraulic particulars / stream catchment hydrology, road and ground levels, bed material (silt factor), SBC, backfill φ and unit weight</li>
+        <li>Structure type: S.L.R.B. (4.25 m), D.L.R.B. (7.50 m), RCC Slab Culvert (1–6 m clear span, 1–4 vents with piers), or U.T. Box</li>
+        <li>Culvert floor protection: CC M15 bed apron (150 mm) over stone packing, u/s drop wall (1.5 m) and d/s drop wall (2.0 m)</li>
         <li>Deck edge: kerb with hand railing or RCC crash barrier</li>
         <li>Design method (IRC 21 WSM or IRC 112 LSM), concrete and steel grades, exposure and cover</li>
-        <li>Live load classes, seismic zone and importance factor, floor protection</li>
+        <li>Live load classes: IRC Class 70R (Tracked & Wheeled) / Class A / Class B, seismic zone and importance factor</li>
       </ul>
     </div>
     <div class="bcard">
@@ -561,7 +563,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         <li><i>IRC 21:2000</i> WSM deck, effective width (cl.305.16), permissible stresses (Department type designs)</li>
         <li><i>IRC 112:2020</i> LSM deck: flexure, shear, SLS stresses, minimum steel, cover</li>
         <li><i>IRC 78:2024</i> scour (1.27 / 2.0 dsm), foundation depth, stability FOS</li>
-        <li><i>IRC SP:13:2022</i> small bridges, floor protection</li>
+        <li><i>IRC SP:13:2022</i> small bridges & slab culverts, bed protection, curtain drop walls</li>
         <li><i>IS 456-2000, IS 1786, IS 2502</i>; <i>MORTH</i> SD/202 railing, crash barrier, specifications</li>
         <li><i>IS 7784 Pt 1 &amp; 2</i> U.T.: Lacey waterway, fluming, transitions, Unwin barrel loss; Dicken's flood; CDO drop-wall rules</li>
       </ul>
@@ -569,7 +571,8 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     <div class="bcard warn">
       <b>Scope and limits</b>
       <ul>
-        <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent; wider canals use more vents</li>
+        <li>RCC solid slab decks, simply supported, up to about 8–10 m per vent for bridges; 1.0 to 6.0 m standard spans for slab culverts</li>
+        <li>Culverts feature standard IRC:SP:13 bed protection (150 mm CC M15 apron with 1.5 m u/s and 2.0 m d/s curtain walls)</li>
         <li>Plain concrete gravity abutments, piers and wing walls on open foundations; where they cannot work (high walls, poor soil, Zone IV–V) the tool says so</li>
         <li>Up to two traffic lanes; skew above 20° needs separate skew-slab analysis</li>
         <li>U.T.: single / multi-cell RCC box (closed-frame analysis, WSM) with vertical drop, cistern, splayed transitions and gravity head / wing / return walls</li>
@@ -4634,13 +4637,1209 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
 </script>
 <script>
+/*
+ * Dedicated Slab Culvert Design Engine (IRC:SP:13-2022, IRC 5-2024, IRC 6-2024,
+ * IRC 21:2000 / IRC 112:2020, IRC 78-2024, IS 456-2000).
+ *
+ * Truly dedicated culvert tool supporting:
+ *  1. Crossing Type:
+ *     - Natural Stream / Nala Crossing: Catchment hydrology (Ryves / Dicken's / Rational / MFD),
+ *       stream hydraulics (Manning's HFL & normal depth), Lacey regime waterway,
+ *       Lacey scour depth (R = 1.34 (q^2/f)^(1/3)), safe foundation level.
+ *     - Canal Crossing: Canal HPs (Q, Bed width, FSD, CBL, FSL, TBL).
+ *  2. Standard IRC:SP:13 Spans: 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0 m (1 to 4 vents with piers).
+ *  3. IRC:SP:13 Bed Protection & Curtain Walls:
+ *     - Rigid CC M15 bed flooring (150 mm) over dry stone packing (150 mm)
+ *     - Upstream curtain (drop) wall (1.5 m below bed)
+ *     - Downstream curtain (drop) wall (2.0 m below bed)
+ *     - Flexible boulder apron / pitching u/s (3-5 m) & d/s (5-8 m)
+ *  4. RCC Solid Deck Slab:
+ *     - IRC 21:2000 WSM or IRC 112:2020 LSM
+ *     - Live loads: IRC 6 Class A (1 or 2 lanes), Class 70R (tracked / 2x20t wheeled), Class B
+ *     - Effective width dispersion per IRC 21 cl.305.16
+ *  5. Substructure & Foundations:
+ *     - Gravity abutments and piers (plain concrete CC M15/M20 or stone masonry)
+ *     - 45° splayed wing walls (for streams) or straight returns (for canal banks)
+ *     - Stability against overturning (FOS >= 2.0), sliding (FOS >= 1.5), base pressure <= SBC, no tension (e <= B/6).
+ *  6. Complete Telangana / AP SSR 2026-27 detailed estimate with curtain walls, bed flooring, and BBS.
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+
+  const G = 9.80665;
+  const rad = (d) => (d * Math.PI) / 180;
+  const fmt = (v, n = 3) => (typeof v === 'number' && isFinite(v) ? v.toFixed(n) : String(v));
+  const yes = (v) => v === 'yes' || v === true;
+
+  const CULVERT_DEFAULTS = {
+    // Project
+    crossingType: 'stream', // 'stream' | 'canal'
+    chainage: '3.400',
+    waterwayName: 'Peddavagu Stream',
+    roadType: 'MDR', // 'VILLAGE' | 'ODR' | 'MDR' | 'SH' | 'NH'
+    location: 'Suryapet',
+    district: 'Suryapet',
+    state: 'GOVERNMENT OF TELANGANA',
+    department: 'PANCHAYAT RAJ / R&B DEPARTMENT',
+    subDivision: 'R&B Sub-Division, Suryapet',
+    division: 'R&B Division, Suryapet',
+    frlNote: 'FRL fixed to maintain 0.60 m freeboard over design HFL.',
+
+    // Stream Hydrology & Hydraulics (when crossingType === 'stream')
+    floodMode: 'catchment', // 'catchment' | 'given'
+    catchmentFormula: 'ryves', // 'ryves' | 'dicken' | 'rational'
+    catchment: 6.25, // sq.km
+    formulaC: 8.5, // Ryves C (6.8 to 10.2) or Dicken C (11.5 to 19.5)
+    rainIntensity: 45, // mm/hr for rational
+    runoffCoeff: 0.45, // for rational
+    mfdGiven: 18.5, // cumecs (if floodMode === 'given')
+    streamBed: 100.0, // m (deep bed level)
+    streamBedWidth: 5.5, // m
+    streamSideSlope: 1.0, // H:1
+    streamFall: 800, // 1 in N
+    streamN: 0.035, // Manning's n
+    hflGiven: 0, // 0 = compute from normal depth
+
+    // Canal HPs (when crossingType === 'canal')
+    Qc: 1.85, canalBedW: 2.20, bedWidthC: 2.20, canalFsd: 0.90, fsdC: 0.90,
+    canalSideSlope: 1.5, sideSlopeC: 1.5, canalFB: 0.60, freeBoardC: 0.60,
+    canalBedFall: 2000, bedFallC: 2000, canalCbl: 100.0, cblC: 100.0,
+    manningNC: 0.025, bankWidthLC: 1.5, bankWidthRC: 1.5,
+
+    // Culvert Ventway & Road
+    nVents: 1,
+    span: 4.0, // standard span: 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0 m
+    pierW: 0.75, // pier top width (m)
+    carriageway: 7.50, // 4.25 (single lane), 5.50 (intermediate), 7.50 (two lane)
+    edgeType: 'crash', // 'railing' | 'crash'
+    kerbW: 0.225, kerbH: 0.30, railingLoad: 0.10,
+    barrierW: 0.45, barrierLoad: 0.75,
+    skew: 0,
+    bearingW: 0.40,
+    frl: 103.20, gl: 102.50,
+    freeBoardAdopted: 0.60, // m over HFL/FSL
+
+    // IRC:SP:13 Bed Protection & Curtain Walls
+    bedProtection: 'yes',
+    curtainDepthUs: 1.50, // m below stream bed
+    curtainDepthDs: 2.00, // m below stream bed
+    curtainThk: 0.35, // m
+    floorThk: 0.15, // m CC M15 bed flooring
+    packingThk: 0.15, // m stone packing under floor
+    apronLenUs: 3.50, // m
+    apronLenDs: 6.00, // m
+    apronThk: 0.30, // m dry stone pitching
+
+    // Deck Slab Structural
+    deckAuto: 'yes', minD: 0.25, D: 0.375, wc: 0.075,
+    method: 'WSM', // 'WSM' | 'LSM'
+    fck: 25, fy: 500, exposure: 'moderate',
+    cover: 0.040,
+    mainDia: 16, mainSpacing: 120,
+    distDia: 10, distSpacing: 150,
+    topDia: 10, topSpacing: 200,
+
+    // Live Load
+    liveMode: 'auto', llA1: 'yes', llA2: 'yes', ll70T: 'yes', ll70W: 'yes', llB: 'no',
+    seismicZone: 'II', impFactor: 1.0,
+
+    // Substructure (Abutments, Piers & Wings)
+    abAuto: 'yes',
+    foundationLevel: 98.20,
+    abTopW: 0.60, abFrontBatter: 0.0, abBackBatter: 1.40,
+    abToe: 0.50, abHeel: 0.50, footingT: 0.50, bedBlockT: 0.30,
+    pierBatter: 0.0, pierToe: 0.40,
+    wingType: 'splayed', // 'splayed' (45 deg) | 'return' (straight)
+    wingLen: 3.50, wTopW: 0.45, wFrontBatter: 0.80, wBaseW: 2.20,
+    wToe: 0.30, wHeel: 0.30, wFootT: 0.35,
+    subFck: 15, sbc: 20.0, siltFactor: 1.0,
+    phi: 30, gammaSoil: 1.90, gammaConc: 2.40, mu: 0.50,
+    surcharge: 1.20, // m equivalent fill for LL
+  };
+
+  // ------------------------------------------------------------ Hydrology & Hydraulics
+  function normalDepth(Q, B, s, n, S) {
+    if (Q <= 0) return 0.1;
+    let lo = 0.01, hi = 15;
+    for (let i = 0; i < 80; i++) {
+      const d = (lo + hi) / 2;
+      const A = (B + s * d) * d;
+      const P = B + 2 * d * Math.sqrt(1 + s * s);
+      const R = A / P;
+      const qCalc = (1 / n) * A * Math.pow(R, 2 / 3) * Math.sqrt(S);
+      if (qCalc > Q) hi = d; else lo = d;
+    }
+    return (lo + hi) / 2;
+  }
+
+  // ------------------------------------------------------------ Main Culvert Design
+  function design(input) {
+    const p = Object.assign({}, CULVERT_DEFAULTS, input || {});
+    for (const k of Object.keys(CULVERT_DEFAULTS)) {
+      if (typeof CULVERT_DEFAULTS[k] === 'number') p[k] = Number(p[k]);
+    }
+    p.nVents = Math.max(1, Math.min(6, Math.round(p.nVents)));
+    p.span = Math.min(6.0, Math.max(1.0, p.span)); // Culvert spans are strictly <= 6.0 m
+
+    const isStream = p.crossingType === 'stream';
+    const LSM = p.method === 'LSM';
+    const nV = p.nVents;
+    const R = { nV };
+    const secs = [];
+    let curSec;
+    const sec = (title) => { curSec = { title, rows: [] }; secs.push(curSec); };
+    const row = (label, value, unit = '', remark = '', opt = {}) => {
+      curSec.rows.push(Object.assign({ label, value, unit, remark }, opt));
+      return value;
+    };
+    const inp = (label, key, unit, remark) => row(label, p[key], unit, remark, { input: key });
+    const chk = (label, ok, text, remark) => row(label, text, '', remark || '', { check: true, ok: !!ok });
+    const warnings = [];
+
+    // Geometry Helpers
+    const cosS = Math.cos(rad(p.skew || 0));
+    const spanR = (R.spanR = p.span / cosS);
+    const railing = p.edgeType !== 'crash';
+    const edgeW = (R.edgeW = railing ? p.kerbW : p.barrierW);
+    const edgeDL = railing ? p.kerbW * p.kerbH * 2.5 + p.railingLoad : p.barrierLoad;
+    const B = (R.B = p.carriageway + 2 * edgeW);
+    R.deckL = spanR + 2 * p.bearingW;
+    const totalWaterway = nV * p.span;
+    R.totalWaterway = totalWaterway;
+    const totalOpening = nV * spanR + (nV - 1) * (p.pierW / cosS);
+    R.opening = totalOpening;
+
+    // ============================================================== 0. DESIGN BASIS
+    sec('0. DESIGN BASIS (IRC:SP:13 & IRC STANDARDS)');
+    row('Structure Type', `RCC Slab Culvert, ${nV} Vent${nV > 1 ? 's' : ''} x ${fmt(p.span, 2)} m Clear Span on Gravity Abutments${nV > 1 ? ` and Pier (${fmt(p.pierW, 2)} m)` : ''}`, '');
+    row('Crossing Classification', `${isStream ? 'Natural Stream / Drainage Nala' : 'Irrigation Canal'} Crossing`, '', 'Linear waterway <= 6.0 m per IRC 5');
+    row('Applicable Standards', 'IRC:SP:13-2022, IRC 5-2024, IRC 6-2024, IRC 21-2000 / IRC 112-2020, IRC 78-2024, IS 456-2000', '');
+    row('Deck Design Method', LSM ? 'IRC 112:2020 Limit State Method' : 'IRC 21:2000 Working Stress Method', '');
+    row('Materials', `Deck: RCC M${p.fck} / Fe${p.fy}; Substructure: CC M${p.subFck} with plums`, '');
+
+    // ============================================================== 1. HYDROLOGY & HYDRAULICS
+    if (isStream) {
+      sec(`1. HYDROLOGY & STREAM HYDRAULICS (IRC:SP:13 SECTION 3 & 4)`);
+      inp('Stream Name', 'waterwayName', '', '');
+      inp('Deep Bed Level (DBL) at Site', 'streamBed', 'm', 'Lowest bed level across crossing');
+      inp('Catchment Hydrology Method', 'floodMode', '', p.floodMode === 'catchment' ? `Formula: ${p.catchmentFormula.toUpperCase()}` : 'Direct MFD');
+
+      let Q = 0;
+      if (p.floodMode === 'catchment') {
+        inp('Catchment Area (A)', 'catchment', 'sq.km');
+        if (p.catchmentFormula === 'ryves') {
+          inp("Ryves' Coefficient (C)", 'formulaC', '', 'South India standard: C = 6.8 (coastal) to 10.2 (hills)');
+          Q = p.formulaC * Math.pow(p.catchment, 2 / 3);
+          row("Design Flood Discharge Q = C * A^(2/3)", Q, 'cumecs', "Ryves' Formula for South Indian catchments");
+        } else if (p.catchmentFormula === 'dicken') {
+          inp("Dicken's Coefficient (C)", 'formulaC', '', 'North/Central India & plateaus: C = 11.5 to 19.5');
+          Q = p.formulaC * Math.pow(p.catchment, 3 / 4);
+          row("Design Flood Discharge Q = C * A^(3/4)", Q, 'cumecs', "Dicken's Formula");
+        } else {
+          inp('Rainfall Intensity (I)', 'rainIntensity', 'mm/hr');
+          inp('Runoff Coefficient (C)', 'runoffCoeff', '');
+          Q = 0.278 * p.runoffCoeff * p.rainIntensity * p.catchment;
+          row('Design Flood Discharge Q = 0.278 * C * I * A', Q, 'cumecs', 'Rational Formula');
+        }
+      } else {
+        inp('Design Flood Discharge Q', 'mfdGiven', 'cumecs', 'Directly observed or estimated flood flow');
+        Q = p.mfdGiven;
+      }
+      R.Q = Q;
+
+      // Stream Geometry & Normal Depth
+      inp('Stream Bed Width', 'streamBedWidth', 'm');
+      inp('Stream Side Slope (H:1)', 'streamSideSlope', '');
+      inp('Stream Longitudinal Fall 1 in', 'streamFall', '', `Slope S = ${fmt(1 / p.streamFall, 5)}`);
+      inp("Manning's Roughness n", 'streamN', '', 'Natural stream channel');
+
+      const S = 1 / Math.max(10, p.streamFall);
+      const yn = normalDepth(Q, p.streamBedWidth, p.streamSideSlope, p.streamN, S);
+      R.yn = yn;
+      const hflCalc = p.streamBed + yn;
+      R.hfl = p.hflGiven > 0 ? p.hflGiven : hflCalc;
+      row('Normal Flood Depth in Stream (yn)', yn, 'm', "Manning's equation on natural channel");
+      row('Computed High Flood Level (HFL)', R.hfl, 'm', p.hflGiven > 0 ? `User override (calc +${fmt(hflCalc)})` : 'Stream Bed + yn');
+
+      const streamArea = (p.streamBedWidth + p.streamSideSlope * yn) * yn;
+      const streamV = Q / streamArea;
+      row('Natural Stream Velocity', streamV, 'm/s', 'Approach channel velocity');
+
+      // Regime Waterway (Lacey)
+      const laceyW = 4.8 * Math.sqrt(Q);
+      R.laceyW = laceyW;
+      row("Lacey's Regime Linear Waterway W = 4.8 * sqrt(Q)", laceyW, 'm', 'IRC:SP:13 cl. 4.2 / IRC 5');
+      row('Total Provided Clear Linear Waterway', totalWaterway, 'm', `${nV} vent${nV > 1 ? 's' : ''} x ${fmt(p.span, 2)} m`);
+      const flumingPct = (totalWaterway / laceyW) * 100;
+      row('Waterway Fluming Ratio', flumingPct, '%', flumingPct < 60 ? 'Heavy fluming - check afflux' : 'Within normal limits (>= 60%)');
+
+      // Scour Depth per Lacey & IRC 78 / IRC:SP:13
+      inp('Lacey Silt Factor f', 'siltFactor', '', 'IRC 78 Table 3 / IRC:SP:13');
+      const qVent = Q / totalWaterway;
+      R.qVent = qVent;
+      row('Discharge per Metre Width (q)', qVent, 'cumecs/m');
+      const dsm = 1.34 * Math.pow((qVent * qVent) / Math.max(0.1, p.siltFactor), 1 / 3);
+      R.dsm = dsm;
+      row('Mean Scour Depth below HFL dsm = 1.34 * (q^2/f)^(1/3)', dsm, 'm', 'IRC 78 / IRC:SP:13');
+      const scourAbut = 1.27 * dsm;
+      const scourPier = 2.0 * dsm;
+      R.scourAbutLevel = R.hfl - scourAbut;
+      R.scourPierLevel = R.hfl - scourPier;
+      row('Maximum Scour Level at Abutments (1.27 dsm)', R.scourAbutLevel, 'm');
+      if (nV > 1) row('Maximum Scour Level at Piers (2.0 dsm)', R.scourPierLevel, 'm');
+
+      // Suggested Foundation Level
+      if (yes(p.bedProtection)) {
+        R.flSuggested = p.streamBed - 1.20; // with IRC SP:13 rigid bed flooring, 1.0 - 1.2m below bed
+        row('Floor Protection Adopted', 'YES (IRC:SP:13 Bed Flooring + Curtain Walls)', '', 'Foundation placed 1.20 m below floor level');
+      } else {
+        R.flSuggested = R.scourAbutLevel - 1.0; // without floor protection, 1m below max scour
+      }
+    } else {
+      // Canal Crossing
+      sec(`1. CANAL HYDRAULICS (CANAL CROSSING AT Km ${p.chainage})`);
+      inp('Canal Name', 'waterwayName', '', '');
+      inp('Canal Discharge (Qc)', 'Qc', 'cumecs');
+      const cbl = (p.cblC = p.canalCbl != null ? p.canalCbl : p.cblC);
+      const bedW = (p.bedWidthC = p.canalBedW != null ? p.canalBedW : p.bedWidthC);
+      const fsd = (p.fsdC = p.canalFsd != null ? p.canalFsd : p.fsdC);
+      const ss = (p.sideSlopeC = p.canalSideSlope != null ? p.canalSideSlope : p.sideSlopeC);
+      const fb = (p.freeBoardC = p.canalFB != null ? p.canalFB : p.freeBoardC);
+      row('Canal Bed Width', bedW, 'm');
+      row('Full Supply Depth (FSD)', fsd, 'm');
+      row('Side Slope (H:1)', ss, '');
+      row('Canal Free Board', fb, 'm');
+      row('Canal Bed Level (CBL)', cbl, 'm');
+      R.Q = p.Qc;
+      R.hfl = cbl + fsd;
+      R.tbl = R.hfl + fb;
+      row('Full Supply Level (FSL)', R.hfl, 'm', 'CBL + FSD');
+      row('Top of Bank Level (TBL)', R.tbl, 'm', 'FSL + Free board');
+      const canalTopFSL = bedW + 2 * ss * fsd;
+      row('Canal Top Width at FSL', canalTopFSL, 'm');
+      row('Provided Linear Waterway', totalWaterway, 'm');
+      R.flSuggested = cbl - 1.20;
+    }
+
+    // ============================================================== 2. GENERAL ARRANGEMENT & LEVELS
+    sec('2. GENERAL ARRANGEMENT & LEVELS');
+    inp('Number of Vents', 'nVents', 'Nos');
+    inp('Clear Span of Each Vent', 'span', 'm', 'IRC:SP:13 standard culvert span <= 6.0 m');
+    if (nV > 1) inp('Pier Width', 'pierW', 'm', 'Plain concrete / masonry pier');
+    inp('Road Category', 'roadType', '', 'Sets carriageway standards');
+    inp('Carriageway Width', 'carriageway', 'm', 'IRC 5 cl. 104');
+    inp('Road Level (FRL)', 'frl', 'm', p.frlNote);
+    inp('Ground Level at Approaches', 'gl', 'm');
+    inp('Foundation Level Adopted', 'foundationLevel', 'm', `Suggested +${fmt(R.flSuggested)}`);
+
+    R.deckTop = p.frl - p.wc;
+    R.soffit = R.deckTop - p.D;
+    row('Deck Top Level', R.deckTop, 'm', 'FRL - wearing coat');
+    row('Soffit Level (Bottom of Slab)', R.soffit, 'm', 'Deck top - slab thickness D');
+    row('Bed Block Top Level', R.soffit, 'm');
+
+    const clearance = R.soffit - R.hfl;
+    R.clearance = clearance;
+    row('Clearance over Design HFL/FSL', clearance, 'm', clearance >= p.freeBoardAdopted ? 'Adequate freeboard' : 'Check vertical clearance');
+    R.okClearance = clearance >= (isStream ? 0.45 : p.freeBoardC || 0.50);
+    chk('Vertical Clearance Check', R.okClearance, `${fmt(clearance, 3)} m (required >= ${isStream ? '0.45 m' : '0.50 m'})`);
+
+    // ============================================================== 3. BED PROTECTION & CURTAIN WALLS (IRC:SP:13)
+    sec('3. IRC:SP:13 BED PROTECTION & CURTAIN WALLS');
+    const bedLevel = isStream ? p.streamBed : p.cblC;
+    if (yes(p.bedProtection)) {
+      inp('Upstream Curtain Wall Depth below Bed', 'curtainDepthUs', 'm', 'IRC:SP:13 standard >= 1.50 m');
+      inp('Downstream Curtain Wall Depth below Bed', 'curtainDepthDs', 'm', 'IRC:SP:13 standard >= 2.00 m');
+      inp('Curtain Wall Thickness', 'curtainThk', 'm', 'CC M15');
+      R.usCurtainBottom = bedLevel - p.curtainDepthUs;
+      R.dsCurtainBottom = bedLevel - p.curtainDepthDs;
+      row('Upstream Curtain Wall Bottom Level', R.usCurtainBottom, 'm');
+      row('Downstream Curtain Wall Bottom Level', R.dsCurtainBottom, 'm');
+
+      inp('CC Bed Flooring Thickness in Ventway', 'floorThk', 'm', 'CC M15 over stone packing');
+      inp('Boulder Packing under Bed Flooring', 'packingThk', 'm', 'Dry stone / gravel filter');
+      inp('Upstream Flexible Apron Length', 'apronLenUs', 'm', 'Dry stone pitching');
+      inp('Downstream Flexible Apron Length', 'apronLenDs', 'm', 'Dry stone pitching');
+      inp('Boulder Apron Thickness', 'apronThk', 'm');
+
+      R.okCurtainUs = p.curtainDepthUs >= 1.20;
+      R.okCurtainDs = p.curtainDepthDs >= 1.50;
+      chk('U/S Cut-off Depth Check', R.okCurtainUs, `${fmt(p.curtainDepthUs, 2)} m (min 1.20 m)`);
+      chk('D/S Cut-off Depth Check', R.okCurtainDs, `${fmt(p.curtainDepthDs, 2)} m (min 1.50 m)`);
+    } else {
+      row('Floor Protection', 'None provided - deep scour foundation rules apply', '');
+    }
+
+    // ============================================================== 4. DECK SLAB STRUCTURAL DESIGN
+    sec('4. DECK SLAB STRUCTURAL DESIGN (IRC 21:2000 / IRC 112:2020)');
+    inp('Overall Slab Thickness D', 'D', 'm', p.deckAuto === 'yes' ? 'Auto-sized' : 'Manual input');
+    inp('Wearing Coat Thickness', 'wc', 'm', 'IRC SP:13 / MORTH standard 75 mm');
+    inp('Deck Concrete Grade', 'fck', 'MPa');
+    inp('Reinforcement Steel Grade', 'fy', 'MPa');
+    inp('Clear Cover to Main Steel', 'cover', 'm', 'IRC 112 / IRC 21 standard 40 mm');
+
+    const d = p.D - p.cover - (p.mainDia / 1000) / 2;
+    R.d = d;
+    row('Effective Depth d', d * 1000, 'mm');
+
+    // Effective span Leff
+    const Leff = Math.min(spanR + d, spanR + p.bearingW);
+    R.Leff = Leff;
+    row('Effective Span Leff = min(L + d, L + bearing)', Leff, 'm', 'IRC 21 cl. 305.15');
+
+    // Dead Load
+    const dlSlab = p.D * 2.50; // t/sqm
+    const dlWc = p.wc * 2.20; // t/sqm
+    const totalDLIntensity = dlSlab + dlWc; // t/sqm
+    const edgeLoadPerM = (2 * edgeDL) / B;
+    const wDead = totalDLIntensity + edgeLoadPerM; // t/sqm equivalent
+    R.wDead = wDead;
+    const Md = (wDead * Leff * Leff) / 8; // t.m per metre width
+    R.Md = Md;
+    row('Dead Load Intensity (Slab + WC + Edge)', wDead, 't/sqm');
+    row('Dead Load Bending Moment Md = w * L^2 / 8', Md, 't-m/m');
+
+    // Live Load Bending Moment (Effective Width Method)
+    // Impact Factor per IRC 6:2024
+    const impactClassA = 4.5 / (6.0 + Leff);
+    const impact70R = Leff <= 5.0 ? 0.25 : Math.max(0.10, 0.25 - ((Leff - 5.0) / 4.0) * 0.15);
+    R.impactClassA = impactClassA;
+    R.impact70R = impact70R;
+    row('IRC 6 Impact Factor (Class A)', impactClassA * 100, '%', '4.5 / (6 + L)');
+    row('IRC 6 Impact Factor (Class 70R)', impact70R * 100, '%', 'IRC 6:2024 cl.208');
+
+    // Dispersion through wearing coat
+    const Dwc = p.wc;
+
+    // IRC Class A Wheel (11.4 t axle -> 5.7 t wheel, contact 0.50 x 0.25 m)
+    const b1_A = 0.25 + 2 * Dwc;
+    const l1_A = 0.50 + 2 * Dwc;
+    const alphaA = BD.alphaFor ? BD.alphaFor(B / Leff) : 2.60;
+    const be_A1 = alphaA * (Leff / 2) * (1 - (Leff / 2) / Leff) + b1_A;
+    const be_A = Math.min(B, Math.max(1.5, be_A1));
+    const Mll_A = ((5.7 * (1 + impactClassA) * Leff) / 4) / be_A;
+
+    // IRC Class 70R Tracked (35 t on 4.57 x 0.84 m track)
+    const b1_70T = 0.84 + 2 * Dwc;
+    const be_70T = Math.min(B, Math.max(2.0, alphaA * (Leff / 2) * (1 - (Leff / 2) / Leff) + b1_70T));
+    const trackOnSpan = Math.min(1.0, Leff / 4.57);
+    const W_track = 35.0 * trackOnSpan;
+    const Mll_70T = ((W_track * (1 + impact70R) * Leff) / 4) / be_70T;
+
+    // IRC Class 70R Wheeled Bogie (20 t axle -> 10 t wheel)
+    const b1_70W = 0.45 + 2 * Dwc;
+    const be_70W = Math.min(B, Math.max(1.8, alphaA * (Leff / 2) * (1 - (Leff / 2) / Leff) + b1_70W));
+    const Mll_70W = ((10.0 * (1 + impact70R) * Leff) / 4) / be_70W;
+
+    const Mll_gov = Math.max(Mll_A, Mll_70T, Mll_70W);
+    R.Mll = Mll_gov;
+    row('Live Load Moment (Class A)', Mll_A, 't-m/m');
+    row('Live Load Moment (70R Tracked)', Mll_70T, 't-m/m');
+    row('Live Load Moment (70R Wheeled Bogie)', Mll_70W, 't-m/m');
+    row('Governing Live Load Moment Mll', Mll_gov, 't-m/m', Mll_gov === Mll_70T ? '70R Tracked governs' : Mll_gov === Mll_70W ? '70R Wheeled governs' : 'Class A governs');
+
+    // Total Moment & Section Sizing
+    const Mtotal = Md + Mll_gov; // t-m/m
+    R.Mtotal = Mtotal;
+    const M_Nm = Mtotal * 9.80665 * 1000; // N.m / m
+    row('Total Design Bending Moment M = Md + Mll', Mtotal, 't-m/m');
+
+    // WSM Permissible Stresses (IRC 21)
+    const scbc = p.fck / 3;
+    const sst = p.fy >= 500 ? 240 : 200;
+    const m = 10; // modular ratio
+    const k = (m * scbc) / (m * scbc + sst);
+    const j = 1 - k / 3;
+    const Q_coeff = 0.5 * scbc * k * j;
+    R.dReq = Math.sqrt((M_Nm * 1000) / (Q_coeff * 1000)); // mm
+    row('Required Effective Depth dReq', R.dReq, 'mm', `d provided = ${fmt(d * 1000, 0)} mm`);
+    R.okDepth = d * 1000 >= R.dReq;
+    chk('Slab Depth Check', R.okDepth, `d provided ${fmt(d * 1000, 0)} mm >= dReq ${fmt(R.dReq, 0)} mm`);
+
+    // Tensile Reinforcement Ast
+    const AstReq = (M_Nm * 1000) / (sst * j * (d * 1000)); // sq.mm / m
+    R.AstReq = AstReq;
+    inp('Main Bar Diameter', 'mainDia', 'mm');
+    inp('Main Bar Spacing', 'mainSpacing', 'mm');
+    const AstProv = (Math.PI * p.mainDia * p.mainDia / 4) * (1000 / p.mainSpacing);
+    R.AstProv = AstProv;
+    row('Tensile Steel Required Ast', AstReq, 'sqmm/m');
+    row('Tensile Steel Provided Ast', AstProv, 'sqmm/m', `${p.mainDia} mm @ ${p.mainSpacing} mm c/c`);
+    R.okAst = AstProv >= AstReq;
+    chk('Main Reinforcement Check', R.okAst, `Ast provided ${fmt(AstProv, 0)} sqmm >= req ${fmt(AstReq, 0)} sqmm`);
+
+    // Distribution Steel
+    const AstDistReq = Math.max(0.20 * AstReq, 0.0015 * 1000 * p.D * 1000);
+    R.AstDistReq = AstDistReq;
+    inp('Distribution Bar Diameter', 'distDia', 'mm');
+    inp('Distribution Bar Spacing', 'distSpacing', 'mm');
+    const AstDistProv = (Math.PI * p.distDia * p.distDia / 4) * (1000 / p.distSpacing);
+    R.AstDistProv = AstDistProv;
+    row('Distribution Steel Required', AstDistReq, 'sqmm/m', '>= 20% of main steel');
+    row('Distribution Steel Provided', AstDistProv, 'sqmm/m', `${p.distDia} mm @ ${p.distSpacing} mm c/c`);
+    R.okDist = AstDistProv >= AstDistReq;
+    chk('Distribution Steel Check', R.okDist, `Provided ${fmt(AstDistProv, 0)} sqmm >= req ${fmt(AstDistReq, 0)} sqmm`);
+
+    // Shear Check
+    const Vd = (wDead * Leff) / 2; // t/m
+    const Vll = (10.0 * (1 + impact70R) * (Leff - d) / Leff) / be_70W; // t/m
+    const Vtotal = Vd + Vll; // t/m
+    R.Vtotal = Vtotal;
+    const tauV = (Vtotal * 9806.65) / (1000 * d * 1000); // MPa
+    const pt = (AstProv / (1000 * d * 1000)) * 100;
+    const tauC = Math.min(0.60, 0.28 * Math.sqrt(p.fck / 20) * Math.min(1.5, Math.pow(pt, 0.33)));
+    R.tauV = tauV;
+    R.tauC = tauC;
+    row('Nominal Shear Stress tau_v', tauV, 'MPa');
+    row('Permissible Shear Stress tau_c', tauC, 'MPa', 'IRC 21 Table 12B');
+    R.okShear = tauV <= tauC;
+    chk('Shear Stress Check', R.okShear, `tau_v ${fmt(tauV, 3)} MPa <= tau_c ${fmt(tauC, 3)} MPa (No shear reinforcement required)`);
+
+    // ============================================================== 5. SUBSTRUCTURE STABILITY (IRC 78:2024)
+    sec('5. SUBSTRUCTURE & FOUNDATION STABILITY (IRC 78:2024)');
+    inp('Abutment Top Width', 'abTopW', 'm');
+    inp('Abutment Back Batter', 'abBackBatter', 'm', 'Horizontal batter');
+    inp('Footing Toe Projection', 'abToe', 'm');
+    inp('Footing Heel Projection', 'abHeel', 'm');
+    inp('Footing Thickness', 'footingT', 'm');
+    inp('Safe Bearing Capacity (SBC)', 'sbc', 't/sqm');
+    inp('Backfill Friction Angle phi', 'phi', 'deg');
+    inp('Soil Unit Weight', 'gammaSoil', 't/cum');
+
+    const Hstem = R.soffit - (p.foundationLevel + p.footingT);
+    R.Hstem = Hstem;
+    const Htotal = R.soffit - p.foundationLevel;
+    R.Htotal = Htotal;
+    const abBaseW = p.abTopW + p.abFrontBatter + p.abBackBatter;
+    const footingW = abBaseW + p.abToe + p.abHeel;
+    R.abBaseW = abBaseW;
+    R.footingW = footingW;
+    row('Abutment Stem Height', Hstem, 'm');
+    row('Total Abutment Height (incl. footing)', Htotal, 'm');
+    row('Abutment Stem Base Width', abBaseW, 'm');
+    row('Abutment Footing Width', footingW, 'm');
+
+    // Earth pressure
+    const Ka = (1 - Math.sin(rad(p.phi))) / (1 + Math.sin(rad(p.phi)));
+    R.Ka = Ka;
+    const Pa = 0.5 * Ka * p.gammaSoil * Htotal * Htotal; // t/m
+    const Psurch = Ka * p.gammaSoil * p.surcharge * Htotal; // t/m
+    const totalPhoriz = Pa + Psurch;
+
+    // Vertical loads
+    const WstemRect = p.abTopW * Hstem * p.gammaConc;
+    const WstemTri = 0.5 * p.abBackBatter * Hstem * p.gammaConc;
+    const Wfooting = footingW * p.footingT * p.gammaConc;
+    const WsoilHeel = p.abHeel * (Hstem + p.surcharge) * p.gammaSoil;
+    const RdeckDL = (wDead * R.deckL) / 2; // t/m
+    const RdeckLL = Vll; // t/m
+
+    // Case 1: Unloaded Deck
+    const V_case1 = WstemRect + WstemTri + Wfooting + WsoilHeel + RdeckDL;
+    const MR_case1 = WstemRect * (p.abToe + p.abTopW / 2) +
+      WstemTri * (p.abToe + p.abTopW + p.abBackBatter / 3) +
+      Wfooting * (footingW / 2) +
+      WsoilHeel * (footingW - p.abHeel / 2) +
+      RdeckDL * (p.abToe + p.bearingW / 2);
+    const MO_case1 = Pa * (Htotal / 3) + Psurch * (Htotal / 2);
+
+    const fosO_1 = MR_case1 / MO_case1;
+    const fosS_1 = (p.mu * V_case1) / totalPhoriz;
+    const xbar_1 = (MR_case1 - MO_case1) / V_case1;
+    const e_1 = Math.abs(footingW / 2 - xbar_1);
+    const pmax_1 = (V_case1 / footingW) * (1 + 6 * e_1 / footingW);
+    const pmin_1 = (V_case1 / footingW) * (1 - 6 * e_1 / footingW);
+
+    // Case 2: Loaded Deck with Live Load
+    const V_case2 = V_case1 + RdeckLL;
+    const MR_case2 = MR_case1 + RdeckLL * (p.abToe + p.bearingW / 2);
+    const fosO_2 = MR_case2 / MO_case1;
+    const fosS_2 = (p.mu * V_case2) / totalPhoriz;
+    const xbar_2 = (MR_case2 - MO_case1) / V_case2;
+    const e_2 = Math.abs(footingW / 2 - xbar_2);
+    const pmax_2 = (V_case2 / footingW) * (1 + 6 * e_2 / footingW);
+    const pmin_2 = (V_case2 / footingW) * (1 - 6 * e_2 / footingW);
+
+    R.fosO = Math.min(fosO_1, fosO_2);
+    R.fosS = Math.min(fosS_1, fosS_2);
+    R.pmax = Math.max(pmax_1, pmax_2);
+    R.pmin = Math.min(pmin_1, pmin_2);
+    R.maxE = Math.max(e_1, e_2);
+
+    row('Factor of Safety against Overturning', R.fosO, '', 'IRC 78 required >= 2.0');
+    row('Factor of Safety against Sliding', R.fosS, '', 'IRC 78 required >= 1.5');
+    row('Maximum Base Pressure', R.pmax, 't/sqm', `Allowable SBC = ${fmt(p.sbc, 1)} t/sqm`);
+    row('Minimum Base Pressure', R.pmin, 't/sqm', R.pmin >= 0 ? 'No tension at base (e <= B/6)' : 'Tension exists at base');
+
+    R.okFosO = R.fosO >= 2.0;
+    R.okFosS = R.fosS >= 1.5;
+    R.okPmax = R.pmax <= p.sbc;
+    R.okNoTension = R.pmin >= -1e-4;
+    chk('Overturning Stability Check', R.okFosO, `FOS ${fmt(R.fosO, 2)} >= 2.0`);
+    chk('Sliding Stability Check', R.okFosS, `FOS ${fmt(R.fosS, 2)} >= 1.5`);
+    chk('Base Pressure Check', R.okPmax, `pmax ${fmt(R.pmax, 1)} t/sqm <= SBC ${fmt(p.sbc, 1)} t/sqm`);
+    chk('No Tension at Base Check', R.okNoTension, `pmin ${fmt(R.pmin, 2)} t/sqm >= 0 (e = ${fmt(R.maxE, 2)} m <= B/6 = ${fmt(footingW / 6, 2)} m)`);
+
+    // Wing Walls Check
+    inp('Wing Wall Type', 'wingType', '', p.wingType === 'splayed' ? '45° Splayed Wings' : 'Straight Return Walls');
+    inp('Wing Wall Length', 'wingLen', 'm');
+    inp('Wing Wall Base Width', 'wBaseW', 'm');
+    const wH = Htotal;
+    const wKa = Ka;
+    const wPa = 0.5 * wKa * p.gammaSoil * wH * wH;
+    const wW = (p.wTopW + p.wBaseW) / 2 * wH * p.gammaConc;
+    const wMR = wW * (p.wBaseW * 0.45);
+    const wMO = wPa * (wH / 3);
+    const wFosO = wMR / wMO;
+    const wFosS = (p.mu * wW) / wPa;
+    R.wFosO = wFosO;
+    R.wFosS = wFosS;
+    row('Wing Wall FOS Overturning', wFosO, '', '>= 2.0');
+    row('Wing Wall FOS Sliding', wFosS, '', '>= 1.5');
+    R.okWing = wFosO >= 2.0 && wFosS >= 1.5;
+    chk('Wing Wall Stability Check', R.okWing, `FOS Overturning ${fmt(wFosO, 2)} >= 2.0, Sliding ${fmt(wFosS, 2)} >= 1.5`);
+
+    // ============================================================== 6. SUMMARY & ESTIMATE ATTRIBUTES
+    R.allOk = R.okClearance && R.okDepth && R.okAst && R.okDist && R.okShear && R.okFosO && R.okFosS && R.okPmax && R.okNoTension && R.okWing;
+    R.typ = 'SLAB CULVERT';
+    R.title = `DESIGN OF ${nV} VENT x ${fmt(p.span, 2)} m RCC SLAB CULVERT ACROSS ${String(p.waterwayName).toUpperCase()} AT Km ${p.chainage}`;
+    R.subtitle = `${nV} Vent${nV > 1 ? 's' : ''} x ${fmt(p.span, 2)} m Clear Span | Carriageway ${fmt(p.carriageway, 2)} m (${p.roadType}) | Design Q = ${fmt(R.Q, 2)} cumecs | IRC SP:13-2022 & IRC 112/21`;
+    R.scope = `Construction of ${nV} vent RCC Slab Culvert of ${fmt(p.span, 2)} m clear span with ${fmt(p.carriageway, 2)} m carriageway across ${p.waterwayName} at Km ${p.chainage} in ${p.location}, ${p.district} District.`;
+    R.nameOfWork = R.scope;
+
+    return { p, R, sections: secs, warnings };
+  }
+
+  // ------------------------------------------------------------ Auto Design Engine
+  function autoDesign(input) {
+    const p = Object.assign({}, CULVERT_DEFAULTS, input || {});
+    const log = [];
+    p.span = Math.min(6.0, Math.max(1.0, p.span));
+
+    let r = design(p);
+
+    // 0. Ensure FRL provides required freeboard over HFL / FSL
+    const isStream = p.crossingType === 'stream';
+    const reqClearance = isStream ? (p.freeBoardAdopted || 0.45) : (p.freeBoardC || 0.50);
+    const minSoffit = r.R.hfl + reqClearance;
+    const minFrl = +(minSoffit + p.D + p.wc + 0.02).toFixed(2);
+    if (p.frl < minFrl) {
+      p.frl = minFrl;
+      log.push(`FRL +${fmt(p.frl, 2)} m (${fmt(reqClearance, 2)} m clearance over ${isStream ? 'HFL' : 'FSL'})`);
+      r = design(p);
+    }
+    // 1. Foundation level
+    if (p.foundationLevel > r.R.flSuggested + 0.05) {
+      p.foundationLevel = +(r.R.flSuggested).toFixed(2);
+      log.push(`foundation level +${fmt(p.foundationLevel, 2)} m`);
+      r = design(p);
+    }
+
+    // 2. Size Deck Slab (D, main rebar)
+    const Leff = r.R.Leff;
+    let D = Math.max(p.minD || 0.25, Math.ceil((Leff / 15) / 0.025) * 0.025);
+    const spacings = [180, 150, 140, 125, 110, 100];
+    let deckFound = false;
+    for (let i = 0; i < 40 && !deckFound; i++, D = +(D + 0.025).toFixed(3)) {
+      for (const dia of [12, 16, 20, 25]) {
+        for (const sp of spacings) {
+          const trial = design(Object.assign({}, p, { D, mainDia: dia, mainSpacing: sp })).R;
+          if (trial.okDepth && trial.okAst && trial.okShear) {
+            p.D = D;
+            p.mainDia = dia;
+            p.mainSpacing = sp;
+            deckFound = true;
+            break;
+          }
+        }
+        if (deckFound) break;
+      }
+    }
+    // Distribution bars
+    for (const dd of [10, 12]) {
+      for (const sp of [200, 175, 150, 125, 100]) {
+        p.distDia = dd;
+        p.distSpacing = sp;
+        if (design(p).R.okDist) break;
+      }
+    }
+    log.push(`deck slab ${fmt(p.D * 1000, 0)} mm (${p.mainDia} mm @ ${p.mainSpacing} mm c/c)`);
+    r = design(p);
+
+    // 3. Size Abutment & Footing
+    const H = r.R.Htotal;
+    for (let i = 0; i < 60 && !(r.R.okFosO && r.R.okFosS && r.R.okPmax && r.R.okNoTension); i++) {
+      if (r.R.pmin < 0 || r.R.fosO < 2.0) {
+        if (p.abBackBatter < 0.65 * H) p.abBackBatter = +(p.abBackBatter + 0.10).toFixed(2);
+        else if (p.abHeel < 1.20) p.abHeel = +(p.abHeel + 0.10).toFixed(2);
+        else p.abToe = +(p.abToe + 0.10).toFixed(2);
+      } else if (r.R.fosS < 1.50) {
+        p.abBackBatter = +(p.abBackBatter + 0.10).toFixed(2);
+        p.abHeel = +(p.abHeel + 0.10).toFixed(2);
+      } else if (r.R.pmax > p.sbc) {
+        p.abToe = +(p.abToe + 0.10).toFixed(2);
+        p.abHeel = +(p.abHeel + 0.10).toFixed(2);
+      } else break;
+      r = design(p);
+    }
+    log.push(`abutment back batter ${fmt(p.abBackBatter, 2)} m, footing width ${fmt(r.R.footingW, 2)} m`);
+
+    // 4. Size Wing Walls
+    for (let i = 0; i < 30 && !r.R.okWing; i++) {
+      p.wBaseW = +(p.wBaseW + 0.15).toFixed(2);
+      p.wFrontBatter = +(p.wFrontBatter + 0.05).toFixed(2);
+      r = design(p);
+    }
+    log.push(`wing walls base ${fmt(p.wBaseW, 2)} m`);
+
+    return { input: p, result: r, log };
+  }
+
+  Object.assign(BD, {
+    CULVERT_DEFAULTS,
+    culvertDesign: design,
+    culvertAutoDesign: autoDesign,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/*
+ * Dedicated Slab Culvert UI, Live Cross-Section, Drawings and Estimates
+ * (IRC:SP:13-2022, IRC 5, IRC 6, IRC 21 / IRC 112, IRC 78).
+ */
+(function (g) {
+  'use strict';
+  const BD = (g.BD = g.BD || {});
+  const YN = [['yes', 'Yes'], ['no', 'No']];
+  const fmt = (v, n = 3) => (typeof v === 'number' && isFinite(v) ? v.toFixed(n) : String(v));
+  const r2 = (x) => Math.round(x * 100) / 100, r3 = (x) => Math.round(x * 1000) / 1000;
+  const yes = (v) => v === 'yes' || v === true;
+
+  const SPANS = [
+    [1.5, '1.50 m (IRC SP:13 Standard)'],
+    [2.0, '2.00 m (IRC SP:13 Standard)'],
+    [2.5, '2.50 m (IRC SP:13 Standard)'],
+    [3.0, '3.00 m (IRC SP:13 Standard)'],
+    [4.0, '4.00 m (IRC SP:13 Standard)'],
+    [5.0, '5.00 m (IRC SP:13 Standard)'],
+    [6.0, '6.00 m (IRC SP:13 Maximum Culvert Span)'],
+  ];
+
+  const ROAD_TYPES = [
+    ['PR_VILLAGE', 'Panchayat Raj / Village Road (Single Lane 4.25 m)'],
+    ['ODR', 'Other District Road - ODR (Single Lane 4.25 m)'],
+    ['MDR_INT', 'Major District Road - MDR (Intermediate 5.50 m)'],
+    ['MDR_TWO', 'Major District Road - MDR (Two Lane 7.50 m)'],
+    ['SH', 'State Highway (Two Lane 7.50 m)'],
+    ['NH', 'National Highway (Two Lane 7.50 m)'],
+  ];
+
+  const GROUPS = [
+    ['Crossing type & hydrology', true, { step: 1, note: 'IRC:SP:13 hydrology for natural streams or hydraulic particulars for canals.' }, [
+      ['crossingType', 'Crossing type', '', [['stream', 'Natural Stream / Drainage Nala'], ['canal', 'Irrigation Canal']]],
+      // Stream Hydrology
+      ['floodMode', 'Flood discharge estimation', '', [['catchment', "From catchment area (Empirical formula)"], ['given', 'Enter observed / approved MFD']]],
+      ['catchmentFormula', 'Empirical formula', '', [['ryves', "Ryves' formula Q = C * A^(2/3) (South India)"], ['dicken', "Dicken's formula Q = C * A^(3/4)"], ['rational', "Rational formula Q = 0.278 * C * I * A"]]],
+      ['catchment', 'Catchment area (A)', 'sq.km', 0.05],
+      ['formulaC', "Formula coefficient C", '', 0.1],
+      ['rainIntensity', 'Rainfall intensity (I)', 'mm/hr', 1],
+      ['runoffCoeff', 'Runoff coefficient (C)', '', 0.05],
+      ['mfdGiven', 'Maximum flood discharge (MFD)', 'cumecs', 0.1],
+      ['streamBed', 'Deep bed level of stream at crossing', 'm', 0.01],
+      ['streamBedWidth', 'Stream bed width', 'm', 0.1],
+      ['streamSideSlope', 'Stream bank side slope (H:1)', '', 0.25],
+      ['streamFall', 'Stream longitudinal slope 1 in', '', 50],
+      ['streamN', "Stream Manning's roughness n", '', 0.005],
+      ['hflGiven', 'High Flood Level HFL (0 = auto from Manning)', 'm', 0.01],
+      // Canal HPs (when crossingType === 'canal')
+      ['Qc', 'Canal discharge', 'cumecs', 0.05],
+      ['canalBedW', 'Canal bed width', 'm', 0.05],
+      ['canalFsd', 'Canal full supply depth (FSD)', 'm', 0.01],
+      ['canalSideSlope', 'Canal side slope (H:1)', '', 0.25],
+      ['canalFB', 'Canal free board', 'm', 0.05],
+      ['canalCbl', 'Canal bed level (CBL)', 'm', 0.01],
+      ['canalBedFall', 'Canal bed fall 1 in', '', 100],
+    ]],
+
+    ['Culvert ventway & roadway', true, { step: 2, note: 'Standard vent spans (IRC:SP:13) and roadway classification.' }, [
+      ['span', 'Clear span of vent', 'm', SPANS],
+      ['nVents', 'Number of vents', 'Nos', [[1, '1 Vent (Single Span)'], [2, '2 Vents (Twin Vent with Pier)'], [3, '3 Vents (Triple Vent)'], [4, '4 Vents']]],
+      ['pierW', 'Pier width (if multi-vent)', 'm', 0.05],
+      ['roadType', 'Road category', '', ROAD_TYPES],
+      ['carriageway', 'Carriageway width', 'm', [[4.25, '4.25 m (Single lane + kerbs)'], [5.50, '5.50 m (Intermediate lane)'], [7.50, '7.50 m (Two lane IRC 5 standard)'], [8.50, '8.50 m (Two lane + footpaths)']]],
+      ['edgeType', 'Edge protection', '', [['crash', 'RCC Crash Barrier (MORTH standard)'], ['railing', 'RCC Kerb + MS / Pipe Hand Railing (SD/202)']]],
+      ['frl', 'Proposed road level (FRL)', 'm', 0.01],
+      ['gl', 'Ground level at approaches', 'm', 0.01],
+      ['freeBoardAdopted', 'Minimum vertical clearance / freeboard', 'm', 0.05],
+      ['foundationLevel', 'Foundation level adopted', 'm', 0.05],
+      ['sbc', 'Safe bearing capacity (SBC)', 't/sqm', 0.5],
+      ['soilType', 'Bed strata (sets silt factor f)', '', [['', 'Choose bed material…'], ['0.5', 'Very fine silt (f = 0.50)'], ['0.7', 'Silt / clay (f = 0.70)'], ['1.0', 'Fine sand (f = 1.00)'], ['1.25', 'Medium sand (f = 1.25)'], ['1.75', 'Coarse sand (f = 1.75)'], ['2.5', 'Gravelly sand (f = 2.50)'], ['4.75', 'Hard boulders (f = 4.75)']]],
+      ['siltFactor', 'Lacey silt factor f', '', 0.05],
+      ['frlNote', 'FRL justification note', '', 'text'],
+    ]],
+
+    ['IRC:SP:13 Bed protection & materials', true, { step: 3, note: 'Drop / curtain walls and flooring per IRC:SP:13 Section 11.' }, [
+      ['bedProtection', 'IRC:SP:13 Bed protection (curtain walls + floor)', '', YN],
+      ['curtainDepthUs', 'U/S curtain wall depth below bed', 'm', 0.1],
+      ['curtainDepthDs', 'D/S curtain wall depth below bed', 'm', 0.1],
+      ['curtainThk', 'Curtain wall thickness (CC M15)', 'm', 0.05],
+      ['floorThk', 'Bed flooring thickness (CC M15)', 'm', 0.025],
+      ['packingThk', 'Dry stone packing under flooring', 'm', 0.025],
+      ['apronLenUs', 'U/S flexible apron length (boulders)', 'm', 0.5],
+      ['apronLenDs', 'D/S flexible apron length (boulders)', 'm', 0.5],
+      ['apronThk', 'Boulder apron thickness', 'm', 0.05],
+      ['fck', 'Deck concrete grade', '', [[25, 'M25'], [30, 'M30'], [35, 'M35']]],
+      ['fy', 'Reinforcement steel grade', '', [[415, 'Fe415'], [500, 'Fe500 (TMT)'], [550, 'Fe550']]],
+      ['subFck', 'Substructure concrete (plain concrete)', '', [[15, 'CC M15 with plums'], [20, 'CC M20 with plums']]],
+      ['method', 'Deck design standard', '', [['WSM', 'IRC 21:2000 Working Stress Method'], ['LSM', 'IRC 112:2020 Limit State Method']]],
+      ['exposure', 'Environmental exposure', '', [['moderate', 'Moderate (40 mm cover)'], ['severe', 'Severe (45 mm cover)']]],
+    ]],
+
+    ['Project details', false, { step: 4, note: 'Authority metadata for reports, drawings and estimate.' }, [
+      ['chainage', 'Chainage (Km)', '', 'text'],
+      ['waterwayName', 'Stream / Nala / Canal Name', '', 'text'],
+      ['location', 'Village / Mandal', '', 'text'],
+      ['district', 'District', '', 'text'],
+      ['state', 'Government', '', 'text'],
+      ['department', 'Department', '', 'text'],
+      ['subDivision', 'Sub-division', '', 'text'],
+      ['division', 'Division', '', 'text'],
+    ]],
+
+    ['Deck slab & rebar detailing', false, { adv: true }, [
+      ['deckAuto', 'Deck slab & bar sizing', '', [['yes', 'Auto - code-optimized least steel (recommended)'], ['no', 'Manual input']]],
+      ['minD', 'Minimum slab thickness', 'm', 0.025],
+      ['D', 'Slab thickness D', 'm', 0.025],
+      ['wc', 'Wearing coat thickness', 'm', 0.005],
+      ['mainDia', 'Main bar diameter', 'mm', 1],
+      ['mainSpacing', 'Main bar spacing', 'mm', 5],
+      ['distDia', 'Distribution bar diameter', 'mm', 1],
+      ['distSpacing', 'Distribution bar spacing', 'mm', 5],
+      ['topDia', 'Top nominal mesh bar dia', 'mm', 1],
+      ['topSpacing', 'Top mesh bar spacing', 'mm', 10],
+      ['cover', 'Clear cover to steel', 'm', 0.005],
+      ['bearingW', 'Bearing width on abutment', 'm', 0.025],
+      ['skew', 'Skew angle (deg)', 'deg', 1],
+    ]],
+
+    ['Abutments, piers & wing walls', false, { adv: true }, [
+      ['abAuto', 'Substructure sizing', '', [['yes', 'Auto - least passing gravity section (recommended)'], ['no', 'Manual input']]],
+      ['abTopW', 'Abutment top width', 'm', 0.05],
+      ['abFrontBatter', 'Abutment front batter', 'm', 0.05],
+      ['abBackBatter', 'Abutment back batter', 'm', 0.05],
+      ['abToe', 'Abutment footing toe', 'm', 0.05],
+      ['abHeel', 'Abutment footing heel', 'm', 0.05],
+      ['footingT', 'Footing thickness', 'm', 0.05],
+      ['wingType', 'Wing wall layout', '', [['splayed', '45° Splayed Wing Walls (standard for streams)'], ['return', 'Straight Return Walls (standard for canals)']]],
+      ['wingLen', 'Wing wall length', 'm', 0.1],
+      ['wTopW', 'Wing wall top width', 'm', 0.05],
+      ['wFrontBatter', 'Wing wall front batter', 'm', 0.05],
+      ['wBaseW', 'Wing wall base width', 'm', 0.05],
+      ['wToe', 'Wing wall footing toe', 'm', 0.05],
+      ['wHeel', 'Wing wall footing heel', 'm', 0.05],
+      ['wFootT', 'Wing footing thickness', 'm', 0.05],
+      ['pierBatter', 'Pier batter each face', 'm', 0.02],
+      ['pierToe', 'Pier footing projection', 'm', 0.05],
+      ['phi', 'Backfill friction angle phi', 'deg', 1],
+      ['gammaSoil', 'Soil unit weight', 't/cum', 0.05],
+      ['mu', 'Base friction factor (concrete/soil)', '', 0.02],
+      ['surcharge', 'Live load surcharge equivalent fill', 'm', 0.1],
+    ]],
+  ];
+
+  const SHOW_IF = {
+    // Stream vs Canal
+    floodMode: (s) => s.crossingType === 'stream',
+    catchmentFormula: (s) => s.crossingType === 'stream' && s.floodMode === 'catchment',
+    catchment: (s) => s.crossingType === 'stream' && s.floodMode === 'catchment',
+    formulaC: (s) => s.crossingType === 'stream' && s.floodMode === 'catchment' && s.catchmentFormula !== 'rational',
+    rainIntensity: (s) => s.crossingType === 'stream' && s.floodMode === 'catchment' && s.catchmentFormula === 'rational',
+    runoffCoeff: (s) => s.crossingType === 'stream' && s.floodMode === 'catchment' && s.catchmentFormula === 'rational',
+    mfdGiven: (s) => s.crossingType === 'stream' && s.floodMode === 'given',
+    streamBed: (s) => s.crossingType === 'stream',
+    streamBedWidth: (s) => s.crossingType === 'stream',
+    streamSideSlope: (s) => s.crossingType === 'stream',
+    streamFall: (s) => s.crossingType === 'stream',
+    streamN: (s) => s.crossingType === 'stream',
+    hflGiven: (s) => s.crossingType === 'stream',
+
+    Qc: (s) => s.crossingType === 'canal',
+    canalBedW: (s) => s.crossingType === 'canal',
+    canalFsd: (s) => s.crossingType === 'canal',
+    canalSideSlope: (s) => s.crossingType === 'canal',
+    canalFB: (s) => s.crossingType === 'canal',
+    canalCbl: (s) => s.crossingType === 'canal',
+    canalBedFall: (s) => s.crossingType === 'canal',
+
+    // Multi-vent
+    pierW: (s) => s.nVents > 1,
+    pierBatter: (s) => s.nVents > 1,
+    pierToe: (s) => s.nVents > 1,
+
+    // Bed protection
+    curtainDepthUs: (s) => s.bedProtection !== 'no',
+    curtainDepthDs: (s) => s.bedProtection !== 'no',
+    curtainThk: (s) => s.bedProtection !== 'no',
+    floorThk: (s) => s.bedProtection !== 'no',
+    packingThk: (s) => s.bedProtection !== 'no',
+    apronLenUs: (s) => s.bedProtection !== 'no',
+    apronLenDs: (s) => s.bedProtection !== 'no',
+    apronThk: (s) => s.bedProtection !== 'no',
+
+    // Auto
+    D: (s) => s.deckAuto === 'no',
+    mainSpacing: (s) => s.deckAuto === 'no',
+    distSpacing: (s) => s.deckAuto === 'no',
+    abBackBatter: (s) => s.abAuto === 'no',
+    abToe: (s) => s.abAuto === 'no',
+    abHeel: (s) => s.abAuto === 'no',
+    wBaseW: (s) => s.abAuto === 'no',
+  };
+
+  const AUTO_FIELDS = {
+    D: (s) => s.deckAuto !== 'no',
+    mainDia: (s) => s.deckAuto !== 'no',
+    mainSpacing: (s) => s.deckAuto !== 'no',
+    distDia: (s) => s.deckAuto !== 'no',
+    distSpacing: (s) => s.deckAuto !== 'no',
+    abBackBatter: (s) => s.abAuto !== 'no',
+    abToe: (s) => s.abAuto !== 'no',
+    abHeel: (s) => s.abAuto !== 'no',
+    wBaseW: (s) => s.abAuto !== 'no',
+  };
+
+  const STD_NOTE = {
+    span: 'Standard IRC:SP:13 culvert spans (1.0 to 6.0 m)',
+    curtainDepthUs: 'IRC:SP:13 Section 11: minimum 1.20 to 1.50 m below stream bed',
+    curtainDepthDs: 'IRC:SP:13 Section 11: minimum 1.50 to 2.00 m below stream bed (scour prevention)',
+    floorThk: '150 mm CC M15 bed flooring over 150 mm stone packing between abutments',
+    apronLenDs: 'Flexible boulder apron downstream to dissipate exit turbulence',
+    wc: 'Standard 75 mm concrete wearing coat (IRC SP:13 / MORTH)',
+    sbc: 'Safe bearing capacity of soil at foundation level',
+    formulaC: 'Ryves C: 6.8 to 8.5 (plains), 8.5 to 10.2 (plateau/hills)',
+  };
+
+  function onChoice(state, key) {
+    if (key === 'crossingType') {
+      if (state.crossingType === 'stream') {
+        state.waterwayName = state.waterwayName || 'Natural Stream';
+        state.wingType = 'splayed';
+      } else {
+        state.waterwayName = state.waterwayName || 'Canal Minor';
+        state.wingType = 'return';
+      }
+      return true;
+    }
+    if (key === 'roadType') {
+      if (state.roadType.includes('VILLAGE') || state.roadType.includes('ODR')) state.carriageway = 4.25;
+      else if (state.roadType.includes('INT')) state.carriageway = 5.50;
+      else state.carriageway = 7.50;
+      return true;
+    }
+    if (key === 'catchmentFormula') {
+      state.formulaC = state.catchmentFormula === 'ryves' ? 8.5 : 14.0;
+      return true;
+    }
+    if (key === 'soilType' && state.soilType) {
+      state.siltFactor = Number(state.soilType);
+      return true;
+    }
+    return ['crossingType', 'roadType', 'catchmentFormula', 'floodMode', 'fck', 'fy', 'subFck', 'soilType', 'nVents', 'bedProtection'].includes(key);
+  }
+
+  // ------------------------------------------------------------ Live Cross-Section Drawer (SVG)
+  function renderXSec(cur) {
+    const { p, R } = cur;
+    const isStream = p.crossingType === 'stream';
+    const bedLevel = isStream ? p.streamBed : p.cblC;
+    const waterLevel = R.hfl;
+    const frl = p.frl;
+    const fdn = p.foundationLevel;
+    const nV = p.nVents;
+    const span = p.span;
+    const pierW = nV > 1 ? p.pierW : 0;
+    const totalOpening = nV * span + (nV - 1) * pierW;
+
+    const W_view = Math.max(16, totalOpening + 14);
+    const H_view = Math.max(9, (frl - fdn) + 4.5);
+    const originX = W_view / 2;
+    const originY = 2.5;
+
+    const scaleX = 38;
+    const scaleY = 38;
+
+    const toY = (lvl) => originY + (frl - lvl) * scaleY;
+    const toX = (dist) => originX + dist * scaleX;
+
+    const svgW = W_view * scaleX;
+    const svgH = H_view * scaleY;
+
+    let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" width="100%" height="100%" style="font-family:var(--f-mono,monospace);">`;
+    svg += `<defs>
+      <pattern id="soil-pat" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 12 L12 0 M6 12 L12 6 M0 6 L6 0" stroke="rgba(125,211,252,0.12)" stroke-width="1"/></pattern>
+      <pattern id="stone-pat" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="3" fill="none" stroke="rgba(251,191,36,0.3)"/><circle cx="12" cy="12" r="3" fill="none" stroke="rgba(251,191,36,0.3)"/></pattern>
+    </defs>`;
+
+    const groundY = toY(p.gl);
+    const fdnY = toY(fdn);
+    svg += `<rect x="0" y="${groundY}" width="${svgW}" height="${svgH - groundY}" fill="url(#soil-pat)"/>`;
+
+    const halfRoad = (p.carriageway + 2 * R.edgeW) / 2;
+    const roadY = toY(frl);
+
+    const halfVentway = totalOpening / 2;
+    const bedLeftX = toX(-halfVentway - 1.5);
+    const bedRightX = toX(halfVentway + 1.5);
+    const bedY = toY(bedLevel);
+
+    svg += `<polygon points="${toX(-W_view / 2 + 1)},${toY(p.gl)} ${bedLeftX},${bedY} ${bedRightX},${bedY} ${toX(W_view / 2 - 1)},${toY(p.gl)} ${toX(W_view / 2 - 1)},${svgH} ${toX(-W_view / 2 + 1)},${svgH}" fill="rgba(13,32,68,0.7)"/>`;
+
+    if (yes(p.bedProtection)) {
+      const flrThkPx = p.floorThk * scaleY;
+      const flrTopY = bedY;
+      const flrL = toX(-halfVentway);
+      const flrR = toX(halfVentway);
+
+      svg += `<rect x="${flrL}" y="${flrTopY}" width="${flrR - flrL}" height="${flrThkPx}" fill="#38bdf8" fill-opacity="0.25" stroke="#38bdf8" stroke-width="1.2"/>`;
+      svg += `<text x="${(flrL + flrR) / 2}" y="${flrTopY + flrThkPx - 2}" text-anchor="middle" fill="#7dd3fc" font-size="10">CC M15 BED FLOORING (150 mm)</text>`;
+
+      const curtUsDepthPx = p.curtainDepthUs * scaleY;
+      const curtThkPx = p.curtainThk * scaleX;
+      svg += `<rect x="${flrL - curtThkPx}" y="${flrTopY}" width="${curtThkPx}" height="${curtUsDepthPx}" fill="#0284c7" fill-opacity="0.6" stroke="#38bdf8" stroke-width="1.2"/>`;
+      svg += `<text x="${flrL - curtThkPx / 2}" y="${flrTopY + curtUsDepthPx + 12}" text-anchor="middle" fill="#38bdf8" font-size="9">U/S CURTAIN (${fmt(p.curtainDepthUs, 1)} m)</text>`;
+
+      const curtDsDepthPx = p.curtainDepthDs * scaleY;
+      svg += `<rect x="${flrR}" y="${flrTopY}" width="${curtThkPx}" height="${curtDsDepthPx}" fill="#0284c7" fill-opacity="0.6" stroke="#38bdf8" stroke-width="1.2"/>`;
+      svg += `<text x="${flrR + curtThkPx / 2}" y="${flrTopY + curtDsDepthPx + 12}" text-anchor="middle" fill="#38bdf8" font-size="9">D/S CURTAIN (${fmt(p.curtainDepthDs, 1)} m)</text>`;
+
+      const aprLenUsPx = p.apronLenUs * scaleX;
+      const aprLenDsPx = p.apronLenDs * scaleX;
+      svg += `<rect x="${flrL - curtThkPx - aprLenUsPx}" y="${flrTopY}" width="${aprLenUsPx}" height="${p.apronThk * scaleY}" fill="url(#stone-pat)" stroke="#f59e0b" stroke-width="1"/>`;
+      svg += `<rect x="${flrR + curtThkPx}" y="${flrTopY}" width="${aprLenDsPx}" height="${p.apronThk * scaleY}" fill="url(#stone-pat)" stroke="#f59e0b" stroke-width="1"/>`;
+    }
+
+    const soffitY = toY(R.soffit);
+    const abTopWPx = p.abTopW * scaleX;
+    const abBackBatterPx = p.abBackBatter * scaleX;
+    const abToePx = p.abToe * scaleX;
+    const abHeelPx = p.abHeel * scaleX;
+    const fdnThkPx = p.footingT * scaleY;
+
+    // Left Abutment
+    const leftAbInnerFaceX = toX(-halfVentway);
+    const leftAbTopOuterX = leftAbInnerFaceX - abTopWPx;
+    const leftAbBaseOuterX = leftAbTopOuterX - abBackBatterPx;
+    const leftFootingInnerX = leftAbInnerFaceX + abToePx;
+    const leftFootingOuterX = leftAbBaseOuterX - abHeelPx;
+
+    svg += `<polygon points="${leftAbInnerFaceX},${soffitY} ${leftAbTopOuterX},${soffitY} ${leftAbBaseOuterX},${fdnY - fdnThkPx} ${leftAbInnerFaceX},${fdnY - fdnThkPx}" fill="#1e293b" stroke="#7dd3fc" stroke-width="1.5"/>`;
+    svg += `<rect x="${leftFootingOuterX}" y="${fdnY - fdnThkPx}" width="${leftFootingInnerX - leftFootingOuterX}" height="${fdnThkPx}" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.5"/>`;
+    svg += `<rect x="${leftAbInnerFaceX - p.bearingW * scaleX}" y="${soffitY}" width="${p.bearingW * scaleX}" height="${p.bedBlockT * scaleY}" fill="#334155" stroke="#7dd3fc" stroke-width="1"/>`;
+
+    // Right Abutment
+    const rightAbInnerFaceX = toX(halfVentway);
+    const rightAbTopOuterX = rightAbInnerFaceX + abTopWPx;
+    const rightAbBaseOuterX = rightAbTopOuterX + abBackBatterPx;
+    const rightFootingInnerX = rightAbInnerFaceX - abToePx;
+    const rightFootingOuterX = rightAbBaseOuterX + abHeelPx;
+
+    svg += `<polygon points="${rightAbInnerFaceX},${soffitY} ${rightAbTopOuterX},${soffitY} ${rightAbBaseOuterX},${fdnY - fdnThkPx} ${rightAbInnerFaceX},${fdnY - fdnThkPx}" fill="#1e293b" stroke="#7dd3fc" stroke-width="1.5"/>`;
+    svg += `<rect x="${rightFootingInnerX}" y="${fdnY - fdnThkPx}" width="${rightFootingOuterX - rightFootingInnerX}" height="${fdnThkPx}" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.5"/>`;
+    svg += `<rect x="${rightAbInnerFaceX}" y="${soffitY}" width="${p.bearingW * scaleX}" height="${p.bedBlockT * scaleY}" fill="#334155" stroke="#7dd3fc" stroke-width="1"/>`;
+
+    // Piers
+    if (nV > 1) {
+      for (let v = 1; v < nV; v++) {
+        const pierCenterX = toX(-halfVentway + v * span + (v - 0.5) * pierW);
+        const pWPx = pierW * scaleX;
+        const pL = pierCenterX - pWPx / 2;
+        const pToePx = p.pierToe * scaleX;
+        svg += `<rect x="${pL}" y="${soffitY}" width="${pWPx}" height="${fdnY - fdnThkPx - soffitY}" fill="#1e293b" stroke="#7dd3fc" stroke-width="1.5"/>`;
+        svg += `<rect x="${pL - pToePx}" y="${fdnY - fdnThkPx}" width="${pWPx + 2 * pToePx}" height="${fdnThkPx}" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.5"/>`;
+        svg += `<rect x="${pL}" y="${soffitY}" width="${pWPx}" height="${p.bedBlockT * scaleY}" fill="#334155" stroke="#7dd3fc" stroke-width="1"/>`;
+      }
+    }
+
+    // Deck Slab & Road
+    const deckLeftX = leftAbInnerFaceX - p.bearingW * scaleX;
+    const deckRightX = rightAbInnerFaceX + p.bearingW * scaleX;
+    const slabThkPx = p.D * scaleY;
+    const wcThkPx = p.wc * scaleY;
+
+    svg += `<rect x="${deckLeftX}" y="${soffitY - slabThkPx}" width="${deckRightX - deckLeftX}" height="${slabThkPx}" fill="#0284c7" fill-opacity="0.35" stroke="#38bdf8" stroke-width="2"/>`;
+    svg += `<rect x="${deckLeftX}" y="${roadY}" width="${deckRightX - deckLeftX}" height="${wcThkPx}" fill="#475569" stroke="#94a3b8" stroke-width="1"/>`;
+
+    const edgeWPx = R.edgeW * scaleX;
+    const edgeHPx = (p.edgeType === 'crash' ? 0.85 : p.kerbH) * scaleY;
+    svg += `<rect x="${deckLeftX}" y="${roadY - edgeHPx}" width="${edgeWPx}" height="${edgeHPx}" fill="#0369a1" stroke="#38bdf8" stroke-width="1.2"/>`;
+    svg += `<rect x="${deckRightX - edgeWPx}" y="${roadY - edgeHPx}" width="${edgeWPx}" height="${edgeHPx}" fill="#0369a1" stroke="#38bdf8" stroke-width="1.2"/>`;
+
+    const waterY = toY(waterLevel);
+    svg += `<line x1="${toX(-W_view / 2 + 1)}" y1="${waterY}" x2="${toX(W_view / 2 - 1)}" y2="${waterY}" stroke="#22d3ee" stroke-width="2" stroke-dasharray="6 3"/>`;
+    svg += `<text x="${toX(halfVentway + 0.3)}" y="${waterY - 4}" fill="#22d3ee" font-size="11" font-weight="bold">${isStream ? 'HFL' : 'FSL'} +${fmt(waterLevel, 3)} m</text>`;
+
+    svg += `<text x="${(deckLeftX + deckRightX) / 2}" y="${roadY - 6}" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="bold">FRL +${fmt(frl, 3)} m (${p.roadType})</text>`;
+    svg += `<text x="${toX(0)}" y="${soffitY - slabThkPx / 2 + 4}" text-anchor="middle" fill="#e0f2fe" font-size="11" font-weight="bold">RCC SLAB D=${fmt(p.D * 1000, 0)} mm (${p.mainDia} mm @ ${p.mainSpacing})</text>`;
+    svg += `<text x="${toX(0)}" y="${bedY + 20}" text-anchor="middle" fill="#94a3b8" font-size="10">${isStream ? 'STREAM BED' : 'CBL'} +${fmt(bedLevel, 3)} m</text>`;
+    svg += `<text x="${toX(0)}" y="${fdnY + 14}" text-anchor="middle" fill="#64748b" font-size="10">FOUNDATION LEVEL +${fmt(fdn, 3)} m</text>`;
+
+    svg += `<line x1="${leftAbInnerFaceX}" y1="${soffitY + 18}" x2="${rightAbInnerFaceX}" y2="${soffitY + 18}" stroke="#f59e0b" stroke-width="1.2"/>`;
+    svg += `<text x="${toX(0)}" y="${soffitY + 15}" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">${nV} VENT${nV > 1 ? 'S' : ''} x ${fmt(span, 2)} m CLEAR SPAN</text>`;
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  // ------------------------------------------------------------ BBS for Slab Culvert
+  function bbs(cur) {
+    const { p, R } = cur;
+    const { unitWt, nBars } = BD;
+    const c = p.cover;
+    const B = R.B;
+    const L = R.deckL;
+    const D = p.D;
+    const rows = [];
+    const add = (member, desc, dia, sp, shape, len, nb, nm) => {
+      const tl = len * nb * nm, w = unitWt ? unitWt(dia) : (dia * dia) / 162;
+      rows.push({ member, desc, dia, sp, shape, len: r3(len), nb, nm, tl: r2(tl), w: r3(w), kg: r2(tl * w) });
+    };
+
+    const anc = (dia) => (45 * dia) / 1000;
+    const memName = `Deck Slab (${fmt(L, 2)} x ${fmt(B, 2)} x ${fmt(D, 3)} m)`;
+
+    // 1. Main tensile steel (bottom)
+    const lenMain = L - 2 * c + 2 * anc(p.mainDia);
+    const nbMain = nBars ? nBars(B, p.mainSpacing / 1000) : Math.ceil(B / (p.mainSpacing / 1000)) + 1;
+    add(memName, 'Bottom main tensile bars (straight + hooks)', p.mainDia, p.mainSpacing / 1000, `Straight with hooks L=${fmt(lenMain, 2)} m`, lenMain, nbMain, R.nV || 1);
+
+    // 2. Distribution steel
+    const lenDist = B - 2 * c;
+    const nbDist = nBars ? nBars(L, p.distSpacing / 1000) : Math.ceil(L / (p.distSpacing / 1000)) + 1;
+    add(memName, 'Distribution bars across carriageway', p.distDia, p.distSpacing / 1000, `Straight L=${fmt(lenDist, 2)} m`, lenDist, nbDist, R.nV || 1);
+
+    // 3. Top nominal mesh
+    const nbTopL = nBars ? nBars(B, p.topSpacing / 1000) : Math.ceil(B / (p.topSpacing / 1000)) + 1;
+    const nbTopT = nBars ? nBars(L, p.topSpacing / 1000) : Math.ceil(L / (p.topSpacing / 1000)) + 1;
+    add(memName, 'Top nominal mesh longitudinal bars', p.topDia, p.topSpacing / 1000, `Straight L=${fmt(lenMain, 2)} m`, lenMain, nbTopL, R.nV || 1);
+    add(memName, 'Top nominal mesh transverse bars', p.topDia, p.topSpacing / 1000, `Straight L=${fmt(lenDist, 2)} m`, lenDist, nbTopT, R.nV || 1);
+
+    // 4. Kerb / Crash barrier reinforcement
+    const lenStirrup = 2 * (R.edgeW + p.kerbH);
+    const nbKerbStirrups = Math.ceil(L / 0.20) * 2;
+    add('Kerbs & Barriers', 'Kerb stirrups 10 mm @ 200 mm c/c', 10, 0.20, 'Closed stirrup', lenStirrup, nbKerbStirrups, 1);
+    add('Kerbs & Barriers', 'Longitudinal bars in kerbs (4 Nos per side)', 12, 0, 'Straight', L, 8, 1);
+
+    const total = r2(rows.reduce((s, r) => s + r.kg, 0));
+    const byDia = {};
+    for (const r of rows) byDia[r.dia] = r2((byDia[r.dia] || 0) + r.kg);
+    return { rows, total, byDia };
+  }
+
+  // ------------------------------------------------------------ Estimates (Telangana / AP SSR 2026-27)
+  function estimate(cur, opts = {}) {
+    const { p, R } = cur;
+    const nV = p.nVents;
+    const B = R.B;
+    const L = R.deckL;
+    const Htotal = R.Htotal;
+    const footingW = R.footingW;
+    const fdnT = p.footingT;
+    const abTopW = p.abTopW;
+    const abBaseW = R.abBaseW;
+    const wingLen = p.wingLen;
+    const b = bbs(cur);
+    const apron = yes(p.bedProtection);
+    const isStream = p.crossingType === 'stream';
+    const bedLevel = isStream ? p.streamBed : p.cblC;
+
+    const excDepthAb = r3(p.gl - p.foundationLevel);
+    const excDepthW = excDepthAb;
+    const abArea = ((abTopW + abBaseW) / 2) * R.Hstem;
+    const abH = R.Hstem;
+    const wAvg = (p.wTopW + p.wBaseW) / 2;
+
+    const M = {
+      exc: [
+        ['For abutment foundations', 1, 2, B + 1.0, footingW + 0.6, excDepthAb],
+        ...(nV > 1 ? [[`For pier foundations (${nV - 1} Nos)`, 1, nV - 1, B + 1.0, p.pierW + 2 * p.pierToe + 0.6, r3(bedLevel - p.foundationLevel)]] : []),
+        ['For splayed wing wall foundations', 1, 4, wingLen + 0.6, p.wBaseW + 0.6, excDepthW],
+        ...(apron ? [
+          ['For CC bed flooring in ventway', 1, 1, R.totalWaterway, B, p.floorThk + p.packingThk],
+          ['For upstream curtain wall', 1, 1, B + 2.0, p.curtainThk + 0.4, p.curtainDepthUs],
+          ['For downstream curtain wall', 1, 1, B + 2.0, p.curtainThk + 0.4, p.curtainDepthDs],
+        ] : []),
+      ],
+      pcc: [
+        ['For abutment footing concrete', 1, 2, B, footingW, fdnT],
+        ...(nV > 1 ? [[`For pier footing concrete (${nV - 1} Nos)`, 1, nV - 1, B, p.pierW + 2 * p.pierToe, fdnT]] : []),
+        ['For wing wall footing concrete', 1, 4, wingLen, p.wBaseW + p.wToe + p.wHeel, p.wFootT],
+        ...(apron ? [
+          ['For upstream curtain wall (CC M15)', 1, 1, B + 2.0, p.curtainThk, p.curtainDepthUs],
+          ['For downstream curtain wall (CC M15)', 1, 1, B + 2.0, p.curtainThk, p.curtainDepthDs],
+        ] : []),
+      ],
+      lining: apron ? [
+        ['CC M15 bed flooring in between abutments', 1, 1, R.totalWaterway, B, p.floorThk],
+        ['Dry stone / boulder packing under bed flooring', 1, 1, R.totalWaterway, B, p.packingThk],
+      ] : [],
+      plum: [
+        [`For gravity abutments (CC M15 with plums)`, 1, 2, B, r3(abArea / abH), r3(abH)],
+        ...(nV > 1 ? [[`For piers (CC M15 with plums)`, 1, nV - 1, B, p.pierW, r3(R.Hstem)]] : []),
+        [`For splayed wing walls (CC M15 with plums)`, 1, 4, wingLen, r3(wAvg), r3(R.Hstem * 0.8)],
+      ],
+      bedblock: [
+        ['For bed blocks on abutments (CC M20)', 1, 2, B, p.bearingW, p.bedBlockT],
+        ...(nV > 1 ? [[`For bed blocks on piers (${nV - 1} Nos)`, 1, nV - 1, B, p.pierW, p.bedBlockT]] : []),
+      ],
+      deck: [
+        ['For RCC solid deck slab (M25)', 1, nV, L, B, p.D],
+        ['For kerb walls / crash barriers', 1, 2 * nV, L, R.edgeW, p.kerbH],
+        ['For approach slabs (3.5 m each side)', 1, 2, 3.50, B, 0.30],
+      ],
+      wc: [
+        ['Wearing coat 75 mm over deck slab carriageway', 1, nV, L, p.carriageway, p.wc],
+        ['Wearing coat over approach slabs', 1, 2, 3.50, p.carriageway, p.wc],
+      ],
+      rail: p.edgeType === 'railing' ? [['Hand railing on both sides of deck', 1, 2, L, 1, 1]] : [],
+      crash: [],
+    };
+
+    return BD.priceEstimate(BD.EST_ITEMS, M, b, {
+      typ: 'SLAB CULVERT',
+      where: `Slab Culvert @ Km ${p.chainage} across ${p.waterwayName}`,
+      nameOfWork: R.scope,
+    }, opts);
+  }
+
+  // ------------------------------------------------------------ A2 Engineering Drawings
+  function sheets(cur) {
+    return [BD.sheet1(cur), BD.sheet2(cur)];
+  }
+
+  BD.CULVERTUI = {
+    GROUPS,
+    SHOW_IF,
+    AUTO_FIELDS,
+    STD_NOTE,
+    onChoice,
+    renderXSec,
+    estimate,
+    sheets,
+    dwgHint: 'Sheet 1: Plan, Sectional Elevation with Bed Protection & Cut-offs. Sheet 2: Slab Reinforcement Details & BBS.',
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 /* UI: input form, live design, report / drawings / estimate views, exports. */
 (function () {
   'use strict';
   const BD = window.BD;
   const $ = (s, r = document) => r.querySelector(s);
   const fmt = BD.fmt;
-  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1';
+  const STORE = 'bd-inputs-v1', RSTORE = 'bd-rates-v1', USTORE = 'bd-ut-v1', CSTORE = 'bd-culvert-v1';
 
   // [key, label, unit, step]; step = 'text' for text, or an array of
   // [value, label] pairs for a drop-down.
@@ -4755,33 +5954,49 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
 
   const KM1580 = { chainage: '1.580', cbl: 145.367, cblExisting: 145.235, frl: 147.09, gl: 146.526, foundationLevel: 144.1, wFrontBatter: 0.7, wBaseW: 2.2, frlNote: 'FRL adopted = avg top of existing Culvert-6 (Ch 1415).' };
   const EXAMPLES = {
-    km0450: () => Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }),
-    km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }),
-    dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
-    general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
-    culvert4m: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
-      bridgeType: 'CULVERT', chainage: '3.400', canalName: 'Stream / Nala Crossing', roadType: 'R&B / MDR ROAD',
-      location: 'Suryapet', district: 'Suryapet', span: 4.0, nVents: 1, carriageway: 7.5, edgeType: 'crash',
-      Q: 8.5, bedWidth: 3.5, fsd: 1.25, freeBoard: 0.6, bedFall: 1000, cbl: 120.0, cblExisting: 120.0,
-      frl: 122.95, gl: 122.2, foundationLevel: 118.5, sbc: 22, apron: 'yes',
-      frlNote: 'FRL fixed as per road formation level with 0.60 m freeboard over HFL.'
-    })).input,
-    culvertTwin: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
-      bridgeType: 'CULVERT', chainage: '7.850', canalName: 'Peddavagu Stream', roadType: 'STATE HIGHWAY',
-      location: 'Miryalaguda', district: 'Nalgonda', span: 3.0, nVents: 2, carriageway: 7.5, edgeType: 'crash',
-      Q: 14.0, bedWidth: 6.5, fsd: 1.4, freeBoard: 0.6, bedFall: 1200, cbl: 110.0, cblExisting: 110.0,
-      frl: 113.1, gl: 112.5, foundationLevel: 108.2, sbc: 25, apron: 'yes',
-      frlNote: 'Twin vent 2 x 3.0 m slab culvert per IRC SP:13 / MORTH standards.'
-    })).input,
-    wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
+    km0450: () => { setMode('bridge'); return Object.assign({}, BD.DEFAULTS, { deckAuto: 'no', tempFriction: 'no' }); },
+    km1580: () => { setMode('bridge'); return Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }); },
+    dlrb: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input; },
+    general: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input; },
+    culvert4m: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'stream', span: 4.0, nVents: 1, carriageway: 7.50, roadType: 'MDR_TWO',
+        waterwayName: 'Peddavagu Stream', chainage: '3.400', catchment: 6.25, formulaC: 8.5,
+        streamBed: 100.0, streamBedWidth: 5.5, streamFall: 800, frl: 103.20, gl: 102.50,
+      })).input;
+    },
+    culvertTwin: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'stream', span: 3.0, nVents: 2, pierW: 0.75, carriageway: 7.50, roadType: 'SH',
+        waterwayName: 'Chityala Stream', chainage: '7.850', catchment: 12.0, formulaC: 8.5,
+        streamBed: 110.0, streamBedWidth: 8.5, streamFall: 1000, frl: 113.30, gl: 112.50,
+      })).input;
+    },
+    culvertCanal: () => {
+      setMode('culvert');
+      return BD.culvertAutoDesign(Object.assign({}, BD.CULVERT_DEFAULTS, {
+        crossingType: 'canal', span: 3.0, nVents: 1, carriageway: 4.25, roadType: 'PR_VILLAGE',
+        waterwayName: 'L-1 Minor Canal', chainage: '0.850', Qc: 1.5, canalBedW: 2.0, canalFsd: 0.8,
+        canalCbl: 145.0, frl: 147.50, gl: 147.0,
+      })).input;
+    },
+    wide: () => { setMode('bridge'); return BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input; },
   };
 
-  // Structure kinds: road bridges (SLRB / DLRB) and U.T. share the form, tabs and exports.
+  // Structure kinds: road bridges (SLRB / DLRB), dedicated culverts, and U.T. share the form, tabs and exports.
   const UT = BD.UTUI;
+  const CULVERT = BD.CULVERTUI;
   const BRIDGE = { GROUPS, SHOW_IF, AUTO_FIELDS, STD_NOTE, onChoice: (st, k) => onChoice(k) };
-  let mode = load('bd-mode') === 'ut' ? 'ut' : 'bridge';
-  const K = () => (mode === 'ut' ? UT : BRIDGE);
-  const states = { bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}), ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {}) };
+  let mode = load('bd-mode') || 'bridge';
+  if (!['bridge', 'culvert', 'ut'].includes(mode)) mode = 'bridge';
+  const K = () => (mode === 'ut' ? UT : mode === 'culvert' ? CULVERT : BRIDGE);
+  const states = {
+    bridge: Object.assign({}, BD.DEFAULTS, load(STORE) || {}),
+    culvert: Object.assign({}, BD.CULVERT_DEFAULTS, load(CSTORE) || {}),
+    ut: Object.assign({}, BD.UT_DEFAULTS, load(USTORE) || {})
+  };
   let state = states[mode];
   function setMode(m) {
     states[mode] = state;
@@ -4789,8 +6004,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     save('bd-mode', m);
     lastDeckKey = '';
     buildForm();
-    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : DWG_HINT;
-    $('#bp-foot').textContent = mode === 'ut' ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres' : 'Drawn to scale from your inputs · levels in metres';
+    $('#dwg-hint').textContent = mode === 'ut' ? UT.dwgHint : mode === 'culvert' ? CULVERT.dwgHint : DWG_HINT;
+    $('#bp-foot').textContent = mode === 'ut'
+      ? 'Section along the drain from your inputs · vertical scale exaggerated · levels in metres'
+      : mode === 'culvert'
+      ? 'Culvert sectional elevation with bed protection & curtain walls · levels in metres'
+      : 'Drawn to scale from your inputs · levels in metres';
   }
   const DWG_HINT = 'Sheet 1: plan and sectional elevation. Sheet 2: sections and reinforcement details. Use + and − to zoom.';
   let rates = load(RSTORE) || {};
@@ -4877,7 +6096,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   function fillForm() {
     for (const el of $('#form').elements) if (el.name && state[el.name] != null) el.value = state[el.name];
     applyVisibility();
-    const ty = mode === 'ut' ? 'UT' : state.bridgeType;
+    const ty = mode === 'ut' ? 'UT' : mode === 'culvert' ? 'CULVERT' : state.bridgeType;
     document.querySelectorAll('.type-switch button').forEach((b) => { b.classList.toggle('active', b.dataset.type === ty); b.setAttribute('aria-checked', String(b.dataset.type === ty)); });
   }
 
@@ -4888,6 +6107,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   let lastDeckKey = '';
   function run() {
     if (mode === 'ut') return runUT();
+    if (mode === 'culvert') return runCulvert();
     try {
       if (state.deckAuto === 'no') lastDeckKey = '';
       else {
@@ -4909,6 +6129,19 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
   }
   let drawingsStale = true;
+
+  function runCulvert() {
+    try {
+      cur = BD.culvertDesign(state);
+      est = BD.CULVERTUI.estimate(cur, { rates });
+    } catch (err) {
+      $('#status').innerHTML = `<div class="fixbox">Could not compute: ${esc(err.message)}</div>`;
+      return;
+    }
+    save(CSTORE, state);
+    renderStatus(); renderHints(); renderReport(); renderEstimate();
+    if (!$('#tab-drawings').hidden) renderDrawings(); else drawingsStale = true;
+  }
 
   function runUT() {
     try {
@@ -4934,13 +6167,32 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     const nChecks = cur.sections.reduce((n, s) => n + s.rows.filter((r) => r.check).length, 0);
     $('#badge').className = 'badge ' + (fails.length ? 'bad' : 'ok');
     $('#badge').textContent = fails.length ? `${fails.length} of ${nChecks} checks need revision` : `All ${nChecks} design checks OK`;
-    const fixTxt = mode === 'ut' ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.' : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
+    const fixTxt = mode === 'ut'
+      ? 'Press <b>Auto design</b> to set the vents and size the box members, head walls and wing / return walls so every check passes.'
+      : mode === 'culvert'
+      ? 'Press <b>Auto design</b> to size the slab, foundation depth, abutments, and wing walls to pass all checks.'
+      : 'Press <b>Auto design</b> to size the deck, abutment and wing walls so every check passes.';
     if (mode === 'ut') {
       const u = UT.status(cur, est, state);
       $('#xsec').innerHTML = UT.sectionSVG(cur);
       $('#xsec-title').textContent = u.title;
       $('#kpis').innerHTML = u.kpis;
       $('#status').innerHTML = `<div class="gov">${u.gov}</div>` +
+        (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
+        (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
+      return;
+    }
+    if (mode === 'culvert') {
+      $('#xsec').innerHTML = CULVERT.renderXSec(cur);
+      $('#xsec-title').textContent = `${R.typ} (${state.crossingType === 'stream' ? 'Stream' : 'Canal'}) · Km ${state.chainage}`;
+      const estLakhs = est.lakhs ? est.lakhs.toFixed(2) : (est.total / 100000).toFixed(2);
+      $('#kpis').innerHTML = `
+        <div><span>Linear waterway</span><b>${fmt(R.totalWaterway, 2)}<i>m</i></b><small>${state.nVents} vent${state.nVents > 1 ? 's' : ''} x ${fmt(state.span, 2)} m</small></div>
+        <div><span>Deck slab</span><b>${fmt(state.D * 1000, 0)}<i>mm</i></b><small>${state.mainDia} dia @ ${state.mainSpacing} c/c</small></div>
+        <div><span>Base pressure</span><b>${fmt(R.pmax, 2)}<i>t/m²</i></b><small>SBC ${state.sbc} · FOS ${fmt(R.fosO, 2)}</small></div>
+        <div><span>Estimate</span><b>${estLakhs}<i>lakhs</i></b><small>SSR 2026-27 + GST</small></div>`;
+      $('#status').innerHTML =
+        `<div class="gov"><span>Culvert Waterway & Hydrology</span><b>Design Q = ${fmt(R.Q, 2)} cumecs · ${state.crossingType === 'stream' ? 'HFL' : 'FSL'} +${fmt(R.hfl, 3)} m</b></div>` +
         (fails.length ? `<div class="fixbox"><b>What to fix</b><ul class="fails">${fails.map((f) => `<li>${esc(f)}</li>`).join('')}</ul><p>${fixTxt}</p></div>` : '') +
         (cur.warnings.length ? `<ul class="warns">${cur.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : '');
       return;
@@ -5116,7 +6368,7 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     drawingsStale = false;
   }
 
-  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
+  const sheets = () => (mode === 'ut' ? UT.sheets(cur) : mode === 'culvert' ? CULVERT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
   // ---------------------------------------------------------------- downloads
   const fileBase = () => `${cur.R.typ.replace(/[\.\s]+/g, '_')}_Km${String(state.chainage).replace('.', '')}`;
   // Runs an export; libraries load deferred, so wait for them briefly.
@@ -5139,21 +6391,20 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
   function init() {
     wireForm(); setMode(mode); fillForm();
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
-      if (b.dataset.type === 'UT') { if (mode === 'ut') return; setMode('ut'); fillForm(); run(); return; }
-      const wasUT = (mode === 'ut');
-      if (wasUT) {
-        setMode('bridge');
-      } else if (state.bridgeType === b.dataset.type) {
-        return;
+      const targetType = b.dataset.type;
+      if (targetType === 'UT') {
+        if (mode === 'ut') return;
+        setMode('ut'); fillForm(); run(); return;
       }
-      if (state.bridgeType !== b.dataset.type) {
-        state.bridgeType = b.dataset.type;
-        state.carriageway = BD.CARRIAGEWAY[state.bridgeType] || 7.5;
-        if (b.dataset.type === 'CULVERT') {
-          if (!state.span || state.span > 6.0) state.span = 4.0;
-          if (!state.canalName || state.canalName.includes('Minor')) state.canalName = 'Stream / Drain Crossing';
-          if (state.roadType === 'C.T ROAD') state.roadType = 'R&B / MDR ROAD';
-        }
+      if (targetType === 'CULVERT') {
+        if (mode === 'culvert') return;
+        setMode('culvert'); fillForm(); run(); return;
+      }
+      // SLRB or DLRB
+      if (mode !== 'bridge') setMode('bridge');
+      if (state.bridgeType !== targetType) {
+        state.bridgeType = targetType;
+        state.carriageway = BD.CARRIAGEWAY[state.bridgeType];
       }
       fillForm(); run();
     }));
@@ -5176,6 +6427,12 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
         flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
         return;
       }
+      if (mode === 'culvert') {
+        const a = BD.culvertAutoDesign(state);
+        state = a.input; fillForm(); run();
+        flash(`Auto design: ${a.log.join('; ')}. ${a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above.'}`);
+        return;
+      }
       const a = BD.autoDesign(state);
       state = a.input; fillForm(); run();
       const msg = a.result.R.allOk ? 'All checks pass.' : 'Some checks still fail – see the list above (e.g. raise FRL or improve SBC).';
@@ -5184,19 +6441,27 @@ input.rate { width: 96px; text-align: right; border: 1px solid var(--inp-line); 
     $('#sel-example').addEventListener('change', (e) => {
       const f = EXAMPLES[e.target.value];
       if (e.target.value === 'ut25615') { setMode('ut'); state = Object.assign({}, BD.UT_DEFAULTS); fillForm(); run(); }
-      else if (f) { if (mode === 'ut') setMode('bridge'); state = f(); fillForm(); run(); }
+      else if (f) { state = f(); fillForm(); run(); }
       e.target.value = '';
     });
-    $('#btn-reset').addEventListener('click', () => { state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS); fillForm(); run(); });
-    $('#btn-save').addEventListener('click', async () => { try { if (await dl(JSON.stringify(state, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.'); } catch (err) { flash(err.message); } });
+    $('#btn-reset').addEventListener('click', () => {
+      state = Object.assign({}, mode === 'ut' ? BD.UT_DEFAULTS : mode === 'culvert' ? BD.CULVERT_DEFAULTS : BD.DEFAULTS);
+      fillForm(); run();
+    });
+    $('#btn-save').addEventListener('click', async () => {
+      try {
+        const payload = Object.assign({ structure: mode === 'ut' ? 'UT' : mode === 'culvert' ? 'CULVERT' : 'BRIDGE' }, state);
+        if (await dl(JSON.stringify(payload, null, 2), `${fileBase()}_inputs.json`, 'application/json')) flash('Inputs saved.');
+      } catch (err) { flash(err.message); }
+    });
     $('#file-open').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
       try {
         const js = JSON.parse(await f.text());
-        const m = js.structure === 'UT' ? 'ut' : 'bridge';
+        const m = js.structure === 'UT' ? 'ut' : js.structure === 'CULVERT' ? 'culvert' : 'bridge';
         if (m !== mode) setMode(m);
-        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
+        state = Object.assign({}, m === 'ut' ? BD.UT_DEFAULTS : m === 'culvert' ? BD.CULVERT_DEFAULTS : BD.DEFAULTS, js); fillForm(); run();
       }
       catch (err) { flash('That file is not a saved inputs file (' + err.message + ').'); }
       e.target.value = '';
