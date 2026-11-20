@@ -672,7 +672,7 @@
         BD.printBlob(blob);
       }, 'Print Drawings'));
     }
-    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await (mode === 'ut' ? BD.utDxfZip : BD.dxfZip)(cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
+    $('#btn-dxf').addEventListener('click', exporter([hasZip], async () => BD.saveBlob(await (mode === 'ut' ? BD.utDxfZip : BD.dxfZip)(mode === 'culvert' ? CULVERT.adapt(cur) : cur, fileBase()), `${fileBase()}_Drawings_DXF.zip`), 'DXF drawings'));
     $('#btn-xlsx-design').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.designWorkbook(cur), `${fileBase()}_Design.xlsx`), 'Design Excel'));
     $('#btn-xlsx-est').addEventListener('click', exporter([hasXL], () => BD.downloadWorkbook(BD.estimateWorkbook(cur, est), `${fileBase()}_Estimate.xlsx`), 'Estimate Excel'));
     run();

@@ -115,4 +115,25 @@ if (canalCulvert.R.hfl === 145.8 && canalCulvert.R.totalWaterway === 6.0) {
   process.exit(1);
 }
 
+require('../js/cad.js');
+require('../js/sheets.js');
+
+// 5. Engineering Drawing Generation (Sheet 1 & Sheet 2)
+const dwgs = BD.CULVERTUI.sheets(autoRes.result);
+if (dwgs && dwgs.length === 2) {
+  const svg1 = BD.toSVG(dwgs[0], { fluid: true });
+  const svg2 = BD.toSVG(dwgs[1], { fluid: true });
+  const dxf1 = BD.toDXF(dwgs[0]);
+  const dxf2 = BD.toDXF(dwgs[1]);
+  if (svg1.length > 1000 && svg2.length > 1000 && dxf1.length > 1000 && dxf2.length > 1000) {
+    console.log('OK   A2 Engineering Drawing generation (Sheet 1 & 2, SVG & DXF) verified');
+  } else {
+    console.error('FAIL Drawing SVG/DXF output too small or invalid');
+    process.exit(1);
+  }
+} else {
+  console.error('FAIL sheets() did not return 2 drawings');
+  process.exit(1);
+}
+
 console.log('All dedicated Slab Culvert tests PASSED!');

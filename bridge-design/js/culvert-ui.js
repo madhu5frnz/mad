@@ -507,8 +507,135 @@
   }
 
   // ------------------------------------------------------------ A2 Engineering Drawings
+  function adaptForSheets(cur) {
+    const p = Object.assign({}, cur.p);
+    const R = Object.assign({}, cur.R);
+    const c = { p, R };
+
+    const nV = p.nVents || 1;
+    R.nV = nV;
+    R.spanR = p.span;
+    p.pierTopW = p.pierW || 0.75;
+    p.skew = p.skew || 0;
+    p.edgeType = p.edgeType || 'railing';
+    p.frontBatter = p.abFrontBatter || 0;
+    p.abToe = p.footingToe || 0.5;
+    p.abHeel = p.footingHeel || 0.5;
+    p.approachLen = p.approachLen || 2.5;
+    p.approachThk = p.approachThk || 0.3;
+    p.bearingW = p.bearingW || 0.4;
+    p.footingT = p.footingT || 0.5;
+    p.bedBlockT = p.bedBlockT || 0.3;
+    p.kerbH = p.kerbH || 0.25;
+    p.kerbW = p.kerbW || 0.5;
+    p.barrierW = p.barrierW || 0.45;
+    p.fpW = p.fpW || 0;
+    p.fpThk = p.fpThk || 0.15;
+    p.wingLen = p.wingLen || 3.5;
+    p.apron = p.apron || 'yes';
+    p.apronThk = p.apronThk || 0.3;
+    p.liningThk = 100;
+    p.liningLen = 15;
+    p.gammaConc = 2.4;
+    p.gammaSoil = p.gammaSoil || 1.8;
+    p.phi = p.phi || 30;
+    p.mu = p.mu || 0.5;
+    p.sbc = p.sbc || 18;
+    p.manningN = p.manningN || 0.035;
+    p.bankWidthL = p.bankWidthL || 2.0;
+    p.bankWidthR = p.bankWidthR || 2.0;
+
+    // Wing wall params
+    p.wTopW = p.wTopW || 0.5;
+    p.wFrontBatter = p.wFrontBatter || 0;
+    p.wBaseW = p.wBaseW || 2.2;
+    p.wToe = p.wToe || 0.3;
+    p.wFootT = p.wFootT || 0.4;
+    p.keyW = p.keyW || 0.5;
+    p.keyD = p.keyD || 0.5;
+
+    const bed = p.crossingType === 'stream' ? (p.streamBed || 100) : (p.cbl || 100);
+    const hfl = R.hfl || (bed + 1.5);
+    p.cbl = bed;
+    p.fsd = hfl - bed;
+    p.bedWidth = p.crossingType === 'stream' ? (p.streamBedWidth || 6.0) : (p.bedWidth || 6.0);
+    p.sideSlope = p.crossingType === 'stream' ? (p.streamSideSlope || 1.0) : (p.sideSlope || 1.5);
+    p.freeBoard = R.clearance || 0.6;
+    p.bedFall = p.streamFall || p.bedFall || 1000;
+    p.Q = R.Q || 15.0;
+
+    R.cbl = bed;
+    R.fsl = hfl;
+    R.hfl = hfl;
+    R.tbl = hfl + 0.6;
+    R.topFSL = p.bedWidth + 2 * p.sideSlope * p.fsd;
+    R.topTBL = p.bedWidth + 2 * p.sideSlope * (p.fsd + 0.6);
+    R.clearCBL = nV * p.span;
+    R.B = p.carriageway + 2 * (p.kerbW || 0.5);
+    R.deckL = p.span + 2 * p.bearingW;
+    R.vel = R.Vbarrel || R.vel || 2.0;
+
+    R.opening = nV * p.span + (nV - 1) * p.pierTopW;
+    R.stemTop = R.soffit - p.bedBlockT;
+    R.ftgTop = p.foundationLevel + p.footingT;
+    R.stemBase = p.abTopW + (p.abFrontBatter || 0) + p.abBackBatter;
+    R.ftgW = p.abToe + R.stemBase + p.abHeel;
+    R.deckTop = p.frl - p.wc;
+    R.approachBot = R.deckTop - p.approachThk;
+
+    // Wing wall levels & dims on R
+    R.wH = Math.max(1.5, p.frl - (p.foundationLevel + p.wFootT));
+    R.wFtgTop = p.foundationLevel + p.wFootT;
+    R.wFtgW = p.wBaseW + p.wToe + 0.5;
+
+    // Pier properties if nV > 1
+    if (nV > 1) {
+      R.pierBase = p.pierTopW + 2 * (p.pierBatter || 0.05) * (R.soffit - p.foundationLevel);
+      R.pierFtgW = R.pierBase + 2 * (p.pierToe || 0.4);
+      R.stemH = R.soffit - p.foundationLevel - p.footingT;
+    }
+
+    // Sheet 2 properties
+    p.fck = p.fck || 25;
+    p.fy = p.fy || 500;
+    p.cover = p.cover || 0.04;
+    p.mainDia = p.mainDia || 16;
+    p.mainSpacing = p.mainSpacing || 110;
+    p.distDia = p.distDia || 10;
+    p.distSpacing = p.distSpacing || 150;
+    p.topDia = p.topDia || 10;
+    p.topSpacing = p.topSpacing || 200;
+    p.subFck = p.subFck || 15;
+    p.method = p.method || 'WSM';
+    p.exposure = p.exposure || 'moderate';
+
+    R.mainDia = p.mainDia;
+    R.mainSpacing = p.mainSpacing;
+    R.distDia = p.distDia;
+    R.distSpacing = p.distSpacing;
+    R.dReq = R.dReq || (p.D - p.cover - 0.01);
+    R.AstReq = R.AstReq || 1500;
+    R.AstProv = R.AstProv || 1800;
+    R.d = R.d || (p.D - p.cover - 0.01);
+    R.wDeck = R.B;
+    R.b_c = p.carriageway;
+    R.codes = 'Codes: IRC:SP:13-2022, IRC 5-2024, IRC 6-2024, IRC 21-2000 / IRC 112-2020, IRC 78-2024';
+
+    R.vehicles = [{ veh: { name: 'IRC Class 70R' } }, { veh: { name: 'IRC Class A' } }];
+
+    const fosO = R.fosO || 2.1, fosS = R.fosS || 1.6, pmax = R.pmax || 15.0, pmin = R.pmin || 4.0;
+    R.stemGov = { smax: pmax * 1.1, smin: Math.max(0, pmin * 0.8) };
+    R.abWorst = { pmax, pmin, fosO, fosS };
+    const wFosO = R.wFosO || 2.2, wFosS = R.wFosS || 1.6;
+    R.ws = { smax: pmax * 0.9, smin: Math.max(0, pmin * 0.7) };
+    R.w = { pmax: pmax * 0.85, pmin: Math.max(0, pmin * 0.6), fosO: wFosO, fosS: wFosS };
+
+    return c;
+  }
+
   function sheets(cur) {
-    return [BD.sheet1(cur), BD.sheet2(cur)];
+    const c = adaptForSheets(cur);
+    return [BD.sheet1(c), BD.sheet2(c)];
   }
 
   BD.CULVERTUI = {
@@ -519,6 +646,7 @@
     onChoice,
     renderXSec,
     estimate,
+    adapt: adaptForSheets,
     sheets,
     dwgHint: 'Sheet 1: Plan, Sectional Elevation with Bed Protection & Cut-offs. Sheet 2: Slab Reinforcement Details & BBS.',
   };
