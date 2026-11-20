@@ -72,7 +72,7 @@
     wToe: 0.3, wHeel: 0.3, wingLen: 2.5,
   };
 
-  const CARRIAGEWAY = { SLRB: 4.25, DLRB: 7.5 };
+  const CARRIAGEWAY = { SLRB: 4.25, DLRB: 7.5, CULVERT: 7.5 };
   const ZONE_Z = { II: 0.10, III: 0.16, IV: 0.24, V: 0.36 }; // IRC 6 / IS 1893
   const COVER = { moderate: 0.04, severe: 0.045, 'very severe': 0.05, extreme: 0.075 }; // IRC 112 Table 14.2
   // IRC 21 Table 9 (flexural compression = fck/3) / Table 10 steel in tension
@@ -229,6 +229,7 @@
     const p = Object.assign({}, DEFAULTS, input || {});
     for (const k of Object.keys(DEFAULTS)) if (typeof DEFAULTS[k] === 'number') p[k] = Number(p[k]);
     p.nVents = Math.max(1, Math.round(p.nVents));
+    const isCulvert = p.bridgeType === 'CULVERT';
     const isD = p.bridgeType === 'DLRB';
     const LSM = p.method === 'LSM';
     const nV = p.nVents;
@@ -253,7 +254,10 @@
 
     // 0. design basis
     sec('0. DESIGN BASIS');
-    row('Structure', `${isD ? 'Double' : 'Single'} lane road bridge, ${nV} vent${nV > 1 ? 's' : ''} RCC solid slab (simply supported) on gravity abutments${nV > 1 ? ' and piers' : ''}, open foundations`, '');
+    const structDesc = isCulvert
+      ? `RCC Slab Culvert, ${nV} vent${nV > 1 ? 's' : ''} (${p.carriageway >= 7.0 ? 'two-lane' : 'single-lane'}) solid slab (simply supported) on gravity abutments${nV > 1 ? ' and piers' : ''}, open foundations`
+      : `${isD ? 'Double' : 'Single'} lane road bridge, ${nV} vent${nV > 1 ? 's' : ''} RCC solid slab (simply supported) on gravity abutments${nV > 1 ? ' and piers' : ''}, open foundations`;
+    row('Structure', structDesc, '');
     row('Deck design method', LSM ? 'IRC 112:2020 Limit State Method' : 'IRC 21:2000 Working Stress Method', '', LSM ? 'Current code for concrete road bridges' : 'As in department type designs; IRC 112:2020 is current limit state code');
     row('Concrete / steel (deck)', `M${p.fck} / Fe${p.fy}`, '', `Exposure: ${p.exposure}; clear cover ${fmt(p.cover * 1000, 0)} mm`);
     row('Substructure', `Plain CC M${p.subFck} with plums; permissible direct compression ${fmt(p.subAllow, 0)} t/sqm`, '', 'IS 456 Table 21');
@@ -297,7 +301,7 @@
     row('Clear span of each vent (normal to canal)', p.span, 'm', `suggested ${fmt(R.spanSuggested, 2)} m`, { input: 'span' });
     if (p.skew) { inp('Skew angle', 'skew', 'deg'); row('Clear span along road = span / cos(skew)', spanR, 'm'); }
     R.opening = row('Total opening between abutment faces (along road)', nV * spanR + (nV - 1) * p.pierTopW / cosS, 'm');
-    inp(`Carriageway width (IRC 5 ${isD ? 'two lane' : 'single lane'})`, 'carriageway', 'm', 'IRC 5:2024 cl.104.3.1');
+    inp(`Carriageway width (IRC 5 ${p.carriageway >= 7.0 ? 'two lane' : p.carriageway >= 5.5 ? 'intermediate' : 'single lane'})`, 'carriageway', 'm', 'IRC 5:2024 cl.104.3.1');
     if (railing) {
       inp('Kerb width (each side)', 'kerbW', 'm', 'IRC 5:2024 min 225 mm');
       inp('Kerb height above deck', 'kerbH', 'm');
@@ -315,10 +319,11 @@
     inp('Ground level at site', 'gl', 'm');
     inp(`Approach slab ${fmt(p.approachThk * 1000, 0)} thk x ${fmt(p.approachLen, 2)} m each side`, 'approachLen', 'm', '20 mm expansion joints');
     if (nV * p.span + (nV - 1) * p.pierTopW < R.topFSL - 1e-6) warnings.push(`Total waterway ${fmt(nV * p.span + (nV - 1) * p.pierTopW, 2)} m is less than canal top width at FSL ${fmt(R.topFSL, 3)} m - the bridge will constrict the canal.`);
+    if (isCulvert && p.span > 6.0) warnings.push(`Clear span ${fmt(p.span, 2)} m exceeds 6.0 m: under IRC 5 / IRC SP:13, structures with span > 6.0 m are classified as Minor Bridges.`);
     if (p.span > p.maxSlabSpan) warnings.push(`Clear span ${fmt(p.span, 2)} m is more than ${fmt(p.maxSlabSpan, 1)} m - a solid slab becomes uneconomic; use ${R.ventsSuggested} vents or a T-beam deck.`);
     if (p.skew > 20) warnings.push(`Skew ${p.skew} deg exceeds 20 deg: skew slab analysis and skew reinforcement detailing are required (IRC 21 / IRC 112); drawings here are square.`);
     if (p.carriageway >= 9.6) warnings.push('Carriageway 9.6 m or more needs three-lane loading (IRC 6 Table 6A); this tool checks up to two lanes.');
-    if (isD && p.edgeType !== 'crash') warnings.push('For two-lane bridges on highways IRC 5 / MORTH require crash barriers; choose the crash barrier edge if applicable.');
+    if ((isD || (isCulvert && p.carriageway >= 7.0)) && p.edgeType !== 'crash') warnings.push('For two-lane bridges and culverts on highways IRC 5 / MORTH require crash barriers; choose the crash barrier edge if applicable.');
 
     // 3. levels
     sec('3. LEVELS');
@@ -817,7 +822,7 @@
     R.assumptions = `Assumptions to confirm at site: SBC ${fmt(p.sbc, 1)} t/sqm, silt factor ${fmt(p.siltFactor, 2)}, backfill phi ${fmt(p.phi, 0)} deg, soil unit weight ${fmt(p.gammaSoil, 2)} t/cum. ${p.frlNote || ''}`;
 
     R.allOk = R.okSoffit && R.okVC && R.okVent && R.okFound && R.okDefl && R.okDepth && R.okAst && R.okShear && R.okDist && R.okAb && R.okStem && R.okPier && R.okWing;
-    const typ = isD ? 'D.L.R.B.' : 'S.L.R.B.';
+    const typ = isCulvert ? 'SLAB CULVERT' : isD ? 'D.L.R.B.' : 'S.L.R.B.';
     R.typ = typ;
     R.title = `DESIGN OF ${typ} AT Km ${p.chainage} OF ${String(p.canalName).toUpperCase()}, ${String(p.location).toUpperCase()}`;
     R.subtitle = `${nV} vent${nV > 1 ? 's' : ''} x ${fmt(p.span, 2)} m clear span RCC solid slab | Carriageway ${fmt(p.carriageway, 2)} m | ${R.vehicles.map((e) => e.veh.name.replace('IRC ', '')).join(' / ')} | ${LSM ? 'IRC 112 LSM' : 'IRC 21 WSM'}`;
@@ -860,6 +865,7 @@
   // Auto design: vents, span, foundation level, deck, abutment, piers, wings.
   function autoDesign(input) {
     const p = Object.assign({}, DEFAULTS, input);
+    if (p.bridgeType === 'CULVERT' && (!input || !input.maxSlabSpan || input.maxSlabSpan > 6)) p.maxSlabSpan = 6.0;
     const log = [];
     let r = design(p);
     if (r.R.ventsSuggested > p.nVents) { p.nVents = r.R.ventsSuggested; log.push(`${p.nVents} vents`); r = design(p); }

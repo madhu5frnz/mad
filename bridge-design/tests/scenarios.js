@@ -15,6 +15,7 @@ const S = {
   'Wide canal, 9 m high, SBC 15': { bridgeType: 'DLRB', carriageway: 7.5, Q: 60, bedWidth: 14, fsd: 2.4, freeBoard: 0.9, frl: 150.8, gl: 149.5, foundationLevel: 142, expectFail: true },
   'Wide canal multi-vent SBC 40': { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30 },
   'Skew 30 deg':                   { skew: 30 },
+  'Slab culvert 4 m (IRC SP:13)':  { bridgeType: 'CULVERT', span: 4.0, carriageway: 7.5, edgeType: 'crash', Q: 8.5, bedWidth: 3.5, fsd: 1.25, cbl: 120, frl: 122.95, gl: 122.2, foundationLevel: 118.5, sbc: 22 },
   'Poor soil SBC 8, phi 25':       { sbc: 8, phi: 25, gammaSoil: 1.9 },
   'No apron, sandy bed f=1.5':     { apron: 'no', siltFactor: 1.5 },
 };

@@ -123,6 +123,20 @@
     km1580: () => Object.assign({}, BD.DEFAULTS, KM1580, { deckAuto: 'no', tempFriction: 'no' }),
     dlrb: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5 })).input,
     general: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, method: 'LSM', fck: 30, fy: 500, scbc: 10, sst: 240, exposure: 'severe', cover: 0.045, edgeType: 'crash', subFck: 20, subAllow: 500, seismicZone: 'III', frlNote: '' })).input,
+    culvert4m: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
+      bridgeType: 'CULVERT', chainage: '3.400', canalName: 'Stream / Nala Crossing', roadType: 'R&B / MDR ROAD',
+      location: 'Suryapet', district: 'Suryapet', span: 4.0, nVents: 1, carriageway: 7.5, edgeType: 'crash',
+      Q: 8.5, bedWidth: 3.5, fsd: 1.25, freeBoard: 0.6, bedFall: 1000, cbl: 120.0, cblExisting: 120.0,
+      frl: 122.95, gl: 122.2, foundationLevel: 118.5, sbc: 22, apron: 'yes',
+      frlNote: 'FRL fixed as per road formation level with 0.60 m freeboard over HFL.'
+    })).input,
+    culvertTwin: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, {
+      bridgeType: 'CULVERT', chainage: '7.850', canalName: 'Peddavagu Stream', roadType: 'STATE HIGHWAY',
+      location: 'Miryalaguda', district: 'Nalgonda', span: 3.0, nVents: 2, carriageway: 7.5, edgeType: 'crash',
+      Q: 14.0, bedWidth: 6.5, fsd: 1.4, freeBoard: 0.6, bedFall: 1200, cbl: 110.0, cblExisting: 110.0,
+      frl: 113.1, gl: 112.5, foundationLevel: 108.2, sbc: 25, apron: 'yes',
+      frlNote: 'Twin vent 2 x 3.0 m slab culvert per IRC SP:13 / MORTH standards.'
+    })).input,
     wide: () => BD.autoDesign(Object.assign({}, BD.DEFAULTS, { bridgeType: 'DLRB', carriageway: 7.5, edgeType: 'crash', Q: 30, bedWidth: 10, fsd: 1.8, freeBoard: 0.75, cbl: 145, cblExisting: 145, frl: 148.8, gl: 148, foundationLevel: 142.5, sbc: 40, phi: 30, chainage: '12.300', canalName: 'Main Canal', frlNote: '' })).input,
   };
 
@@ -393,7 +407,7 @@
       set('distSpacing', 'Auto: widest spacing passing distribution check');
     }
     if (!R.okSoffit) set('frl', `Soffit below TBL – FRL ≥ +${fmt(R.frlMin)} <button data-use="frl" data-val="${R.frlMin.toFixed(3)}">use</button>`);
-    set('carriageway', state.bridgeType === 'DLRB' ? 'IRC 5: 7.50 m two-lane' : 'IRC 5: 4.25 m single lane');
+    set('carriageway', state.carriageway >= 7.0 ? 'IRC 5: 7.50 m two-lane' : state.carriageway >= 5.5 ? 'IRC 5: 5.50 m intermediate' : 'IRC 5: 4.25 m single lane');
   }
 
   function renderReport() {
@@ -468,7 +482,7 @@
 
   const sheets = () => (mode === 'ut' ? UT.sheets(cur) : [BD.sheet1(cur), BD.sheet2(cur)]);
   // ---------------------------------------------------------------- downloads
-  const fileBase = () => `${cur.R.typ.replace(/\./g, '')}_Km${String(state.chainage).replace('.', '')}`;
+  const fileBase = () => `${cur.R.typ.replace(/[\.\s]+/g, '_')}_Km${String(state.chainage).replace('.', '')}`;
   // Runs an export; libraries load deferred, so wait for them briefly.
   function exporter(libs, fn, label) {
     return async (ev) => {
@@ -490,9 +504,21 @@
     wireForm(); setMode(mode); fillForm();
     document.querySelectorAll('.type-switch button').forEach((b) => b.addEventListener('click', () => {
       if (b.dataset.type === 'UT') { if (mode === 'ut') return; setMode('ut'); fillForm(); run(); return; }
-      if (mode === 'ut') setMode('bridge');
-      else if (state.bridgeType === b.dataset.type) return;
-      if (state.bridgeType !== b.dataset.type) { state.bridgeType = b.dataset.type; state.carriageway = BD.CARRIAGEWAY[state.bridgeType]; }
+      const wasUT = (mode === 'ut');
+      if (wasUT) {
+        setMode('bridge');
+      } else if (state.bridgeType === b.dataset.type) {
+        return;
+      }
+      if (state.bridgeType !== b.dataset.type) {
+        state.bridgeType = b.dataset.type;
+        state.carriageway = BD.CARRIAGEWAY[state.bridgeType] || 7.5;
+        if (b.dataset.type === 'CULVERT') {
+          if (!state.span || state.span > 6.0) state.span = 4.0;
+          if (!state.canalName || state.canalName.includes('Minor')) state.canalName = 'Stream / Drain Crossing';
+          if (state.roadType === 'C.T ROAD') state.roadType = 'R&B / MDR ROAD';
+        }
+      }
       fillForm(); run();
     }));
     document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {

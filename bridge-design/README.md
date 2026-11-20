@@ -1,9 +1,9 @@
-# SLRB / DLRB / UT Design Generator
+# SLRB / DLRB / SLAB CULVERT / UT Design Generator
 
-A browser app that takes the **Hydraulic Particulars (HPs)** of a canal and
-produces the complete design of a **Single Lane (S.L.R.B.)** or **Double Lane
-(D.L.R.B.) Road Bridge** across it, or of an **Under Tunnel (U.T.)** taking a
-drain beneath it, in the format of the I&CAD department reference packages
+A browser app that takes the **Hydraulic Particulars (HPs)** of a canal or stream and
+produces the complete design of a **Single Lane (S.L.R.B.)**, **Double Lane
+(D.L.R.B.) Road Bridge**, **RCC Slab Culvert (IRC SP:13)** across it, or of an **Under Tunnel (U.T.)** taking a
+drain beneath it, in the format of the I&CAD / R&B department reference packages
 (SLRB @ Km 0.450 / Km 1.580, L-1 Minor of Perur Major; UT @ Km 25.615):
 
 | Output | Contents | Formats |
@@ -23,11 +23,12 @@ server needed; the Excel / PDF / zip libraries are bundled in `vendor/`.
 `node tools/build-artifact.js` packs the app into the single file
 `dist/bridge-design.html` (libraries from cdn.jsdelivr.net) for hosting.
 
-1. Choose **S.L.R.B.** or **D.L.R.B.** at the top.
+1. Choose **S.L.R.B.**, **D.L.R.B.**, or **SLAB CULVERT** at the top.
 2. Enter the HPs (Q, bed width, FSD, side slope, free board, bed fall, CBL),
    the road level (FRL), ground level and foundation level.
+   For **Slab Culverts**, clear spans are typically 1.0 m to 6.0 m per IRC:SP:13 / IRC 5.
    The clear span and foundation level are **suggested** from the HPs
-   (span = canal top width at FSL rounded up to 0.5 m; foundation from the
+   (span = top width at FSL/HFL rounded up to 0.5 m; foundation from the
    IRC 78 scour / IRC SP:13 apron criteria) — click **use** to accept.
 3. Every check shows OK / REVISE live. **Auto design** sizes the deck
    (thickness, bar dia & spacing), abutment and wing walls to pass all checks.

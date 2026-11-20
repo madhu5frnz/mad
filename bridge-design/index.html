@@ -14,9 +14,9 @@
 <body>
 
 <header class="nav">
-  <a class="brand" href="#top" aria-label="SLRB / DLRB Design Generator, top of page">
+  <a class="brand" href="#top" aria-label="SLRB / DLRB / Culvert / UT Design Generator, top of page">
     <svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" class="m-bg"/><path d="M4 11h24v4H4z" class="m-deck"/><path d="M8 15h4l-1 11H6zM20 15h4l2 11h-5z" class="m-abut"/><path d="M12 24h8l-2-4h-4z" class="m-water"/></svg>
-    <span>SLRB<b>/</b>DLRB<b>/</b>UT <em>Design Generator</em></span>
+    <span>SLRB<b>/</b>DLRB<b>/</b>CULVERT<b>/</b>UT <em>Design Generator</em></span>
   </a>
   <nav class="nav-links" aria-label="Page sections">
     <a href="#how">How it works</a>
@@ -32,9 +32,9 @@
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="dot"></span>I &amp; CAD · Irrigation canal crossings</p>
-      <h1>Canal crossings, <span class="grad">designed from the HPs.</span></h1>
-      <p class="lead">Road bridges over the canal, or an under tunnel taking a drain beneath it. Type the hydraulic particulars and get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC / IS codes as you type.</p>
+      <p class="eyebrow"><span class="dot"></span>I &amp; CAD · Road Bridges &amp; Crossings</p>
+      <h1>Canal &amp; Road Crossings, <span class="grad">designed from the HPs.</span></h1>
+      <p class="lead">Road bridges (SLRB / DLRB), RCC slab culverts across streams, or under tunnels (U.T.) taking drains beneath canals. Type the hydraulic particulars and get the full design calculation, two A2 drawing sheets and the estimate in the department format, checked to IRC / IS codes as you type.</p>
 
       <div class="type-switch" role="radiogroup" aria-label="Structure type">
         <button type="button" data-type="SLRB" class="active" role="radio" id="type-slrb">
@@ -44,6 +44,10 @@
         <button type="button" data-type="DLRB" role="radio" id="type-dlrb">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 8h60v5H2z"/><path class="lane" d="M6 5h22M36 5h22"/><path d="M10 13h6l-2 13H8zM48 13h6l2 13h-8z"/></svg>
           <span><b>D.L.R.B.</b><small>Two lane · 7.50 m</small></span>
+        </button>
+        <button type="button" data-type="CULVERT" role="radio" id="type-culvert">
+          <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 9h60v4H2z"/><path class="lane" d="M12 6h40"/><path d="M12 13h5l-1 12h-5zM47 13h5l1 12h-5z"/><path d="M16 23h32v2H16z" opacity=".6"/></svg>
+          <span><b>SLAB CULVERT</b><small>Road / Stream · 1–6 m</small></span>
         </button>
         <button type="button" data-type="UT" role="radio" id="type-ut">
           <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M2 2h60v3H2z" opacity=".55"/><path d="M18 12h28v14H18zM22 15v8h20v-8z" fill-rule="evenodd"/><path class="lane" d="M2 19h16M46 19h16"/></svg>
@@ -63,6 +67,8 @@
             <option value="km1580">SLRB Km 1.580 (reference)</option>
             <option value="dlrb">DLRB, same canal, 7.5 m</option>
             <option value="general">DLRB, current codes (IRC 112, M30, crash barrier, Zone III)</option>
+            <option value="culvert4m">Slab Culvert 1 x 4.0 m (IRC SP:13 / 7.5 m road)</option>
+            <option value="culvertTwin">Slab Culvert 2 x 3.0 m (IRC SP:13 twin vent)</option>
             <option value="wide">Wide canal, 2 vents with pier (Q 30 cumecs)</option>
             <option value="ut25615">U.T. Km 25.615 (department workbook data)</option>
           </select>
