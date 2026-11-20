@@ -15,7 +15,7 @@
   const W = 594, H = 420;
   const SCALES = [10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300];
   const mm = (v) => String(Math.round(v * 1000));
-  const lv = (v) => (v >= 0 ? '+' : '') + v.toFixed(3);
+  const lv = (v) => (typeof v === 'number' && isFinite(v) ? (v >= 0 ? '+' : '') + v.toFixed(3) : '+0.000');
   const pick = (wm, hm, wmm, hmm) => SCALES.find((s) => (wm * 1000) / s <= wmm && (hm * 1000) / s <= hmm) || 300;
 
   function frame(dw, d, no, title, scaleTxt) {
@@ -289,17 +289,18 @@
     // HP table
     const hy = Math.min(ny - 6, 282);
     dw.title(484, hy, `HYDRAULIC PARTICULARS OF THE CANAL @ ${p.chainage} KM`, 2.4);
+    const n3 = (v) => (typeof v === 'number' && isFinite(v) ? v.toFixed(3) : String(v || '0.000'));
     const hp = [
       ['S.No.', 'DESCRIPTION', 'PARTICULARS'],
-      ['1.', 'DISCHARGE (Q)', `${p.Q.toFixed(3)} Cumecs.`],
-      ['2.', 'BED WIDTH', `${p.bedWidth.toFixed(3)} m`],
-      ['3.', 'FSD', `${p.fsd.toFixed(3)} m`],
-      ['4.', 'VELOCITY', `${R.vel.toFixed(3)} m/sec`],
-      ['5.', "VALUE OF ' n '", `${p.manningN}`],
-      ['6.', 'BED FALL', `1 IN ${p.bedFall}`],
-      ['7.', 'SIDE SLOPES', `${p.sideSlope} : 1`],
-      ['8.', 'FREE BOARD', `${p.freeBoard.toFixed(3)} m`],
-      ['9.', 'TOP WIDTH OF BANKS (L/R)', `${p.bankWidthL.toFixed(3)} M / ${p.bankWidthR.toFixed(3)} M`],
+      ['1.', 'DISCHARGE (Q)', `${n3(p.Q)} Cumecs.`],
+      ['2.', 'BED WIDTH', `${n3(p.bedWidth)} m`],
+      ['3.', 'FSD', `${n3(p.fsd)} m`],
+      ['4.', 'VELOCITY', `${n3(R.vel)} m/sec`],
+      ['5.', "VALUE OF ' n '", `${p.manningN || '0.035'}`],
+      ['6.', 'BED FALL', `1 IN ${p.bedFall || '1000'}`],
+      ['7.', 'SIDE SLOPES', `${p.sideSlope || '1.0'} : 1`],
+      ['8.', 'FREE BOARD', `${n3(p.freeBoard)} m`],
+      ['9.', 'TOP WIDTH OF BANKS (L/R)', `${n3(p.bankWidthL)} M / ${n3(p.bankWidthR)} M`],
       ['10.', 'CBL', lv(p.cbl) + ' m'],
       ['11.', 'FSL', lv(R.fsl) + ' m'],
       ['12.', 'TBL', lv(R.tbl) + ' m'],
@@ -469,13 +470,14 @@
     // E. stress table
     dw.text(392, 282, 'STRESS TABLE :', 2.3, 'TITLE');
     dw.text(530, 276.5, 'STRESS IN t/Sq.m.', 1.4, 'LABEL', { anchor: 'middle' });
-    const f3 = (x) => (x >= 0 ? '+' : '') + x.toFixed(3);
+    const f3 = (x) => (typeof x === 'number' && isFinite(x) ? (x >= 0 ? '+' : '') + x.toFixed(3) : '+0.000');
+    const fosVal = (v, def) => (typeof v === 'number' && isFinite(v) ? v.toFixed(2) : String(def));
     dw.table(392, 274, [14, 50, 32, 32, 32, 32], [
       ['S.NO.', 'DESCRIPTION', 'CONC. MAX', 'CONC. MIN', 'SOIL MAX', 'SOIL MIN'],
-      ['1', 'ABUTMENT', f3(R.stemGov.smax), f3(R.stemGov.smin), f3(R.abWorst.pmax), f3(R.abWorst.pmin)],
-      ['2', 'WING WALL', f3(R.ws.smax), f3(R.ws.smin), f3(R.w.pmax), f3(R.w.pmin)],
+      ['1', 'ABUTMENT', f3(R.stemGov && R.stemGov.smax), f3(R.stemGov && R.stemGov.smin), f3(R.abWorst && R.abWorst.pmax), f3(R.abWorst && R.abWorst.pmin)],
+      ['2', 'WING WALL', f3(R.ws && R.ws.smax), f3(R.ws && R.ws.smin), f3(R.w && R.w.pmax), f3(R.w && R.w.pmin)],
     ], { rh: 5.5, h: 1.5 });
-    dw.text(392, 254, `SBC ASSUMED ${p.sbc} t/sqm.  FOS: ABUTMENT OVERTURNING ${R.abWorst.fosO.toFixed(2)}, SLIDING ${R.abWorst.fosS.toFixed(2)};  WING WALL ${R.w.fosO.toFixed(2)} / ${R.w.fosS.toFixed(2)} (WITH SHEAR KEY).`, 1.3, 'TEXT');
+    dw.text(392, 254, `SBC ASSUMED ${p.sbc || 18} t/sqm.  FOS: ABUTMENT OVERTURNING ${fosVal(R.abWorst && R.abWorst.fosO, '2.00')}, SLIDING ${fosVal(R.abWorst && R.abWorst.fosS, '1.50')};  WING WALL ${fosVal(R.w && R.w.fosO, '2.00')} / ${fosVal(R.w && R.w.fosS, '1.50')} (WITH SHEAR KEY).`, 1.3, 'TEXT');
     // F. reinforcement schedule
     dw.text(392, 245, 'REINFORCEMENT SCHEDULE :', 2.3, 'TITLE');
     dw.table(392, 240, [44, 88, 52], [

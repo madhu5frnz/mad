@@ -16,9 +16,10 @@ const title = html.match(/<title>[\s\S]*?<\/title>/)[0];
 const fonts = (html.match(/<link rel="(preconnect|stylesheet)" href="https:\/\/fonts[^>]*>/g) || []).join('\n');
 let body = html.slice(html.indexOf('<body>') + 6, html.indexOf('</body>'));
 body = body.replace(/<script src="([^"]+)"( defer)?><\/script>/g, (m, src) => {
-  if (CDN[src]) return `<script src="${CDN[src]}"></script>`;
+  const file = src.split('?')[0];
+  if (CDN[file]) return `<script src="${CDN[file]}"></script>`;
   // keep "</script" out of inlined code
-  return `<script>\n${read(src).replace(/<\/script/gi, '<\\/script')}\n</script>`;
+  return `<script>\n${read(file).replace(/<\/script/gi, '<\\/script')}\n</script>`;
 });
 const out = `${title}\n${fonts}\n<style>\n${read('css/style.css')}\n</style>\n${body.trim()}\n`;
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
